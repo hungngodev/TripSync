@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 // ignore: must_be_immutable
-class Location extends StatelessWidget{
+class Location extends StatelessWidget {
   final String location;
   Function(BuildContext)? deleteFunction;
 
@@ -13,13 +13,12 @@ class Location extends StatelessWidget{
   });
 
   @override
-  Widget build(BuildContext context){
-    return 
-      Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Slidable(
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Slidable(
         endActionPane: ActionPane(
-          motion: StretchMotion(),
+          motion: const StretchMotion(),
           children: [
             SlidableAction(
               onPressed: deleteFunction,
@@ -29,23 +28,19 @@ class Location extends StatelessWidget{
             )
           ],
         ),
-
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Row(
-            children: [
-              Text( 
-                location,
-                style: TextStyle(color: Colors.white),
-              )
-            ]
-          ),
+          child: Row(children: [
+            Text(
+              location,
+              style: const TextStyle(color: Colors.white),
+            )
+          ]),
         ),
-
       ),
     );
   }
