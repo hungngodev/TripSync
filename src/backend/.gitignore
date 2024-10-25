@@ -1,0 +1,14 @@
+.env
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# SQLite database files
+*.sqlite3
+
+# Virtual environment
+venv/
+env/
+
+# Django secret keys
+*.env
