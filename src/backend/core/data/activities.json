@@ -1,0 +1,107 @@
+[
+  {
+    "id": "1",
+    "location": "Boston",
+    "category": "hotel",
+    "description": "A luxury hotel located in downtown Boston with stunning views of the city.",
+    "sourceLink": "https://www.example.com/hotel1"
+  },
+  {
+    "id": "2",
+    "location": "Boston",
+    "category": "restaurant",
+    "description": "A popular Italian restaurant known for its handmade pasta and cozy atmosphere.",
+    "sourceLink": "https://www.example.com/restaurant1"
+  },
+  {
+    "id": "3",
+    "location": "Boston",
+    "category": "entertainment",
+    "description": "An iconic music venue that hosts a variety of live performances and events.",
+    "sourceLink": "https://www.example.com/entertainment1"
+  },
+  {
+    "id": "4",
+    "location": "Boston",
+    "category": "hotel",
+    "description": "A boutique hotel featuring modern decor and an on-site spa.",
+    "sourceLink": "https://www.example.com/hotel2"
+  },
+  {
+    "id": "5",
+    "location": "Boston",
+    "category": "restaurant",
+    "description": "A farm-to-table restaurant offering seasonal dishes made with local ingredients.",
+    "sourceLink": "https://www.example.com/restaurant2"
+  },
+  {
+    "id": "6",
+    "location": "Boston",
+    "category": "entertainment",
+    "description": "A historical theater showcasing Broadway shows and other performances.",
+    "sourceLink": "https://www.example.com/entertainment2"
+  },
+  {
+    "id": "7",
+    "location": "Amherst",
+    "category": "hotel",
+    "description": "A quaint bed and breakfast located in the heart of Amherst.",
+    "sourceLink": "https://www.example.com/hotel3"
+  },
+  {
+    "id": "8",
+    "location": "Amherst",
+    "category": "restaurant",
+    "description": "A family-owned diner famous for its homemade pies and breakfast options.",
+    "sourceLink": "https://www.example.com/restaurant3"
+  },
+  {
+    "id": "9",
+    "location": "Amherst",
+    "category": "entertainment",
+    "description": "A local theater featuring independent films and community events.",
+    "sourceLink": "https://www.example.com/entertainment3"
+  },
+  {
+    "id": "10",
+    "location": "Boston",
+    "category": "hotel",
+    "description": "A historic hotel with classic architecture and luxurious accommodations.",
+    "sourceLink": "https://www.example.com/hotel4"
+  },
+  {
+    "id": "11",
+    "location": "Boston",
+    "category": "restaurant",
+    "description": "A seafood restaurant known for its fresh catches and waterfront views.",
+    "sourceLink": "https://www.example.com/restaurant4"
+  },
+  {
+    "id": "12",
+    "location": "Boston",
+    "category": "entertainment",
+    "description": "A contemporary art museum featuring rotating exhibitions and installations.",
+    "sourceLink": "https://www.example.com/entertainment4"
+  },
+  {
+    "id": "13",
+    "location": "Amherst",
+    "category": "hotel",
+    "description": "A modern hotel offering comfortable rooms and a complimentary breakfast.",
+    "sourceLink": "https://www.example.com/hotel5"
+  },
+  {
+    "id": "14",
+    "location": "Amherst",
+    "category": "restaurant",
+    "description": "An upscale restaurant with a diverse menu featuring international cuisine.",
+    "sourceLink": "https://www.example.com/restaurant5"
+  },
+  {
+    "id": "15",
+    "location": "Amherst",
+    "category": "entertainment",
+    "description": "A local art gallery showcasing works from regional artists.",
+    "sourceLink": "https://www.example.com/entertainment5"
+  }
+]
