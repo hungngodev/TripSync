@@ -1,10 +1,30 @@
 from rest_framework import serializers
-from .models import Traveller, Activity, Calendar, ChosenActivity
+from .models import Activity, Calendar, ChosenActivity
+from django.contrib.auth.models import User
+from rest_framework.validators import UniqueTogetherValidator
 
-class TravellerSerializer(serializers.ModelSerializer):
+
+class UserSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
     class Meta:
-        model = Traveller
-        fields = ['id', 'username', 'password']
+        model = User
+        fields = (
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+        )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=['username', 'email']
+            )
+        ]
 
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
