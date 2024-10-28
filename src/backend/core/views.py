@@ -4,51 +4,40 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 from .models import Traveller, Activity, Calendar, ChosenActivity
 from .serializers import TravellerSerializer, ActivitySerializer, CalendarSerializer, ChosenActivitySerializer
+from rest_framework import status
+from rest_framework.permissions import IsAdminUser
+from .models import Traveller  # Import the Traveller model
 
 class TravellerViewSet(viewsets.ModelViewSet):
-    queryset = Traveller.objects.all()
-    serializer_class = TravellerSerializer
+    """
+    API View to create or get a list of all registered travellers.
+    A GET request returns the registered travellers,
+    while a POST request allows creating a new traveller.
+    """
+    permission_classes = [IsAdminUser]
+    queryset = Traveller.objects.all()  # Define the queryset
+    serializer_class = TravellerSerializer 
 
-    def list(self, request):
-        travellers = self.queryset
-        serializer = self.get_serializer(travellers, many=True)
+    def get(self, request, format=None):
+        travellers = Traveller.objects.all()  # Fetch all Traveller instances
+        serializer = TravellerSerializer(travellers, many=True)  # Use TravellerSerializer
         return Response(serializer.data)
 
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            traveller = serializer.save()
-            return Response(self.get_serializer(traveller).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def retrieve(self, request, pk=None):
-        traveller = self.get_object()
-        serializer = self.get_serializer(traveller)
-        return Response(serializer.data)
-
-    def update(self, request, pk=None):
-        traveller = self.get_object()
-        serializer = self.get_serializer(traveller, data=request.data)
-        if serializer.is_valid():
-            updated_traveller = serializer.save()
-            return Response(self.get_serializer(updated_traveller).data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def partial_update(self, request, pk=None):
-        traveller = self.get_object()
-        serializer = self.get_serializer(traveller, data=request.data, partial=True)
-        if serializer.is_valid():
-            updated_traveller = serializer.save()
-            return Response(self.get_serializer(updated_traveller).data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def destroy(self, request, pk=None):
-        traveller = self.get_object()
-        traveller.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
+    def post(self, request):
+        serializer = TravellerSerializer(data=request.data)  # Use TravellerSerializer for POST
+        if serializer.is_valid(raise_exception=True):  # Validate and raise an exception if invalid
+            user = serializer.save()  # Save the validated data, creating a Traveller instance
+            return Response(
+                TravellerSerializer(user).data,  # Serialize the newly created traveller
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {
+                "error": True,
+                "error_msg": serializer.errors,  # Return validation errors
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
 class ActivityViewSet(viewsets.ModelViewSet):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all()

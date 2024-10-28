@@ -2,24 +2,23 @@ from django.core.management.base import BaseCommand
 from core.models import Traveller
 from core.models import Activity, Calendar, ChosenActivity
 from datetime import date, timedelta
+import json
+import random
 
 class Command(BaseCommand):
     help = 'Populate the database with fake data'
 
     def handle(self, *args, **kwargs):
         # Fake Data for Travellers
-        travellers = [
-            {"username": "john_doe", "password": "password123"},
-            {"username": "jane_smith", "password": "securePass!"},
-            {"username": "mike_jones", "password": "myP@ssw0rd"},
-        ]
+        Traveller.objects.create(username='john_doe', password='password123', email='john@example.com', first_name='John', last_name='Doe', is_active=True, is_staff=False)
+        Traveller.objects.create(username='jane_smith', password='password123', email='jane@example.com', first_name='Jane', last_name='Smith', is_active=True, is_staff=False)
+        Traveller.objects.create(username='admin_user', password='adminpass', email='admin@example.com', first_name='Admin', last_name='User', is_active=True, is_staff=True, is_superuser=True)
 
+        # Check if users are created
+        travellers = Traveller.objects.all()
         for traveller in travellers:
-            t = Traveller(username=traveller['username'])
-            t.set_password(traveller['password'])  # Hash the password
-            t.save()
-
-        # Fake Data for Activities
+            print(traveller.username, traveller.email)
+                # Fake Data for Activities
         activities = [
             {
                 "location": "Grand Canyon",
@@ -60,6 +59,28 @@ class Command(BaseCommand):
             c = Calendar(user=calendar['user'], name=calendar['name'])
             c.save()
 
+        file_path = 'core/data/activities.json'  # Change this if necessary
+
+        try:
+            with open(file_path) as f:
+                activities = json.load(f)
+                for activity in activities:
+                    Activity.objects.create(
+                        id=int(activity['id']) + random.randint(100, 1000),
+                        location=activity['location'],
+                        category=activity['category'],
+                        description=activity['description'],
+                        source_link=activity['sourceLink']
+                    )
+            self.stdout.write(self.style.SUCCESS('Successfully loaded activities'))
+        except FileNotFoundError:
+            self.stdout.write(self.style.ERROR(f'File not found: {file_path}'))
+        except json.JSONDecodeError:
+            self.stdout.write(self.style.ERROR('Failed to decode JSON. Please check the file format.'))
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'An error occurred: {str(e)}'))
+
+
         # Fake Data for ChosenActivities
         chosen_activities = [
             {
@@ -89,4 +110,5 @@ class Command(BaseCommand):
             ca.save()
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database with fake data.'))
+        
 
