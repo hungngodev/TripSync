@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import '../services/openai/gpt_service.dart';
+// import '../services/openai/gpt_service.dart';
+import '../services/django/api_service.dart';
 import '../util/keyword.dart';
 import './/util/location.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,18 +18,22 @@ class _Home extends State<Home> {
   TextEditingController locationController = TextEditingController();
   TextEditingController stateController = TextEditingController();
   TextEditingController keywordController = TextEditingController();
+  final ApiService apiService = ApiService();
+  List<dynamic> data = [];
 
-  String? response;
-
-  List locations = ["Amherst, MA", "Los Angeles, CA"];
-  List keywords = ["outdoor", "museum"];
+  List<Map<String, dynamic>> selectedActivities = [];
+  List<String> locations = [];
+  List<String> keywords = ["outdoor", "museum"];
 
   void addLocation() {
     String location = locationController.text;
     String state = stateController.text;
-    if (location.isNotEmpty && state.isNotEmpty) {
+    if (location.isNotEmpty &&
+        state.isNotEmpty &&
+        !locations.contains(location)) {
       setState(() {
-        locations.add("$location, $state");
+        // locations.add("$location, $state");
+        locations = [location];
       });
     }
   }
@@ -51,145 +59,310 @@ class _Home extends State<Home> {
     });
   }
 
+// Update addActivity function
+  void addActivity(Map<String, dynamic> activity) {
+    // Check for duplication using the ID (assuming 'id' is the key for the unique identifier)
+    if (!selectedActivities
+        .any((selected) => selected['id'] == activity['id'])) {
+      setState(() {
+        selectedActivities.add(activity);
+      });
+    } else {
+      // Optionally show a message that the activity is already added
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Activity "${activity['description']}" is already added!')),
+      );
+    }
+  }
+
+  void deleteActivity(int index) {
+    setState(() {
+      selectedActivities.removeAt(index);
+    });
+  }
+
+  void clearActivities() {
+    setState(() {
+      selectedActivities.clear();
+    });
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: const Text('Traveling Suggestion',
-              style: TextStyle(color: Colors.white)),
-          elevation: 0,
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: locations.length,
-                itemBuilder: (context, index) {
-                  return Location(
-                      location: locations[index],
-                      deleteFunction: (context) => deleteLocation(index));
-                },
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text('Traveling Suggestion',
+            style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.black,
               ),
-              Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Container(
-                      padding: const EdgeInsets.all(24),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: locationController,
-                              maxLines: 1,
-                              decoration: const InputDecoration(
-                                labelText: "Location",
-                                hintText: "Enter your Location here",
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: stateController,
-                              maxLines: 1,
-                              decoration: const InputDecoration(
-                                labelText: "State",
-                                hintText: "Enter your State here",
-                              ),
-                            ),
-                          )
-                        ],
-                      ))),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
+              child: Text(
+                'Your Selected Activities',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ...selectedActivities.map((activity) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
                 child: ElevatedButton(
-                    style: ButtonStyle(
-                        padding: WidgetStateProperty.all(
-                            const EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 20)),
-                        backgroundColor: WidgetStateProperty.all(Colors.black)),
-                    onPressed: addLocation,
-                    child: const Text(
-                      'Add Location',
-                      style: TextStyle(color: Colors.white),
-                    )),
-              ),
-              SizedBox(
-                  height: 110,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemCount: keywords.length,
-                      itemBuilder: (context, index) {
-                        return Keyword(
-                            keyword: keywords[index],
-                            deleteFunction: () => deleteKeyword(index));
-                      })),
-              Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Container(
-                      padding: const EdgeInsets.all(24),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: keywordController,
-                              maxLines: 1,
-                              decoration: const InputDecoration(
-                                labelText: "Keyword",
-                                hintText: "Enter a keyword for your holiday.",
-                              ),
-                            ),
-                          ),
-                        ],
-                      ))),
-              ElevatedButton(
-                  style: ButtonStyle(
-                      padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 20)),
-                      backgroundColor: WidgetStateProperty.all(Colors.black)),
-                  onPressed: addKeyword,
-                  child: const Text(
-                    'Add Keywords',
-                    style: TextStyle(color: Colors.white),
-                  )),
-              Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Container(
-                    child: Text(
-                      response ?? "",
-                      style: const TextStyle(
-                        color: Colors.black,
+                  onPressed: () {
+                    // Define action when the button is pressed
+                    print("Selected activity: $activity");
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[800],
+                      foregroundColor: Colors.white),
+                  child: Text('${activity['id']} ' + activity['location'],
+                      style: const TextStyle(color: Colors.white)),
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: locations.length,
+              itemBuilder: (context, index) {
+                return Location(
+                  location: locations[index],
+                  deleteFunction: (context) => deleteLocation(index),
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: locationController,
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                          labelText: "Location",
+                          hintText: "Enter your Location here",
+                        ),
                       ),
                     ),
-                  )),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        padding: WidgetStateProperty.all(
-                            const EdgeInsets.symmetric(
-                                horizontal: 70, vertical: 20)),
-                        backgroundColor: WidgetStateProperty.all(Colors.black)),
-                    onPressed: () async {
-                      String places = locations.join(',');
-                      String keys = keywords.join(',');
-                      String message =
-                          "Could you suggest a place that is in the middle of these locations: $places to go on a holiday for a group of friends, taking into account these keywords: $keys ?Also include some destinations to visit at the suggested place.";
-                      response = await GPTService().request(message);
-                      setState(() {});
+                    Expanded(
+                      child: TextFormField(
+                        controller: stateController,
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                          labelText: "State",
+                          hintText: "Enter your State here",
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: addLocation,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                ),
+                child: const Text(
+                  'Set Location',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 110,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemCount: keywords.length,
+                itemBuilder: (context, index) {
+                  return Keyword(
+                    keyword: keywords[index],
+                    deleteFunction: () => deleteKeyword(index),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: keywordController,
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                          labelText: "Keyword",
+                          hintText: "Enter a keyword for your holiday.",
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: addKeyword,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+              ),
+              child: const Text(
+                'Add Keywords',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: () async {
+                  String places = locations.join(',');
+                  String keys = keywords.join(',');
+                  try {
+                    List<dynamic> fetchData = await apiService.getData(
+                      'activities',
+                      queryParameters: {
+                        'location': places,
+                        'keywords': keys,
+                      },
+                    );
+                    setState(() {
+                      data = fetchData;
+                    });
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                ),
+                child: const Text(
+                  "Submit",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      final item = data[index];
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        elevation: 5,
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item['category'].toString().toUpperCase(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                item['description'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Location: ${item['location']}',
+                                    style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () =>
+                                        _launchURL(item['source_link']),
+                                    child: const Text(
+                                      'Visit Source',
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              // Add button to the Card
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Call the function to add the item to the cart
+                                    addActivity(item);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.deepPurple,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Add'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
                     },
-                    child: const Text(
-                      "Submit",
-                      style: TextStyle(color: Colors.white, fontSize: 20),
-                    )),
-              )
-            ],
-          ),
-        ));
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

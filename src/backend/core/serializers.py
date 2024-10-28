@@ -1,10 +1,31 @@
 from rest_framework import serializers
 from .models import Traveller, Activity, Calendar, ChosenActivity
 
+from rest_framework import serializers
+from .models import Traveller  # Use your custom model
+
 class TravellerSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        user = Traveller.objects.create_user(**validated_data)
+        return user
+
     class Meta:
         model = Traveller
-        fields = ['id', 'username', 'password']
+        fields = (
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+        )
+        extra_kwargs = {'password': {'write_only': True}}
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Traveller.objects.all(),
+                fields=['username', 'email']
+            )
+        ]
+
 
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
