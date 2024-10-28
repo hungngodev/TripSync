@@ -1,17 +1,16 @@
 from rest_framework import serializers
-from .models import Activity, Calendar, ChosenActivity
-from django.contrib.auth.models import User
-from rest_framework.validators import UniqueTogetherValidator
+from .models import Traveller, Activity, Calendar, ChosenActivity
 
+from rest_framework import serializers
+from .models import Traveller  # Use your custom model
 
-class UserSerializer(serializers.ModelSerializer):
-
+class TravellerSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
+        user = Traveller.objects.create_user(**validated_data)
         return user
 
     class Meta:
-        model = User
+        model = Traveller
         fields = (
             'username',
             'first_name',
@@ -19,12 +18,14 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'password',
         )
+        extra_kwargs = {'password': {'write_only': True}}
         validators = [
-            UniqueTogetherValidator(
-                queryset=User.objects.all(),
+            serializers.UniqueTogetherValidator(
+                queryset=Traveller.objects.all(),
                 fields=['username', 'email']
             )
         ]
+
 
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
