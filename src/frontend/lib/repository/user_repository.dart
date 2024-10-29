@@ -11,8 +11,11 @@ class UserRepository {
     required String username,
     required String password,
   }) async {
+    print('Authenticating...');
     UserLogin userLogin = UserLogin(username: username, password: password);
+    print('UserLogin: $userLogin');
     Token token = await getToken(userLogin);
+    print('Token: $token');
     User user = User(
       id: 0,
       username: username,
