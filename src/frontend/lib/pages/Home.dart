@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 // import '../services/openai/gpt_service.dart';
 import '../services/django/api_service.dart';
 import '../util/keyword.dart';
 import './/util/location.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
