@@ -24,8 +24,8 @@ class HomePage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(34.0, 20.0, 0.0, 0.0),
-              child: Container(
+              padding: const EdgeInsets.fromLTRB(34.0, 20.0, 0.0, 0.0),
+              child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.85,
                 height: MediaQuery.of(context).size.width * 0.16,
                 child: ElevatedButton(

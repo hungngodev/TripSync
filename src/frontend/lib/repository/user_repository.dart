@@ -1,8 +1,8 @@
 import 'dart:async';
-import '/model/user_model.dart';
-import '/model/api_model.dart';
-import '/api_connection/api_connection.dart';
-import '/dao/user_dao.dart';
+import '../model/user_model.dart';
+import '../model/api_model.dart';
+import '../api_connection/api_connection.dart';
+import '../dao/user_dao.dart';
 
 class UserRepository {
   final userDao = UserDao();

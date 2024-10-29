@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../model/api_model.dart';
 
-const _base = "https://home-hub-app.herokuapp.com";
+var _base = dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000/api';
 const _tokenEndpoint = "/api-token-auth/";
-const _tokenURL = _base + _tokenEndpoint;
+var _tokenURL = _base + _tokenEndpoint;
 
 Future<Token> getToken(UserLogin userLogin) async {
   print(_tokenURL);
