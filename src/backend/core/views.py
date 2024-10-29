@@ -2,44 +2,46 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .models import Traveller, Activity, Calendar, ChosenActivity
-from .serializers import TravellerSerializer, ActivitySerializer, CalendarSerializer, ChosenActivitySerializer
+from .models import  Activity, Calendar, ChosenActivity
+from .serializers import  ActivitySerializer, CalendarSerializer, ChosenActivitySerializer
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
-from .models import Traveller  # Import the Traveller model
-from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
+from .serializers import UserSerializer
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+from django.contrib.auth.models import User
 
-class TravellerViewSet(viewsets.ModelViewSet, APIView):
-    """
-    API View to create or get a list of all registered travellers.
-    A GET request returns the registered travellers,
-    while a POST request allows creating a new traveller.
-    """
-    permission_classes = [AllowAny, IsAdminUser]
-    queryset = Traveller.objects.all()  # Define the queryset
-    serializer_class = TravellerSerializer 
 
-    def get(self, request, format=None):
-        travellers = Traveller.objects.all()  # Fetch all Traveller instances
-        serializer = TravellerSerializer(travellers, many=True)  # Use TravellerSerializer
+class UserRecordView(APIView):
+    """
+    API View to create or get a list of all the registered
+    users. GET request returns the registered users whereas
+    a POST request allows to create a new user.
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, format=None):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = TravellerSerializer(data=request.data)  # Use TravellerSerializer for POST
-        if serializer.is_valid(raise_exception=True):  # Validate and raise an exception if invalid
-            user = serializer.save()  # Save the validated data, creating a Traveller instance
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=ValueError):
+            serializer.create(validated_data=request.data)
             return Response(
-                TravellerSerializer(user).data,  # Serialize the newly created traveller
+                serializer.data,
                 status=status.HTTP_201_CREATED
             )
         return Response(
             {
                 "error": True,
-                "error_msg": serializer.errors,  # Return validation errors
+                "error_msg": serializer.error_messages,
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+
 class ActivityViewSet(viewsets.ModelViewSet):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all()
