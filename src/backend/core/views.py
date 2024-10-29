@@ -7,14 +7,16 @@ from .serializers import TravellerSerializer, ActivitySerializer, CalendarSerial
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from .models import Traveller  # Import the Traveller model
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
 
-class TravellerViewSet(viewsets.ModelViewSet):
+class TravellerViewSet(viewsets.ModelViewSet, APIView):
     """
     API View to create or get a list of all registered travellers.
     A GET request returns the registered travellers,
     while a POST request allows creating a new traveller.
     """
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny, IsAdminUser]
     queryset = Traveller.objects.all()  # Define the queryset
     serializer_class = TravellerSerializer 
 
