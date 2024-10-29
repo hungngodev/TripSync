@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Traveling Suggestion',
+      title: 'MA Traveling Suggestion',
       theme: ThemeData(
         useMaterial3: true,
       ),

@@ -103,7 +103,7 @@ class _Home extends State<Home> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text('Traveling Suggestion',
+        title: const Text('MA Traveling Suggestion',
             style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
@@ -123,20 +123,45 @@ class _Home extends State<Home> {
             ),
             ...selectedActivities.map((activity) {
               return Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Define action when the button is pressed
-                    print("Selected activity: $activity");
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[800],
-                      foregroundColor: Colors.white),
-                  child: Text('${activity['id']} ' + activity['location'],
-                      style: const TextStyle(color: Colors.white)),
-                ),
-              );
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 4.0, horizontal: 16.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            activity['id'].toString() +
+                                ' ' +
+                                activity['location'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => deleteActivity(
+                                selectedActivities.indexOf(activity)),
+                            icon: const Icon(Icons.delete),
+                            color: Colors.red,
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+                    ],
+                  )
+
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     print("Selected activity: $activity");
+                  //   },
+                  //   style: ElevatedButton.styleFrom(
+                  //       backgroundColor: Colors.grey[800],
+                  //       foregroundColor: Colors.white),
+                  //   child: Text('${activity['id']} ' + activity['location'],
+                  //       style: const TextStyle(color: Colors.white)),
+                  // ),
+                  );
             }),
           ],
         ),
