@@ -17,5 +17,6 @@ router.register(r'chosen-activities', ChosenActivityViewSet)
 app_name = 'api'
 urlpatterns = [
     path('user/', UserRecordView.as_view(), name='users'),
+    path('user/<int:user_id>/', UserRecordView.as_view(), name='user_detail'),  
     path('', include(router.urls)),
 ]

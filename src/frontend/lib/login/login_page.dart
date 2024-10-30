@@ -16,19 +16,13 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Login | Home Hub'),
       ),
-      body: MultiBlocProvider(
-        providers: [
-          BlocProvider<AuthenticationBloc>(
-            create: (context) =>
-                AuthenticationBloc(userRepository: userRepository),
-          ),
-          BlocProvider<LoginBloc>(
-            create: (context) => LoginBloc(
-              authenticationBloc: context.read<AuthenticationBloc>(),
-              userRepository: userRepository,
-            ),
-          ),
-        ],
+      body: BlocProvider(
+        create: (context) {
+          return LoginBloc(
+            authenticationBloc: BlocProvider.of<AuthenticationBloc>(context),
+            userRepository: userRepository,
+          );
+        },
         child: LoginForm(),
       ),
     );

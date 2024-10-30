@@ -29,6 +29,7 @@ import './bloc/authentication_bloc.dart';
 import './splash/splash.dart';
 import './login/login_page.dart';
 import './home/home.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SimpleBlocObserver extends BlocObserver {
   @override
@@ -50,7 +51,8 @@ class SimpleBlocObserver extends BlocObserver {
   }
 }
 
-void main() {
+void main() async {
+  await dotenv.load(); // Load the .env file
   Bloc.observer = SimpleBlocObserver();
   final userRepository = UserRepository();
 
@@ -79,16 +81,20 @@ class App extends StatelessWidget {
         ),
         home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {
+            print("State: $state");
             // Handle different authentication states
             if (state is AuthenticationUninitialized) {
               return const SplashPage(); // Show splash screen while initializing
             } else if (state is AuthenticationAuthenticated) {
+              print('Authenticated');
               return HomePage(); // Show home page if authenticated
             } else if (state is AuthenticationUnauthenticated) {
+              print('Unauthenticated');
               return LoginPage(
                   userRepository:
                       userRepository); // Show login page if unauthenticated
             } else if (state is AuthenticationLoading) {
+              print('Loading');
               return const Center(
                   child: CircularProgressIndicator()); // Show loading indicator
             }

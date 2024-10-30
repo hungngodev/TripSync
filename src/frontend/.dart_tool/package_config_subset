@@ -62,6 +62,10 @@ http_parser
 2.12
 file:///Users/hung/.pub-cache/hosted/pub.dev/http_parser-4.0.2/
 file:///Users/hung/.pub-cache/hosted/pub.dev/http_parser-4.0.2/lib/
+idb_shim
+3.5
+file:///Users/hung/.pub-cache/hosted/pub.dev/idb_shim-2.6.1+7/
+file:///Users/hung/.pub-cache/hosted/pub.dev/idb_shim-2.6.1+7/lib/
 leak_tracker
 3.2
 file:///Users/hung/.pub-cache/hosted/pub.dev/leak_tracker-10.0.5/
@@ -134,6 +138,14 @@ provider
 2.12
 file:///Users/hung/.pub-cache/hosted/pub.dev/provider-6.1.2/
 file:///Users/hung/.pub-cache/hosted/pub.dev/provider-6.1.2/lib/
+sembast
+3.5
+file:///Users/hung/.pub-cache/hosted/pub.dev/sembast-3.7.5/
+file:///Users/hung/.pub-cache/hosted/pub.dev/sembast-3.7.5/lib/
+sembast_web
+3.5
+file:///Users/hung/.pub-cache/hosted/pub.dev/sembast_web-2.4.0+4/
+file:///Users/hung/.pub-cache/hosted/pub.dev/sembast_web-2.4.0+4/lib/
 source_span
 2.18
 file:///Users/hung/.pub-cache/hosted/pub.dev/source_span-1.10.0/

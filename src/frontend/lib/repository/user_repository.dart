@@ -11,11 +11,8 @@ class UserRepository {
     required String username,
     required String password,
   }) async {
-    print('Authenticating...');
     UserLogin userLogin = UserLogin(username: username, password: password);
-    print('UserLogin: $userLogin');
     Token token = await getToken(userLogin);
-    print('Token: $token');
     User user = User(
       id: 0,
       username: username,
@@ -27,6 +24,7 @@ class UserRepository {
   Future<void> persistToken({required User user}) async {
     // write token with the user to the database
     await userDao.createUser(user);
+    print('Token persisted');
   }
 
   Future<void> deleteToken({required int id}) async {

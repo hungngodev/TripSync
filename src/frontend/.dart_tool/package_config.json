@@ -116,6 +116,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "idb_shim",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/idb_shim-2.6.1+7",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/leak_tracker-10.0.5",
       "packageUri": "lib/",
@@ -222,6 +228,18 @@
       "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/provider-6.1.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "sembast",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/sembast-3.7.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "sembast_web",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/sembast_web-2.4.0+4",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
     },
     {
       "name": "sky_engine",
@@ -386,7 +404,7 @@
       "languageVersion": "3.4"
     }
   ],
-  "generated": "2024-10-29T03:04:13.836509Z",
+  "generated": "2024-10-29T20:26:26.754988Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/hung/flutter",

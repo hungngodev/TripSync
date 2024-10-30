@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../model/api_model.dart';
 
-var _base = dotenv.env['AUTH_URL'] ?? 'http://localhost:8000/';
-const _tokenEndpoint = "/api-token-auth/";
-var _tokenURL = _base + _tokenEndpoint;
+final String _base = dotenv.env['AUTH_URL'] ?? 'http://localhost:8000/';
+const _tokenEndpoint = "api-token-auth/";
+final String _tokenURL = _base + _tokenEndpoint;
 
 Future<Token> getToken(UserLogin userLogin) async {
   print('Getting token...');

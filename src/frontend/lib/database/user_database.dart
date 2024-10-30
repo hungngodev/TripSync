@@ -10,17 +10,19 @@ const userTable = 'userTable';
 class DatabaseProvider {
   static final DatabaseProvider dbProvider = DatabaseProvider();
 
-  late Database _database;
+  Database? _database; // Use nullable type
 
   Future<Database> get database async {
+    // Check if _database has been initialized
     if (_database != null) {
-      return _database;
+      return _database!;
     }
+    // Initialize _database if it hasn't been
     _database = await createDatabase();
-    return _database;
+    return _database!;
   }
 
-  createDatabase() async {
+  Future<Database> createDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "User.db");
 
@@ -33,15 +35,13 @@ class DatabaseProvider {
     return database;
   }
 
-  void onUpgrade(
-    Database database,
-    int oldVersion,
-    int newVersion,
-  ) {
-    if (newVersion > oldVersion) {}
+  void onUpgrade(Database database, int oldVersion, int newVersion) {
+    if (newVersion > oldVersion) {
+      // Handle database upgrade if necessary
+    }
   }
 
-  void initDB(Database database, int version) async {
+  Future<void> initDB(Database database, int version) async {
     await database.execute("CREATE TABLE $userTable ("
         "id INTEGER PRIMARY KEY, "
         "username TEXT, "

@@ -19,29 +19,41 @@ class UserRecordView(APIView):
     users. GET request returns the registered users whereas
     a POST request allows to create a new user.
     """
-    permission_classes = [IsAdminUser]
-
-    def get(self, format=None):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+    # permission_classes = [IsAdminUser]
+    def get(self, request, user_id=None, format=None):
+        if user_id is not None:
+            # Fetch a single user if user_id is provided
+            try:
+                user = User.objects.get(pk=user_id)
+                serializer = UserSerializer(user)
+                return Response(serializer.data)
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "User not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        else:
+            # Fetch all users if no user_id is provided
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=ValueError):
-            serializer.create(validated_data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.create(validated_data=serializer.validated_data)
+            response_data = UserSerializer(user).data
             return Response(
-                serializer.data,
+                response_data,
                 status=status.HTTP_201_CREATED
             )
         return Response(
             {
                 "error": True,
-                "error_msg": serializer.error_messages,
+                "error_msg": serializer.errors,
             },
             status=status.HTTP_400_BAD_REQUEST
         )
-
 class ActivityViewSet(viewsets.ModelViewSet):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all()
