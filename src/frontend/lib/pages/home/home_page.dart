@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import './search_page.dart';
+import './profile_page.dart';
+import './setting_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _NavigationExampleState();
+  State<HomePage> createState() => _HomeState();
 }
 
-class _NavigationExampleState extends State<HomePage> {
+class _HomeState extends State<HomePage> {
   int currentPageIndex = 0;
 
   @override
@@ -40,6 +42,12 @@ class _NavigationExampleState extends State<HomePage> {
             ),
             label: 'Profile',
           ),
+          NavigationDestination(
+            icon: Badge(
+              child: Icon(Icons.settings),
+            ),
+            label: 'Setting',
+          ),
         ],
       ),
       body: <Widget>[
@@ -70,46 +78,8 @@ class _NavigationExampleState extends State<HomePage> {
         ),
 
         /// Messages page
-        ListView.builder(
-          reverse: true,
-          itemCount: 2,
-          itemBuilder: (BuildContext context, int index) {
-            if (index == 0) {
-              return Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text(
-                    'Hello',
-                    style: theme.textTheme.bodyLarge!
-                        .copyWith(color: theme.colorScheme.onPrimary),
-                  ),
-                ),
-              );
-            }
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                margin: const EdgeInsets.all(8.0),
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Text(
-                  'Hi!',
-                  style: theme.textTheme.bodyLarge!
-                      .copyWith(color: theme.colorScheme.onPrimary),
-                ),
-              ),
-            );
-          },
-        ),
+        ProfilePage(),
+        SettingPage()
       ][currentPageIndex],
     );
   }

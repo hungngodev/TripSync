@@ -1,15 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-// import '../services/openai/gpt_service.dart';
 import '../../services/django/api_service.dart';
 import '../../util/keyword.dart';
 import '../../../util/location.dart';
 import '../../bloc/authentication_bloc.dart';
 import '../../bloc/authentication_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -28,6 +24,13 @@ class _Home extends State<SearchPage> {
   List<Map<String, dynamic>> selectedActivities = [];
   List<String> locations = [];
   List<String> keywords = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Call the function to get the data
+    // fetchData();
+  }
 
   void addLocation() {
     String location = locationController.text;

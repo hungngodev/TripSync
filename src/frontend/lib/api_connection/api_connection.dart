@@ -28,3 +28,18 @@ Future<Map<String, dynamic>> getToken(UserLogin userLogin) async {
     throw Exception('Failed to retrieve token: $errorMessage');
   }
 }
+
+Future<void> signUp(UserSignUp userSignup) async {
+  final http.Response response = await http.post(
+    Uri.parse(_base + 'user/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(userSignup.toDatabaseJson()),
+  );
+  if (response.statusCode != 201) {
+    final errorMessage = json.decode(response.body)['error'] ?? 'Unknown error';
+    print(errorMessage);
+    throw Exception('Failed to sign up: $errorMessage');
+  }
+}

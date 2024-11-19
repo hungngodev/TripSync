@@ -1,3 +1,7 @@
+animate_do
+3.1
+file:///Users/hung/.pub-cache/hosted/pub.dev/animate_do-3.3.4/
+file:///Users/hung/.pub-cache/hosted/pub.dev/animate_do-3.3.4/lib/
 async
 2.18
 file:///Users/hung/.pub-cache/hosted/pub.dev/async-2.11.0/
@@ -146,6 +150,10 @@ sembast_web
 3.5
 file:///Users/hung/.pub-cache/hosted/pub.dev/sembast_web-2.4.0+4/
 file:///Users/hung/.pub-cache/hosted/pub.dev/sembast_web-2.4.0+4/lib/
+sizer
+2.12
+file:///Users/hung/.pub-cache/hosted/pub.dev/sizer-3.0.0/
+file:///Users/hung/.pub-cache/hosted/pub.dev/sizer-3.0.0/lib/
 source_span
 2.18
 file:///Users/hung/.pub-cache/hosted/pub.dev/source_span-1.10.0/

@@ -46,6 +46,8 @@ dependencies:
   bloc: ^8.1.4
   sembast: ^3.7.5
   sembast_web: ^2.4.0+4
+  animate_do: ^3.3.4
+  sizer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

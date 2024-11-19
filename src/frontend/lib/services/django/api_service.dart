@@ -6,10 +6,9 @@ import '../../dao/user_dao.dart';
 import 'dart:convert';
 
 class ApiService {
-  final String baseUrl = 'http://localhost:8000/api';
   final userDao = UserDao();
-  // final String baseUrl =
-  //     dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000/api';
+  final String baseUrl =
+      dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000/api/';
 
   // GET request with endpoint path
   Future<dynamic> getData({Map<String, String>? queryParameters}) async {
@@ -117,6 +116,27 @@ class ApiService {
       print("Activity deleted successfully");
     } else {
       print("Failed to delete activity: ${response.statusCode}");
+    }
+  }
+
+  Future<void> getChosenList() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    const endpoint = 'chosen-activities/chosen_list';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 204) {
+      print("Activity retrieved successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to retrieve activity: ${response.statusCode}");
     }
   }
 }
