@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
+import '../services/django/api_service.dart';
 import '../provider/calender_time_provider.dart';
 
 class TimeCard extends StatefulWidget {
   final Map tasks;
+  final ApiService apiService = ApiService();
   final List tasksList6am;
   // ignore: non_constant_identifier_names
   final String time_for_card;
@@ -32,17 +33,56 @@ class TimeCard extends StatefulWidget {
 
 class _TimeCardState extends State<TimeCard> {
   late TextEditingController addTaskbtn;
+  late ApiService apiService;
+  String startDate = '';
+  String endDate = '';
 
   @override
   void initState() {
     super.initState();
     addTaskbtn = TextEditingController();
+    apiService = ApiService();
+    startDate = TimeOfDay.now().format(context);
+    endDate = TimeOfDay.now().format(context);
   }
 
   @override
   void dispose() {
     super.dispose();
     addTaskbtn.dispose();
+  }
+
+  void pickTime(start) async {
+    TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.blue,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue, // button text color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (time != null) {
+      setState(() {
+        if (start) {
+          startDate = time.format(context);
+        } else {
+          endDate = time.format(context);
+        }
+      });
+    }
   }
 
   @override
@@ -90,7 +130,7 @@ class _TimeCardState extends State<TimeCard> {
           ],
         ),
         Positioned(
-          left: 10, // Adjust this value for fine-tuning overlap
+          left: 2, // Adjust this value for fine-tuning overlap
           top: 30,
           child: task_list(),
         ),
@@ -149,8 +189,33 @@ class _TimeCardState extends State<TimeCard> {
       context: context,
       builder: (context) => AlertDialog(
             title: const Text("Add Activity"),
-            content: TextField(
-              controller: addTaskbtn,
+            content: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // Aligns children to the start
+              children: [
+                const Text(
+                  "Enter Details", // Optional label
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                    height: 8), // Adds spacing between Text and TextField
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: "Enter Title",
+                    border: OutlineInputBorder(), // Adds a visible border
+                  ),
+                  controller: addTaskbtn,
+                ),
+                ElevatedButton(
+                  onPressed: () => {
+                    pickTime(true),
+                  },
+                  child: Text(
+                    startDate,
+                    style: GoogleFonts.poppins(),
+                  ),
+                ),
+              ],
             ),
             actions: [
               TextButton(
@@ -180,7 +245,7 @@ class _TimeCardState extends State<TimeCard> {
                   child: Text(
                     "Add",
                     style: GoogleFonts.poppins(color: Colors.black),
-                  ))
+                  )),
             ],
           ));
 
