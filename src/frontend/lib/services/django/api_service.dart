@@ -6,10 +6,9 @@ import '../../dao/user_dao.dart';
 import 'dart:convert';
 
 class ApiService {
-  final String baseUrl = 'http://localhost:8000/api';
   final userDao = UserDao();
-  // final String baseUrl =
-  //     dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000/api';
+  final String baseUrl =
+      dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000/api/';
 
   // GET request with endpoint path
   Future<dynamic> getData({Map<String, String>? queryParameters}) async {
@@ -117,6 +116,45 @@ class ApiService {
       print("Activity deleted successfully");
     } else {
       print("Failed to delete activity: ${response.statusCode}");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getChosenList() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    const endpoint = 'chosen-activities/chosen_list';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print("Activity retrieved successfully");
+      final selected = json.decode(response.body);
+      print("Selected activities: $selected");
+
+      // Ensure that selected is a List of Maps and handle nested data properly
+      List<Map<String, dynamic>> selectedActivities =
+          List<Map<String, dynamic>>.from(
+        selected.map((activity) {
+          return {
+            'id': activity['activity']['id'], // Extract nested activity ID
+            'location': activity['activity']['location'], // Extract location
+            'description': activity['activity']
+                ['description'], // Extract description
+            'chosenId': activity['id'], // Use top-level ID as chosenId
+          };
+        }),
+      );
+      print("Mapped selected activities: $selectedActivities");
+      return selectedActivities;
+    } else {
+      print("Failed to retrieve activity: ${response.statusCode}");
+      return [];
     }
   }
 }

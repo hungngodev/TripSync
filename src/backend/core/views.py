@@ -218,14 +218,15 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_all_chosen_activities_of_traveller(self, traveller_id):
-        return self.queryset.filter(user_id=traveller_id)
+        return self.queryset.filter(user_id=traveller_id, 
+                                    calendar_id=None).select_related('activity')
 
     def get_all_chosen_activities_of_calendar(self, calendar_id):
         return self.queryset.filter(calendar_id=calendar_id)
     
-    @action(detail=True, methods=['get'])
-    def traveller(self, request, pk=None):
-        activities = self.get_all_chosen_activities_of_traveller(pk)
+    @action(detail=False, methods=['get'])
+    def chosen_list(self, request):
+        activities = self.get_all_chosen_activities_of_traveller(request.user.id)
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
 

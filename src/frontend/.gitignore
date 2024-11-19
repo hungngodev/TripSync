@@ -43,3 +43,5 @@ local.properties
 Thumbs.db
 
 .env
+package_config_subset
+.json

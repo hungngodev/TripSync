@@ -28,7 +28,7 @@ import './repository/user_repository.dart';
 import './bloc/authentication_bloc.dart';
 import './splash/splash.dart';
 import './bloc/authentication_state.dart';
-import './login/login_page.dart';
+import './login/welcom_page.dart';
 import 'pages/home/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -90,8 +90,8 @@ class App extends StatelessWidget {
               // print('Authenticated');
               return const HomePage(); // Show home page if authenticated
             } else if (state is AuthenticationUnauthenticated) {
-              // print('Unauthenticated');
-              return LoginPage(
+              print('Unauthenticated');
+              return WelcomePage(
                   userRepository:
                       userRepository); // Show login page if unauthenticated
             } else if (state is AuthenticationLoading) {

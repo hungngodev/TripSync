@@ -20,6 +20,12 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "animate_do",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/animate_do-3.3.4",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "args",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/args-2.6.0",
       "packageUri": "lib/",
@@ -146,6 +152,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "date_picker_timeline",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/date_picker_timeline-1.2.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "equatable",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/equatable-2.0.5",
       "packageUri": "lib/",
@@ -200,6 +212,12 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "flutter_screenutil",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_screenutil-5.9.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "flutter_slidable",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_slidable-3.1.1",
       "packageUri": "lib/",
@@ -230,6 +248,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "google_fonts",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/google_fonts-6.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "graphs",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/graphs-2.3.2",
       "packageUri": "lib/",
@@ -258,6 +282,12 @@
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/idb_shim-2.6.1+7",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "intl",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/intl-0.19.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "io",
@@ -434,6 +464,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "scroll_snap_list",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/scroll_snap_list-0.9.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "sembast",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/sembast-3.7.5+2",
       "packageUri": "lib/",
@@ -458,10 +494,22 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "sizer",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/sizer-3.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///Users/anne-colombesinkpon/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.2"
+    },
+    {
+      "name": "sliding_up_panel",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/sliding_up_panel-2.0.0+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "source_gen",
@@ -668,7 +716,7 @@
       "languageVersion": "3.4"
     }
   ],
-  "generated": "2024-11-19T15:12:21.657123Z",
+  "generated": "2024-11-19T18:14:44.585957Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/anne-colombesinkpon/flutter",
