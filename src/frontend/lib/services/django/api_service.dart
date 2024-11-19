@@ -150,7 +150,6 @@ class ApiService {
           };
         }),
       );
-
       print("Mapped selected activities: $selectedActivities");
       return selectedActivities;
     } else {

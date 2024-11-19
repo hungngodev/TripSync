@@ -44,10 +44,22 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "crypto",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/crypto-3.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/cupertino_icons-1.0.8",
       "packageUri": "lib/",
       "languageVersion": "3.1"
+    },
+    {
+      "name": "date_picker_timeline",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/date_picker_timeline-1.2.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "equatable",
@@ -92,6 +104,12 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "flutter_screenutil",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/flutter_screenutil-5.9.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "flutter_slidable",
       "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/flutter_slidable-3.1.1",
       "packageUri": "lib/",
@@ -110,6 +128,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "google_fonts",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/google_fonts-6.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "http",
       "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/http-1.2.2",
       "packageUri": "lib/",
@@ -126,6 +150,12 @@
       "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/idb_shim-2.6.1+7",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "intl",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/intl-0.19.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "leak_tracker",
@@ -236,6 +266,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "scroll_snap_list",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/scroll_snap_list-0.9.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "sembast",
       "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/sembast-3.7.5",
       "packageUri": "lib/",
@@ -258,6 +294,12 @@
       "rootUri": "file:///Users/hung/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.2"
+    },
+    {
+      "name": "sliding_up_panel",
+      "rootUri": "file:///Users/hung/.pub-cache/hosted/pub.dev/sliding_up_panel-2.0.0+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "source_span",
@@ -416,7 +458,7 @@
       "languageVersion": "3.4"
     }
   ],
-  "generated": "2024-11-19T06:38:25.697744Z",
+  "generated": "2024-11-19T15:16:50.008213Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/hung/flutter",

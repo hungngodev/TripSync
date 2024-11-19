@@ -48,6 +48,11 @@ dependencies:
   sembast_web: ^2.4.0+4
   animate_do: ^3.3.4
   sizer: ^3.0.0
+  google_fonts: ^6.2.1
+  sliding_up_panel: ^2.0.0+1
+  flutter_screenutil: ^5.9.3
+  date_picker_timeline: ^1.2.6
+  scroll_snap_list: ^0.9.1
 
 dev_dependencies:
   flutter_test:
