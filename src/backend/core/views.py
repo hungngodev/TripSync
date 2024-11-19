@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.models import User
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 
 class CustomAuthToken(ObtainAuthToken):
@@ -171,6 +172,8 @@ class CalendarViewSet(viewsets.ModelViewSet):
 class ChosenActivityViewSet(viewsets.ModelViewSet):
     queryset = ChosenActivity.objects.all()
     serializer_class = ChosenActivitySerializer
+    permission_classes = [IsAuthenticated] 
+    
     
     def list(self, request):
         chosen_activities = self.queryset
@@ -178,7 +181,11 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = self.get_serializer(data=request.data)
+        adding = {
+            'user': request.user.id,
+            'activity': request.data['activity']
+        }
+        serializer = self.get_serializer(data=adding)
         if serializer.is_valid():
             chosen_activity = serializer.save()
             return Response(self.get_serializer(chosen_activity).data, status=status.HTTP_201_CREATED)
@@ -227,3 +234,34 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         activities = self.get_all_chosen_activities_of_calendar(pk)
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['post'])
+    def bulk_create(self, request):
+        print("Bulk create chosen activities")
+        # Assuming the request body will contain a list of chosen activities
+        activities_data = request.data
+        user = request.user
+        activities_data = [
+    {
+        "activity": 1,  # Assume activity ID 1 exists
+        "calendar": 2,  # Assume calendar ID 2 exists
+        "user": 3,      # Assume user ID 3 exists
+        "start_date": "2024-12-01",  # Example start date
+        "end_date": "2024-12-07"     # Example end date
+    },
+    {
+        "activity": 2,  # Assume activity ID 2 exists
+        "calendar": 1,  # Assume calendar ID 1 exists
+        "user": 4,      # Assume user ID 4 exists
+        "start_date": "2024-12-05",
+        "end_date": "2024-12-10"
+    }
+]
+        print(activities_data)
+        serializer = ChosenActivitySerializer(data=activities_data, many=True)
+        if serializer.is_valid():
+            # Save all the chosen activities in bulk
+            print("Saving all the chosen activities in bulk")
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

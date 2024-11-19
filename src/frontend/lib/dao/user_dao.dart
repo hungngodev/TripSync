@@ -11,13 +11,18 @@ class UserDao {
     return result;
   }
 
-  Future<User> getUser(int id) async {
+  Future<User> getUser() async {
+    print('Getting user');
     final db = await dbProvider.database;
-    var result = await db.query(userTable, where: "id = ?", whereArgs: [id]);
+    var result = await db.query(userTable);
     if (result.length > 0) {
-      return User.fromDatabaseJson(result.first);
+      return User.fromDatabaseJson({
+        'id': result.first['id'].toString(),
+        'username': result.first['username'],
+        'token': result.first['token'],
+      });
     }
-    throw Exception('User $id not found');
+    throw Exception('User not found');
   }
 
   Future<int> deleteUser(String id) async {

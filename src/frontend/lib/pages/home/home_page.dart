@@ -64,12 +64,20 @@ class _Home extends State<HomePage> {
   }
 
 // Update addActivity function
-  void addActivity(Map<String, dynamic> activity) {
+  void addActivity(Map<String, dynamic> activity) async {
     // Check for duplication using the ID (assuming 'id' is the key for the unique identifier)
     if (!selectedActivities
         .any((selected) => selected['id'] == activity['id'])) {
+      final chosenId = await apiService.addChosenActivity({
+        'activity': activity['id'],
+      });
       setState(() {
-        selectedActivities.add(activity);
+        selectedActivities.add({
+          'id': activity['id'],
+          'location': activity['location'],
+          'description': activity['description'],
+          'chosenId': chosenId,
+        });
       });
     } else {
       // Optionally show a message that the activity is already added
@@ -81,10 +89,12 @@ class _Home extends State<HomePage> {
     }
   }
 
-  void deleteActivity(int index) {
+  void deleteActivity(int index) async {
+    final chosenId = selectedActivities[index]['chosenId'];
     setState(() {
       selectedActivities.removeAt(index);
     });
+    await apiService.deleteChosenActivity(chosenId); // Call the delete function
   }
 
   void clearActivities() {
@@ -92,6 +102,31 @@ class _Home extends State<HomePage> {
       selectedActivities.clear();
     });
   }
+
+  // void saveActivities() async {
+  //   // print(selectedActivities);
+  //   final chosenList = selectedActivities.map((activity) {
+  //     return {
+  //       'activity': activity['id'],
+  //     };
+  //   }).toList();
+
+  //   try {
+  //     await apiService.createChosenList(chosenList);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Activities saved successfully!'),
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     print(e);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Failed to save activities!'),
+  //       ),
+  //     );
+  //   }
+  // }
 
   Future<void> _launchURL(String url) async {
     if (await canLaunchUrl(Uri.parse(url))) {
@@ -127,46 +162,51 @@ class _Home extends State<HomePage> {
             ),
             ...selectedActivities.map((activity) {
               return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 4.0, horizontal: 16.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            activity['id'].toString() +
-                                ' ' +
-                                activity['location'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          activity['id'].toString() +
+                              ' ' +
+                              activity['location'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
                           ),
-                          IconButton(
-                            onPressed: () => deleteActivity(
-                                selectedActivities.indexOf(activity)),
-                            icon: const Icon(Icons.delete),
-                            color: Colors.red,
-                          ),
-                        ],
-                      ),
-                      const Divider(),
-                    ],
-                  )
-
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     print("Selected activity: $activity");
-                  //   },
-                  //   style: ElevatedButton.styleFrom(
-                  //       backgroundColor: Colors.grey[800],
-                  //       foregroundColor: Colors.white),
-                  //   child: Text('${activity['id']} ' + activity['location'],
-                  //       style: const TextStyle(color: Colors.white)),
-                  // ),
-                  );
-            }),
+                        ),
+                        IconButton(
+                          onPressed: () => deleteActivity(
+                              selectedActivities.indexOf(activity)),
+                          icon: const Icon(Icons.delete),
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+                  ],
+                ),
+              );
+            }).toList(),
+            // Save Button at the bottom of the drawer
+            // Padding(
+            //   padding: const EdgeInsets.all(16.0),
+            //   child: ElevatedButton(
+            //     onPressed:
+            //         saveActivities, // Call the save function when pressed
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: Colors.blue, // Button color
+            //       padding: EdgeInsets.symmetric(vertical: 14.0),
+            //     ),
+            //     child: const Text(
+            //       'Save',
+            //       style: TextStyle(fontSize: 18, color: Colors.white),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -284,7 +324,6 @@ class _Home extends State<HomePage> {
                         String keys = keywords.join(',');
                         try {
                           List<dynamic> fetchData = await apiService.getData(
-                            'activities',
                             queryParameters: {
                               'location': places,
                               'keywords': keys,

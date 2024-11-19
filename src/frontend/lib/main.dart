@@ -76,9 +76,9 @@ class App extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.red,
-          brightness: Brightness.dark,
+          useMaterial3: true,
         ),
         home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {

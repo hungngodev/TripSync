@@ -43,7 +43,7 @@ class DatabaseProvider {
 
   Future<void> initDB(Database database, int version) async {
     await database.execute("CREATE TABLE $userTable ("
-        "id INTEGER PRIMARY KEY, "
+        "id TEXT PRIMARY KEY, "
         "username TEXT, "
         "token TEXT "
         ")");
