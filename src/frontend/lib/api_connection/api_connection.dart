@@ -4,14 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../model/api_model.dart';
 
-final String _base = dotenv.env['AUTH_URL'] ?? 'http://localhost:8000/';
-const _tokenEndpoint = "api-token-auth/";
+final String _base = dotenv.env['AUTH_URL'] ?? 'http://localhost:8000/api/';
+const _tokenEndpoint = "token-auth";
 final String _tokenURL = _base + _tokenEndpoint;
 
-Future<Token> getToken(UserLogin userLogin) async {
-  print('Getting token...');
-  print(_tokenURL);
-
+Future<Map<String, dynamic>> getToken(UserLogin userLogin) async {
+  print('Token retrieved');
   final http.Response response = await http.post(
     Uri.parse(_tokenURL), // Wrap the URL in Uri.parse
     headers: <String, String>{
@@ -19,9 +17,11 @@ Future<Token> getToken(UserLogin userLogin) async {
     },
     body: jsonEncode(userLogin.toDatabaseJson()),
   );
-
   if (response.statusCode == 200) {
-    return Token.fromJson(json.decode(response.body));
+    return {
+      "token": Token.fromJson(json.decode(response.body)),
+      "id": json.decode(response.body)['id'],
+    };
   } else {
     final errorMessage = json.decode(response.body)['error'] ?? 'Unknown error';
     print(errorMessage);

@@ -21,7 +21,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _onLoginButtonPressed(
       LoginButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginInitial());
-
+    print('Login button pressed now authenticating');
     try {
       final user = await userRepository.authenticate(
         username: event.username,

@@ -6,15 +6,21 @@ import '../dao/user_dao.dart';
 
 class UserRepository {
   final userDao = UserDao();
+  String userId = '0';
+  String userName = 'Traveller';
 
   Future<User> authenticate({
     required String username,
     required String password,
   }) async {
     UserLogin userLogin = UserLogin(username: username, password: password);
-    Token token = await getToken(userLogin);
+    dynamic data = await getToken(userLogin);
+    Token token = data['token'] as Token;
+    String id = data['id'].toString();
+    userName = username;
+    userId = id;
     User user = User(
-      id: 0,
+      id: id,
       username: username,
       token: token.token,
     );
@@ -27,12 +33,21 @@ class UserRepository {
     print('Token persisted');
   }
 
+  Future<String> getUserId() async {
+    return userId;
+  }
+
+  Future<String> getUserName() async {
+    return userName;
+  }
+
   Future<void> deleteToken({required int id}) async {
-    await userDao.deleteUser(id);
+    await userDao.deleteUser(userId);
   }
 
   Future<bool> hasToken() async {
-    bool result = await userDao.checkUser(0);
+    bool result = await userDao.checkUser(userId);
+    print('Has token: $result');
     return result;
   }
 }

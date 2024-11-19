@@ -11,7 +11,7 @@ class ApiService {
   // GET request with endpoint path
   Future<dynamic> getData(String endpoint,
       {Map<String, String>? queryParameters}) async {
-    final uri = Uri.parse('$baseUrl/$endpoint')
+    final uri = Uri.parse('$baseUrl$endpoint')
         .replace(queryParameters: queryParameters);
     try {
       final response = await http.get(uri);
@@ -29,7 +29,7 @@ class ApiService {
   // POST request with optional query parameters and data
   Future<dynamic> postData(String endpoint, Map<String, dynamic> data,
       {Map<String, String>? queryParameters}) async {
-    final uri = Uri.parse('$baseUrl/$endpoint')
+    final uri = Uri.parse('$baseUrl$endpoint')
         .replace(queryParameters: queryParameters);
     try {
       final response = await http.post(

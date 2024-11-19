@@ -11,7 +11,25 @@ from .serializers import UserSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.models import User
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        print("Getting the user serializable in custom auth token")
+        
+        # Create or get the token for the user
+        token, created = Token.objects.get_or_create(user=user)
+        
+        # Return token and user ID
+        return Response({
+            'token': token.key,
+            'id': user.id,
+            'username': user.username,  # Optional: return additional user info
+        }, status=status.HTTP_200_OK)
 
 class UserRecordView(APIView):
     """

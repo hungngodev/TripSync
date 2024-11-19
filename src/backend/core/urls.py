@@ -5,6 +5,7 @@ from .views import (
     CalendarViewSet,
     ChosenActivityViewSet,
     UserRecordView,
+    CustomAuthToken
 )
 
 # Create a router and register our viewsets with it.
@@ -16,6 +17,7 @@ router.register(r'chosen-activities', ChosenActivityViewSet)
 # The API URLs are now determined automatically by the router.
 app_name = 'api'
 urlpatterns = [
+    path('token-auth', CustomAuthToken.as_view(), name='api_token_auth'),
     path('user/', UserRecordView.as_view(), name='users'),
     path('user/<int:user_id>/', UserRecordView.as_view(), name='user_detail'),  
     path('', include(router.urls)),

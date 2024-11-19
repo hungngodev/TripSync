@@ -27,8 +27,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import './repository/user_repository.dart';
 import './bloc/authentication_bloc.dart';
 import './splash/splash.dart';
+import './bloc/authentication_state.dart';
 import './login/login_page.dart';
-import './home/home.dart';
+import 'pages/home/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SimpleBlocObserver extends BlocObserver {

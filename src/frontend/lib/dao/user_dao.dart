@@ -20,13 +20,13 @@ class UserDao {
     throw Exception('User $id not found');
   }
 
-  Future<int> deleteUser(int id) async {
+  Future<int> deleteUser(String id) async {
     final db = await dbProvider.database;
     var result = await db.delete(userTable, where: "id = ?", whereArgs: [id]);
     return result;
   }
 
-  Future<bool> checkUser(int id) async {
+  Future<bool> checkUser(String id) async {
     final db = await dbProvider.database;
     try {
       List<Map> users =

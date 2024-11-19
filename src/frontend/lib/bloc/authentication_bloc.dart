@@ -25,7 +25,10 @@ class AuthenticationBloc
       final hasToken = await userRepository.hasToken();
       if (hasToken) {
         print('Has token');
-        emit(AuthenticationAuthenticated());
+        final userId = await userRepository.getUserId();
+        emit(AuthenticationAuthenticated(
+          userId: userId,
+        ));
       } else {
         print('No token');
         emit(AuthenticationUnauthenticated());
@@ -39,9 +42,21 @@ class AuthenticationBloc
       LoggedIn event, Emitter<AuthenticationState> emit) async {
     print('Logged in');
     emit(AuthenticationLoading());
+    final hasToken = await userRepository.hasToken();
+    if (hasToken) {
+      print('Has token');
+      final userId = await userRepository.getUserId();
+      emit(AuthenticationAuthenticated(
+        userId: userId,
+      ));
+      return;
+    }
     try {
       await userRepository.persistToken(user: event.user);
-      emit(AuthenticationAuthenticated());
+      final userId = await userRepository.getUserId();
+      emit(AuthenticationAuthenticated(
+        userId: userId,
+      ));
       print('Emitted authenticated');
     } catch (e) {
       print('Error: $e');
