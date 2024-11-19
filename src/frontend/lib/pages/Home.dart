@@ -410,126 +410,127 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/authentication_bloc.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home | Home Hub'),
+        title: const Text('Home | Home Hub'),
       ),
-      body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(left: 30.0),
-              child: Text(
-                'Welcome',
-                style: TextStyle(
-                  fontSize: 24.0,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          const Padding(
+            padding: EdgeInsets.only(left: 30.0),
+            child: Text(
+              'Welcome',
+              style: TextStyle(
+                fontSize: 24.0,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(34.0, 20.0, 0.0, 0.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.85,
+              height: MediaQuery.of(context).size.width * 0.16,
+              child: ElevatedButton(
+                onPressed: () {
+                  BlocProvider.of<AuthenticationBloc>(context)
+                      .add(LoggedOut());
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(
+                    side: BorderSide(
+                      color: Colors.black,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontSize: 24,
+                  ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(34.0, 20.0, 0.0, 0.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.85,
-                height: MediaQuery.of(context).size.width * 0.16,
-                child: ElevatedButton(
-                  onPressed: () {
-                    BlocProvider.of<AuthenticationBloc>(context)
-                        .add(LoggedOut());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  child: const Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                  style: ButtonStyle(
-                      padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 20)),
-                      backgroundColor: WidgetStateProperty.all(Colors.black)),
-                  onPressed: () => openCalendarPage(context),
-                  child: const Text(
-                    'Calendars',
-                    style: TextStyle(color: Colors.white),
-                  )),
-                  FutureBuilder<SearchResponse>(
-                  future: incomingLocations,
-                  builder: (context, AsyncSnapshot<SearchResponse> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text("Error: ${snapshot.error}"));
-                    } else if (snapshot.hasData) {
-                      final results = snapshot.data!.data; // Assuming `results` is the list
-                      return ListView.separated(
-                        shrinkWrap: true,
-                        itemCount: results!.length,
-                        separatorBuilder: (context, index) => const Divider(color: Colors.black),
-                        itemBuilder: (context, index) {
-                          final location = results;
-                          return ListTile(
-                            title: Text(location as String), // Ensure `name` exists
-                            // subtitle: Text(location.addressObject?.address ?? "No address available"),
-                            // trailing: ElevatedButton.icon(
-                            //   onPressed: () {},
-                            //   icon: const Icon(Icons.favorite),
-                            //   label: const Text('Save'),
-                            // ),
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(child: Text("No data available"));
-                    }
-                  },
-                ),
-
-                  // FutureBuilder<SearchResponse>(
-                  //   future: incomingLocations, 
-                  //   builder: ((context, AsyncSnapshot snapshot) {
-                  //   if (snapshot.hasData){
-                  //     return ListView.separated(
-                  //       itemBuilder: (context, index){
-                  //       SearchResponse location = snapshot.data?[index];
-                  //       return Text(location as String);
-                  //       // return ListTile(
-                  //       //   title:  Text(location.name as String),
-                  //       //   subtitle: Text(location.addressObject as String),
-                  //       //   //onTap: () => openPge(context), code for function to call when activityclicked
-                  //       //   trailing: ElevatedButton.icon(
-                  //       //     onPressed: (){}, // replace this by saving activity
-                  //       //     icon: const Icon(Icons.favorite),
-                  //       //     label: const Text('Save'),)
-                          
-                  //       // );
-                  //     },
-                  //     separatorBuilder: (context, index){
-                  //       return const Divider(color: Colors.black,);
-                  //     }, itemCount: snapshot.data!.length);
-
-                  //   } else if (snapshot.hasError){
-                  //     return const Text("Error loading locations");
-                  //   }
-                  //   return const CircularProgressIndicator();
-
-                  // }),) 
-            ],
           ),
+            // ElevatedButton(
+            //     style: ButtonStyle(
+            //         padding: WidgetStateProperty.all(
+            //             const EdgeInsets.symmetric(
+            //                 horizontal: 40, vertical: 20)),
+            //         backgroundColor: WidgetStateProperty.all(Colors.black)),
+            //     onPressed: () => openCalendarPage(context),
+            //     child: const Text(
+            //       'Calendars',
+            //       style: TextStyle(color: Colors.white),
+            //     )),
+            //     FutureBuilder<SearchResponse>(
+            //     future: incomingLocations,
+            //     builder: (context, AsyncSnapshot<SearchResponse> snapshot) {
+            //       if (snapshot.connectionState == ConnectionState.waiting) {
+            //         return const Center(child: CircularProgressIndicator());
+            //       } else if (snapshot.hasError) {
+            //         return Center(child: Text("Error: ${snapshot.error}"));
+            //       } else if (snapshot.hasData) {
+            //         final results = snapshot.data!.data; // Assuming `results` is the list
+            //         return ListView.separated(
+            //           shrinkWrap: true,
+            //           itemCount: results!.length,
+            //           separatorBuilder: (context, index) => const Divider(color: Colors.black),
+            //           itemBuilder: (context, index) {
+            //             final location = results;
+            //             return ListTile(
+            //               title: Text(location as String), // Ensure `name` exists
+            //               // subtitle: Text(location.addressObject?.address ?? "No address available"),
+            //               // trailing: ElevatedButton.icon(
+            //               //   onPressed: () {},
+            //               //   icon: const Icon(Icons.favorite),
+            //               //   label: const Text('Save'),
+            //               // ),
+            //             );
+            //           },
+            //         );
+            //       } else {
+            //         return const Center(child: Text("No data available"));
+            //       }
+            //     },
+            //   ),
+      
+                // FutureBuilder<SearchResponse>(
+                //   future: incomingLocations, 
+                //   builder: ((context, AsyncSnapshot snapshot) {
+                //   if (snapshot.hasData){
+                //     return ListView.separated(
+                //       itemBuilder: (context, index){
+                //       SearchResponse location = snapshot.data?[index];
+                //       return Text(location as String);
+                //       // return ListTile(
+                //       //   title:  Text(location.name as String),
+                //       //   subtitle: Text(location.addressObject as String),
+                //       //   //onTap: () => openPge(context), code for function to call when activityclicked
+                //       //   trailing: ElevatedButton.icon(
+                //       //     onPressed: (){}, // replace this by saving activity
+                //       //     icon: const Icon(Icons.favorite),
+                //       //     label: const Text('Save'),)
+                        
+                //       // );
+                //     },
+                //     separatorBuilder: (context, index){
+                //       return const Divider(color: Colors.black,);
+                //     }, itemCount: snapshot.data!.length);
+      
+                //   } else if (snapshot.hasError){
+                //     return const Text("Error loading locations");
+                //   }
+                //   return const CircularProgressIndicator();
+      
+                // }),) 
+          ],
         ));
         // ListView.builder(
         //         scrollDirection: Axis.vertical,

@@ -14,10 +14,10 @@ class NavigationMenu extends StatefulWidget {
 
 class _NavigationMenuState extends State<NavigationMenu> {
   int myIndex = 0;
-  List<Widget> widgetlist = const [
-    Home(),
-    Calendars(),
-    Createcalendar()
+  List<Widget> widgetlist =  [
+    HomePage(),
+    const Calendars(),
+    const Createcalendar()
   ];
   
   @override

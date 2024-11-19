@@ -1,0 +1,352 @@
+[
+    {
+        "id": 1,
+        "location": "Grand Canyon",
+        "category": "entertainment",
+        "description": "A stunning natural wonder with breathtaking views.",
+        "source_link": "https://www.example.com/entertainment1"
+    },
+    {
+        "id": 2,
+        "location": "The Ritz-Carlton",
+        "category": "hotel",
+        "description": "Luxury hotel with exceptional service and amenities.",
+        "source_link": "https://www.example.com/hotel2"
+    },
+    {
+        "id": 3,
+        "location": "Le Gourmet",
+        "category": "restaurant",
+        "description": "Fine dining restaurant with exquisite cuisine.",
+        "source_link": "https://www.example.com/restaurant3"
+    },
+    {
+        "id": 4,
+        "location": "Boston",
+        "category": "hotel",
+        "description": "A luxury hotel located in downtown Boston with stunning views of the city.",
+        "source_link": "https://www.example.com/hotel4"
+    },
+    {
+        "id": 5,
+        "location": "Boston",
+        "category": "restaurant",
+        "description": "A popular Italian restaurant known for its handmade pasta and cozy atmosphere.",
+        "source_link": "https://www.example.com/restaurant5"
+    },
+    {
+        "id": 6,
+        "location": "Boston",
+        "category": "entertainment",
+        "description": "An iconic music venue that hosts a variety of live performances and events.",
+        "source_link": "https://www.example.com/entertainment6"
+    },
+    {
+        "id": 7,
+        "location": "Boston",
+        "category": "hotel",
+        "description": "A boutique hotel featuring modern decor and an on-site spa.",
+        "source_link": "https://www.example.com/hotel7"
+    },
+    {
+        "id": 8,
+        "location": "Boston",
+        "category": "restaurant",
+        "description": "A farm-to-table restaurant offering seasonal dishes made with local ingredients.",
+        "source_link": "https://www.example.com/restaurant8"
+    },
+    {
+        "id": 9,
+        "location": "Boston",
+        "category": "entertainment",
+        "description": "A historical theater showcasing Broadway shows and other performances.",
+        "source_link": "https://www.example.com/entertainment9"
+    },
+    {
+        "id": 10,
+        "location": "Amherst",
+        "category": "hotel",
+        "description": "A quaint bed and breakfast located in the heart of Amherst.",
+        "source_link": "https://www.example.com/hotel10"
+    },
+    {
+        "id": 11,
+        "location": "Amherst",
+        "category": "restaurant",
+        "description": "A family-owned diner famous for its homemade pies and breakfast options.",
+        "source_link": "https://www.example.com/restaurant11"
+    }, 
+    {
+        "id": 12,
+        "location": "Yellowstone National Park",
+        "category": "entertainment",
+        "description": "A national park with geysers, hot springs, and wildlife.",
+        "source_link": "https://www.example.com/entertainment12"
+    },
+    {
+        "id": 13,
+        "location": "The Plaza Hotel",
+        "category": "hotel",
+        "description": "An iconic luxury hotel in the heart of New York City.",
+        "source_link": "https://www.example.com/hotel13"
+    },
+    {
+        "id": 14,
+        "location": "The French Laundry",
+        "category": "restaurant",
+        "description": "A world-renowned fine dining restaurant in Napa Valley.",
+        "source_link": "https://www.example.com/restaurant14"
+    },
+    {
+        "id": 15,
+        "location": "Miami Beach",
+        "category": "entertainment",
+        "description": "A vibrant beach destination with nightlife and culture.",
+        "source_link": "https://www.example.com/entertainment15"
+    },
+    {
+        "id": 16,
+        "location": "Four Seasons Resort",
+        "category": "hotel",
+        "description": "A high-end resort offering luxurious accommodations and spa services.",
+        "source_link": "https://www.example.com/hotel16"
+    },
+    {
+        "id": 17,
+        "location": "The Cheesecake Factory",
+        "category": "restaurant",
+        "description": "Casual dining with an extensive menu and famous cheesecakes.",
+        "source_link": "https://www.example.com/restaurant17"
+    },
+    {
+        "id": 18,
+        "location": "San Diego Zoo",
+        "category": "entertainment",
+        "description": "A world-class zoo known for its variety of animals and conservation efforts.",
+        "source_link": "https://www.example.com/entertainment18"
+    },
+    {
+        "id": 19,
+        "location": "Wynn Las Vegas",
+        "category": "hotel",
+        "description": "A luxury casino hotel with upscale amenities and entertainment.",
+        "source_link": "https://www.example.com/hotel19"
+    },
+    {
+        "id": 20,
+        "location": "Joe's Crab Shack",
+        "category": "restaurant",
+        "description": "A seafood restaurant offering a relaxed, beach-themed atmosphere.",
+        "source_link": "https://www.example.com/restaurant20"
+    },
+    {
+        "id": 21,
+        "location": "Niagara Falls",
+        "category": "entertainment",
+        "description": "A breathtaking series of waterfalls located on the border of Canada and the USA.",
+        "source_link": "https://www.example.com/entertainment21"
+    },
+    {
+        "id": 22,
+        "location": "The Beverly Hills Hotel",
+        "category": "hotel",
+        "description": "A historic luxury hotel in Beverly Hills, known as 'The Pink Palace.'",
+        "source_link": "https://www.example.com/hotel22"
+    },
+    {
+        "id": 23,
+        "location": "Chez Panisse",
+        "category": "restaurant",
+        "description": "A celebrated farm-to-table restaurant in Berkeley, California.",
+        "source_link": "https://www.example.com/restaurant23"
+    },
+    {
+        "id": 24,
+        "location": "Disneyland",
+        "category": "entertainment",
+        "description": "A world-famous theme park offering rides, shows, and magical experiences.",
+        "source_link": "https://www.example.com/entertainment24"
+    },
+    {
+        "id": 25,
+        "location": "Hilton Hawaiian Village",
+        "category": "hotel",
+        "description": "A tropical resort in Honolulu featuring beaches and cultural activities.",
+        "source_link": "https://www.example.com/hotel25"
+    },
+    {
+        "id": 26,
+        "location": "Per Se",
+        "category": "restaurant",
+        "description": "A refined dining experience offering French and American cuisine in New York City.",
+        "source_link": "https://www.example.com/restaurant26"
+    },
+    {
+        "id": 27,
+        "location": "Mount Rushmore",
+        "category": "entertainment",
+        "description": "A monumental sculpture of four US presidents carved into a mountain.",
+        "source_link": "https://www.example.com/entertainment27"
+    },
+    {
+        "id": 28,
+        "location": "The Breakers Palm Beach",
+        "category": "hotel",
+        "description": "A grand resort in Palm Beach offering luxury and ocean views.",
+        "source_link": "https://www.example.com/hotel28"
+    },
+    {
+        "id": 29,
+        "location": "Nobu Malibu",
+        "category": "restaurant",
+        "description": "A chic Japanese restaurant with oceanfront dining and innovative dishes.",
+        "source_link": "https://www.example.com/restaurant29"
+    },
+    {
+        "id": 30,
+        "location": "The Alamo",
+        "category": "entertainment",
+        "description": "A historic site in San Antonio commemorating the 1836 Battle of the Alamo.",
+        "source_link": "https://www.example.com/entertainment30"
+    },
+    {
+        "id": 31,
+        "location": "Statue of Liberty",
+        "category": "entertainment",
+        "description": "A historic symbol of freedom located in New York Harbor.",
+        "source_link": "https://www.example.com/entertainment31"
+    },
+    {
+        "id": 32,
+        "location": "The Langham, Chicago",
+        "category": "hotel",
+        "description": "A luxurious hotel with stunning city views and modern amenities.",
+        "source_link": "https://www.example.com/hotel32"
+    },
+    {
+        "id": 33,
+        "location": "Eleven Madison Park",
+        "category": "restaurant",
+        "description": "An upscale New York restaurant serving contemporary American cuisine.",
+        "source_link": "https://www.example.com/restaurant33"
+    },
+    {
+        "id": 34,
+        "location": "Golden Gate Bridge",
+        "category": "entertainment",
+        "description": "A world-famous suspension bridge in San Francisco.",
+        "source_link": "https://www.example.com/entertainment34"
+    },
+    {
+        "id": 35,
+        "location": "The Bellagio",
+        "category": "hotel",
+        "description": "A luxury Las Vegas resort with a famous fountain show.",
+        "source_link": "https://www.example.com/hotel35"
+    },
+    {
+        "id": 36,
+        "location": "The Ivy",
+        "category": "restaurant",
+        "description": "A chic restaurant in Los Angeles known for celebrity sightings.",
+        "source_link": "https://www.example.com/restaurant36"
+    },
+    {
+        "id": 37,
+        "location": "Hollywood Walk of Fame",
+        "category": "entertainment",
+        "description": "A sidewalk celebrating stars of the entertainment industry.",
+        "source_link": "https://www.example.com/entertainment37"
+    },
+    {
+        "id": 38,
+        "location": "Fairmont Banff Springs",
+        "category": "hotel",
+        "description": "A historic hotel nestled in the Canadian Rockies.",
+        "source_link": "https://www.example.com/hotel38"
+    },
+    {
+        "id": 39,
+        "location": "Union Oyster House",
+        "category": "restaurant",
+        "description": "A historic Boston restaurant serving seafood since 1826.",
+        "source_link": "https://www.example.com/restaurant39"
+    },
+    {
+        "id": 40,
+        "location": "Rock and Roll Hall of Fame",
+        "category": "entertainment",
+        "description": "A museum celebrating the history of rock music.",
+        "source_link": "https://www.example.com/entertainment40"
+    },
+    {
+        "id": 41,
+        "location": "The St. Regis Aspen Resort",
+        "category": "hotel",
+        "description": "A luxurious ski resort in Aspen.",
+        "source_link": "https://www.example.com/hotel41"
+    },
+    {
+        "id": 42,
+        "location": "Bouchon Bakery",
+        "category": "restaurant",
+        "description": "A French-style bakery with artisanal bread and pastries.",
+        "source_link": "https://www.example.com/restaurant42"
+    },
+    {
+        "id": 43,
+        "location": "Central Park",
+        "category": "entertainment",
+        "description": "A vast urban park in the heart of Manhattan.",
+        "source_link": "https://www.example.com/entertainment43"
+    },
+    {
+        "id": 44,
+        "location": "The Waldorf Astoria",
+        "category": "hotel",
+        "description": "An iconic New York hotel known for its timeless elegance.",
+        "source_link": "https://www.example.com/hotel44"
+    },
+    {
+        "id": 45,
+        "location": "Blue Hill at Stone Barns",
+        "category": "restaurant",
+        "description": "A farm-to-table dining experience in the Hudson Valley.",
+        "source_link": "https://www.example.com/restaurant45"
+    },
+    {
+        "id": 46,
+        "location": "Times Square",
+        "category": "entertainment",
+        "description": "The vibrant heart of New York City.",
+        "source_link": "https://www.example.com/entertainment46"
+    },
+    {
+        "id": 47,
+        "location": "The Peninsula Beverly Hills",
+        "category": "hotel",
+        "description": "A five-star hotel offering luxury and privacy.",
+        "source_link": "https://www.example.com/hotel47"
+    },
+    {
+        "id": 48,
+        "location": "Gramercy Tavern",
+        "category": "restaurant",
+        "description": "A contemporary American restaurant in New York City.",
+        "source_link": "https://www.example.com/restaurant48"
+    },
+    {
+        "id": 49,
+        "location": "Niagara Fallsview Casino Resort",
+        "category": "entertainment",
+        "description": "A casino resort with breathtaking views of Niagara Falls.",
+        "source_link": "https://www.example.com/entertainment49"
+    },
+    {
+        "id": 50,
+        "location": "The Venetian Resort",
+        "category": "hotel",
+        "description": "A luxury resort in Las Vegas with Venetian-inspired decor.",
+        "source_link": "https://www.example.com/hotel50"
+    }
+]
