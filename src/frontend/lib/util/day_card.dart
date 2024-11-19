@@ -7,11 +7,13 @@ class DayCard extends StatefulWidget {
   final DateTime selectedDate;
   final Color cardColor;
   final Color dividerColor;
-  const DayCard({
+  var tasks;
+  DayCard({
     Key? key,
     required this.selectedDate,
     required this.cardColor,
     required this.dividerColor,
+    required this.tasks,
   }) : super(key: key);
 
   @override
@@ -19,7 +21,7 @@ class DayCard extends StatefulWidget {
 }
 
 class _DayCardState extends State<DayCard> {
-  var tasks = new Map();
+  // var tasks = new Map();
 
   List<String> tasksList6am = [];
   List<String> timeList = [
@@ -121,7 +123,7 @@ class _DayCardState extends State<DayCard> {
                       itemCount: timeList.length,
                       itemBuilder: (context, index) {
                         return TimeCard(
-                          tasks: tasks,
+                          tasks: widget.tasks,
                           tasksList6am: tasksList6am,
                           time_for_card: timeList[index],
                           index: index,

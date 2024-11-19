@@ -114,9 +114,10 @@ class _TimeCardState extends State<TimeCard> {
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
                       onTap: () {
-                        onTaskTap(widget.index, widget.tasks);
+                        onTaskTap(index, widget.tasks);
                       },
                       child: Container(
+                        width: 300,
                         height: 40,
                         decoration: BoxDecoration(
                             color: widget.dividerColor,
@@ -125,7 +126,7 @@ class _TimeCardState extends State<TimeCard> {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              widget.tasks[i][index],
+                              widget.tasks[i][index]['task'],
                               style: GoogleFonts.poppins(),
                             ),
                           ),
@@ -156,27 +157,25 @@ class _TimeCardState extends State<TimeCard> {
                   onPressed: () {
                     try {
                       setState(() {
-                        widget.tasks[TappedIndex].add(addTaskbtn.text);
+                        widget.tasks[TappedIndex].add({
+                          'task': addTaskbtn.text,
+                          'duration': 100,
+                        });
                       });
                     } on NoSuchMethodError {
                       setState(() {
-                        widget.tasks[TappedIndex] = [addTaskbtn.text];
+                        widget.tasks[TappedIndex] = [
+                          {
+                            'task': addTaskbtn.text,
+                            'duration': 100,
+                          }
+                        ];
                       });
                     } catch (e) {
                       // Handle other exceptions if necessary
                     } finally {
                       Navigator.pop(context);
                     }
-                    // try {
-                    //   widget.tasks[TappedIndex].add(addTaskbtn.text);
-                    // } on NoSuchMethodError {
-                    //   widget.tasks[TappedIndex] = [addTaskbtn.text];
-                    // }
-                    // // ignore: empty_catches
-                    // catch (e) {
-                    // } finally {
-                    //   Navigator.pop(context);
-                    // }
                   },
                   child: Text(
                     "Add",
@@ -186,29 +185,34 @@ class _TimeCardState extends State<TimeCard> {
           ));
 
   Future onTaskTap(int index, addTaskProvider) => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
             title: const Text("Edit Activity"),
             content: TextField(
               controller: addTaskbtn,
             ),
             actions: [
               TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Ok")),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Ok"),
+              ),
               TextButton(
-                  onPressed: () {
-                    setState(() {
-                      widget.tasks[widget.index]?.remove(addTaskbtn.text);
-                      if (widget.tasks[widget.index]?.isEmpty ?? false) {
-                        widget.tasks.remove(widget.index);
-                      }
-                    });
-                    Navigator.pop(context);
-                  },
-                  child: Text("Delete")),
+                onPressed: () {
+                  setState(() {
+                    widget.tasks[widget.index]?.removeAt(index);
+                    if (widget.tasks[widget.index]?.isEmpty ?? false) {
+                      widget.tasks.remove(widget.index);
+                    }
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text("Delete"),
+              ),
             ],
-          ));
+          );
+        },
+      );
 }

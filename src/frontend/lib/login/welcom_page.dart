@@ -55,7 +55,7 @@ class _WelcomePageState extends State<WelcomePage> {
               FadeInUp(
                   duration: const Duration(milliseconds: 1200),
                   child: Text(
-                    "Automatic identity verification which enables you to verify your identity",
+                    "No more procrastination in planning your activities!!",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[700], fontSize: 15),
                   )),

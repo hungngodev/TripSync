@@ -45,7 +45,8 @@ class _CalenderPageState extends State<CalenderPage> {
     maincolors.color4Dark
   ];
   DateTime _selectedDateTime = DateTime.now();
-  @override
+  final Map<dynamic, dynamic> tasksDay = {};
+
   @override
   Widget build(BuildContext context) {
     final selectedTimeProvider =
@@ -172,11 +173,19 @@ class _CalenderPageState extends State<CalenderPage> {
                         // add(Duration(days:1)).toString());
                         return Consumer<SelectedTimeChangeProvider>(
                             builder: (context, value, child) {
+                          var tasksForDay = tasksDay.putIfAbsent(
+                            value.selectedDate.add(Duration(days: index)),
+                            () =>
+                                {}, // Return an empty map as the default value
+                          );
                           return DayCard(
+                              tasks: tasksForDay,
                               selectedDate:
                                   value.selectedDate.add(Duration(days: index)),
                               cardColor: cardColors[index],
-                              dividerColor: dividerColors[index]);
+                              dividerColor: dividerColors[index],
+                              key: ValueKey(value.selectedDate
+                                  .add(Duration(days: index))));
                         });
                       })),
             ],
