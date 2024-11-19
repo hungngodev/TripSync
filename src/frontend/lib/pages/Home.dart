@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/find_search/models/search_response.dart';
 import 'package:flutter_application/pages/Calendars.dart';
 import 'package:flutter_application/pages/createcalendar.dart';
-import 'package:flutter_application/pages/Activitycalls.dart';
+import '../find_search/models/api_settings.dart';
+import '../trip_advisor_api.dart';
 import 'package:flutter_application/ui_components/input_form.dart';
+import '../find_search/find_search_parameters.dart';
 import '../services/openai/gpt_service.dart';
 import '../util/keyword.dart';
 //
@@ -20,12 +23,16 @@ class _Home extends State<Home> {
   TextEditingController stateController = TextEditingController();
   TextEditingController keywordController = TextEditingController();
 
-  late Future<List<Location>> incomingLocations;
+  late Future<SearchResponse> incomingLocations;
 
   @override
   void initState(){
     super.initState();
-    incomingLocations = LocationCalls().getLocations();
+
+    ApiSettings settingsAPI = ApiSettings(apiKey: "90BF3C202F524AE78E666BEBD6F43CD6");
+    TripAdvisorApi tripAdvisorApi = TripAdvisorApi(settingsAPI);
+    FindSearchParameters findSearchParameters = FindSearchParameters(searchQuery: "Massachusetts");
+    incomingLocations = tripAdvisorApi.findSearch.get(findSearchParameters);
   }
 
   String? response;
@@ -225,32 +232,67 @@ class _Home extends State<Home> {
                     'Calendars',
                     style: TextStyle(color: Colors.white),
                   )),
-                  FutureBuilder<List<Location>>(future: incomingLocations, builder: ((context, AsyncSnapshot snapshot) {
-                    if (snapshot.hasData){
+                  FutureBuilder<SearchResponse>(
+                  future: incomingLocations,
+                  builder: (context, AsyncSnapshot<SearchResponse> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text("Error: ${snapshot.error}"));
+                    } else if (snapshot.hasData) {
+                      final results = snapshot.data!.data; // Assuming `results` is the list
                       return ListView.separated(
-                        itemBuilder: (context, index){
-                        Location location = snapshot.data?[index];
-                        return ListTile(
-                          title:  Text(location.name as String),
-                          subtitle: Text(location.addressObject as String),
-                          //onTap: () => openPge(context), code for function to call when activityclicked
-                          trailing: ElevatedButton.icon(
-                            onPressed: (){}, // replace this by saving activity
-                            icon: const Icon(Icons.favorite),
-                            label: const Text('Save'),)
-                          
-                        );
-                      },
-                      separatorBuilder: (context, index){
-                        return const Divider(color: Colors.black,);
-                      }, itemCount: snapshot.data!.length);
-
-                    } else if (snapshot.hasError){
-                      return const Text("Error loading locations");
+                        shrinkWrap: true,
+                        itemCount: results!.length,
+                        separatorBuilder: (context, index) => const Divider(color: Colors.black),
+                        itemBuilder: (context, index) {
+                          final location = results;
+                          return ListTile(
+                            title: Text(location as String), // Ensure `name` exists
+                            // subtitle: Text(location.addressObject?.address ?? "No address available"),
+                            // trailing: ElevatedButton.icon(
+                            //   onPressed: () {},
+                            //   icon: const Icon(Icons.favorite),
+                            //   label: const Text('Save'),
+                            // ),
+                          );
+                        },
+                      );
+                    } else {
+                      return const Center(child: Text("No data available"));
                     }
-                    return const CircularProgressIndicator();
+                  },
+                ),
 
-                  }),) 
+                  // FutureBuilder<SearchResponse>(
+                  //   future: incomingLocations, 
+                  //   builder: ((context, AsyncSnapshot snapshot) {
+                  //   if (snapshot.hasData){
+                  //     return ListView.separated(
+                  //       itemBuilder: (context, index){
+                  //       SearchResponse location = snapshot.data?[index];
+                  //       return Text(location as String);
+                  //       // return ListTile(
+                  //       //   title:  Text(location.name as String),
+                  //       //   subtitle: Text(location.addressObject as String),
+                  //       //   //onTap: () => openPge(context), code for function to call when activityclicked
+                  //       //   trailing: ElevatedButton.icon(
+                  //       //     onPressed: (){}, // replace this by saving activity
+                  //       //     icon: const Icon(Icons.favorite),
+                  //       //     label: const Text('Save'),)
+                          
+                  //       // );
+                  //     },
+                  //     separatorBuilder: (context, index){
+                  //       return const Divider(color: Colors.black,);
+                  //     }, itemCount: snapshot.data!.length);
+
+                  //   } else if (snapshot.hasError){
+                  //     return const Text("Error loading locations");
+                  //   }
+                  //   return const CircularProgressIndicator();
+
+                  // }),) 
             ],
           ),
         ));
