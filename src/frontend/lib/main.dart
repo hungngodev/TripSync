@@ -31,7 +31,6 @@ import './bloc/authentication_state.dart';
 import './login/welcom_page.dart';
 import 'pages/home/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'pages/signup.dart';
 
 class SimpleBlocObserver extends BlocObserver {
   @override
