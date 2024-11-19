@@ -1,25 +1,58 @@
 from django.core.management.base import BaseCommand
-from core.models import Traveller
+from django.contrib.auth import get_user_model
 from core.models import Activity, Calendar, ChosenActivity
 from datetime import date, timedelta
 import json
-import random
 
 class Command(BaseCommand):
     help = 'Populate the database with fake data'
 
     def handle(self, *args, **kwargs):
-        # Fake Data for Travellers
-        Traveller.objects.create(username='john_doe', password='password123', email='john@example.com', first_name='John', last_name='Doe', is_active=True, is_staff=False)
-        Traveller.objects.create(username='jane_smith', password='password123', email='jane@example.com', first_name='Jane', last_name='Smith', is_active=True, is_staff=False)
-        Traveller.objects.create(username='admin_user', password='adminpass', email='admin@example.com', first_name='Admin', last_name='User', is_active=True, is_staff=True, is_superuser=True)
+        # Clear existing data
+        Activity.objects.all().delete()
+        Calendar.objects.all().delete()
+        ChosenActivity.objects.all().delete()
 
-        # Check if users are created
-        travellers = Traveller.objects.all()
-        for traveller in travellers:
-            print(traveller.username, traveller.email)
-                # Fake Data for Activities
-        activities = [
+        # Fake Data for Users
+        User = get_user_model()
+        users_data = [
+            {
+                'username': 'john_doe',
+                'password': 'password123',
+                'email': 'john@example.com',
+                'first_name': 'John',
+                'last_name': 'Doe',
+                'is_active': True,
+                'is_staff': False
+            },
+            {
+                'username': 'jane_smith',
+                'password': 'password123',
+                'email': 'jane@example.com',
+                'first_name': 'Jane',
+                'last_name': 'Smith',
+                'is_active': True,
+                'is_staff': False
+            },
+            {
+                'username': 'admin_user',
+                'password': 'adminpass',
+                'email': 'admin@example.com',
+                'first_name': 'Admin',
+                'last_name': 'User',
+                'is_active': True,
+                'is_staff': True,
+                'is_superuser': True
+            }
+        ]
+
+        for user_data in users_data:
+            user = User(**user_data)
+            user.set_password(user_data['password'])  # Set the password correctly
+            user.save()
+
+        # Fake Data for Activities
+        activities_data = [
             {
                 "location": "Grand Canyon",
                 "category": "entertainment",
@@ -40,39 +73,32 @@ class Command(BaseCommand):
             },
         ]
 
-        for activity in activities:
-            a = Activity(
-                location=activity['location'],
-                category=activity['category'],
-                description=activity['description'],
-                source_link=activity['source_link'],
-            )
-            a.save()
+        for activity in activities_data:
+            Activity.objects.create(**activity)
 
         # Fake Data for Calendars
-        calendars = [
-            {"user": Traveller.objects.get(username="john_doe"), "name": "Summer Vacation"},
-            {"user": Traveller.objects.get(username="jane_smith"), "name": "Winter Getaway"},
+        calendars_data = [
+            {"user": User.objects.get(username="john_doe"), "name": "Summer Vacation"},
+            {"user": User.objects.get(username="jane_smith"), "name": "Winter Getaway"},
         ]
 
-        for calendar in calendars:
-            c = Calendar(user=calendar['user'], name=calendar['name'])
-            c.save()
+        for calendar_data in calendars_data:
+            Calendar.objects.create(**calendar_data)
 
         file_path = 'core/data/activities.json'  # Change this if necessary
 
+        # Load activities from JSON file
         try:
             with open(file_path) as f:
-                activities = json.load(f)
-                for activity in activities:
+                activities_from_file = json.load(f)
+                for activity in activities_from_file:
                     Activity.objects.create(
-                        id=int(activity['id']) + random.randint(100, 1000),
                         location=activity['location'],
                         category=activity['category'],
                         description=activity['description'],
                         source_link=activity['sourceLink']
                     )
-            self.stdout.write(self.style.SUCCESS('Successfully loaded activities'))
+            self.stdout.write(self.style.SUCCESS('Successfully loaded activities from JSON file'))
         except FileNotFoundError:
             self.stdout.write(self.style.ERROR(f'File not found: {file_path}'))
         except json.JSONDecodeError:
@@ -80,35 +106,25 @@ class Command(BaseCommand):
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'An error occurred: {str(e)}'))
 
-
         # Fake Data for ChosenActivities
-        chosen_activities = [
+        chosen_activities_data = [
             {
                 "activity": Activity.objects.get(location="Grand Canyon"),
                 "calendar": Calendar.objects.get(name="Summer Vacation"),
-                "user": Traveller.objects.get(username="john_doe"),
+                "user": User.objects.get(username="john_doe"),
                 "start_date": date.today(),
                 "end_date": date.today() + timedelta(days=2),
             },
             {
                 "activity": Activity.objects.get(location="Le Gourmet"),
                 "calendar": Calendar.objects.get(name="Winter Getaway"),
-                "user": Traveller.objects.get(username="jane_smith"),
+                "user": User.objects.get(username="jane_smith"),
                 "start_date": date.today(),
                 "end_date": date.today() + timedelta(days=1),
             },
         ]
 
-        for chosen_activity in chosen_activities:
-            ca = ChosenActivity(
-                activity=chosen_activity['activity'],
-                calendar=chosen_activity['calendar'],
-                user=chosen_activity['user'],
-                start_date=chosen_activity['start_date'],
-                end_date=chosen_activity['end_date'],
-            )
-            ca.save()
+        for chosen_activity_data in chosen_activities_data:
+            ChosenActivity.objects.create(**chosen_activity_data)
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database with fake data.'))
-        
-
