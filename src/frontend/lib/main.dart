@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'pages/Home.dart';
+// import 'pages/Home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'pages/signup.dart';
 
 void main() async {
   await dotenv.load(); // Load the .env file
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const Home(),
+      home: Signup(),
     );
   }
 }
