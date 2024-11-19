@@ -219,7 +219,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
 
     def get_all_chosen_activities_of_traveller(self, traveller_id):
         return self.queryset.filter(user_id=traveller_id, 
-                                    calendar_id=None)
+                                    calendar_id=None).select_related('activity')
 
     def get_all_chosen_activities_of_calendar(self, calendar_id):
         return self.queryset.filter(calendar_id=calendar_id)

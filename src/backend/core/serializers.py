@@ -40,6 +40,7 @@ class CalendarSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'name']
 
 class ChosenActivitySerializer(serializers.ModelSerializer):
+    activity = ActivitySerializer() 
     class Meta:
         model = ChosenActivity
         fields = ['id', 'activity', 'calendar', 'user', 'start_date', 'end_date']

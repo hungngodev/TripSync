@@ -119,12 +119,12 @@ class ApiService {
     }
   }
 
-  Future<void> getChosenList() async {
+  Future<List<Map<String, dynamic>>> getChosenList() async {
     final user = await userDao.getUser();
     final token = user.token;
     const endpoint = 'chosen-activities/chosen_list';
     final url = Uri.parse('$baseUrl$endpoint/');
-    final response = await http.delete(
+    final response = await http.get(
       url,
       headers: {
         'Authorization': 'Token $token',
@@ -132,11 +132,30 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 204) {
+    if (response.statusCode == 200) {
       print("Activity retrieved successfully");
-      return json.decode(response.body);
+      final selected = json.decode(response.body);
+      print("Selected activities: $selected");
+
+      // Ensure that selected is a List of Maps and handle nested data properly
+      List<Map<String, dynamic>> selectedActivities =
+          List<Map<String, dynamic>>.from(
+        selected.map((activity) {
+          return {
+            'id': activity['activity']['id'], // Extract nested activity ID
+            'location': activity['activity']['location'], // Extract location
+            'description': activity['activity']
+                ['description'], // Extract description
+            'chosenId': activity['id'], // Use top-level ID as chosenId
+          };
+        }),
+      );
+
+      print("Mapped selected activities: $selectedActivities");
+      return selectedActivities;
     } else {
       print("Failed to retrieve activity: ${response.statusCode}");
+      return [];
     }
   }
 }

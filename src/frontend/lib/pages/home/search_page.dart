@@ -28,8 +28,21 @@ class _Home extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // Call the function to get the data
-    // fetchData();
+    // Fetch selected activities
+    _fetchSelectedActivities();
+  }
+
+  Future<void> _fetchSelectedActivities() async {
+    try {
+      // Fetch the list of chosen activities from the API
+      List<Map<String, dynamic>> activities = await apiService.getChosenList();
+
+      setState(() {
+        selectedActivities = activities;
+      });
+    } catch (e) {
+      print("Error fetching selected activities: $e");
+    }
   }
 
   void addLocation() {
