@@ -53,6 +53,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   date_picker_timeline: ^1.2.6
   scroll_snap_list: ^0.9.1
+  syncfusion_flutter_calendar: ^27.2.2
 
 dev_dependencies:
   flutter_test:

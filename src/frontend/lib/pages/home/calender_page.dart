@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_snap_list/scroll_snap_list.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import '../../util/table.dart';
 
 class CalenderPage extends StatefulWidget {
   const CalenderPage({super.key});
@@ -45,6 +46,7 @@ class _CalenderPageState extends State<CalenderPage> {
     maincolors.color4Dark
   ];
   DateTime _selectedDateTime = DateTime.now();
+
   final Map<dynamic, dynamic> tasksDay = {};
 
   @override
@@ -167,27 +169,27 @@ class _CalenderPageState extends State<CalenderPage> {
                 // ),
               ),
               Expanded(
-                  child: ListView.builder(
-                      itemCount: 4,
-                      itemBuilder: (context, index) {
-                        // add(Duration(days:1)).toString());
-                        return Consumer<SelectedTimeChangeProvider>(
-                            builder: (context, value, child) {
-                          var tasksForDay = tasksDay.putIfAbsent(
-                            value.selectedDate.add(Duration(days: index)),
-                            () =>
-                                {}, // Return an empty map as the default value
-                          );
-                          return DayCard(
-                              tasks: tasksForDay,
-                              selectedDate:
-                                  value.selectedDate.add(Duration(days: index)),
-                              cardColor: cardColors[index],
-                              dividerColor: dividerColors[index],
-                              key: ValueKey(value.selectedDate
-                                  .add(Duration(days: index))));
-                        });
-                      })),
+                child: TablePage(),
+              )
+              // child: ListView.builder(
+              //     itemCount: 4,
+              //     itemBuilder: (context, index) {
+              //       // add(Duration(days:1)).toString());
+              //       return Consumer<SelectedTimeChangeProvider>(
+              //           builder: (context, value, child) {
+              //         DateTime key =
+              //             value.selectedDate.add(Duration(days: index));
+              //         var taskForDay = tasksDay.putIfAbsent(key, () => []);
+
+              //         return DayCard(
+              //             tasks: taskForDay,
+              //             selectedDate: key,
+              //             cardColor: cardColors[index],
+              //             dividerColor: dividerColors[index],
+              //             key: ValueKey(value.selectedDate
+              //                 .add(Duration(days: index))));
+              //       });
+              //     })),
             ],
           ),
         ),
