@@ -218,27 +218,26 @@ class _DayCardState extends State<DayCard> {
                     clipBehavior: Clip
                         .none, // Allows the task list to overflow the Stack bounds
                     children: [
-                      // ListView.builder(
-                      //     scrollDirection: Axis.horizontal,
-                      //     itemCount: timeList.length,
-                      //     itemBuilder: (context, index) {
-                      //       return CalendarPage();
-                      //       // return TimeCard(
-                      //       //   tasksList6am: tasksList6am,
-                      //       //   time_for_card: timeList[index],
-                      //       //   index: index,
-                      //       //   dividerColor: widget.dividerColor,
-                      //       //   onTaskDelete: (() {
-                      //       //     print("Task Deleted");
-                      //       //   }),
-                      //       //   addTask: (task) {
-                      //       //     setState(() {
-                      //       //       widget.tasks.add(task);
-                      //       //     });
-                      //       //   },
-                      //       //   duration: 100,
-                      //       // );
-                      //     }),
+                      ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: timeList.length,
+                          itemBuilder: (context, index) {
+                            return TimeCard(
+                              tasksList6am: tasksList6am,
+                              time_for_card: timeList[index],
+                              index: index,
+                              dividerColor: widget.dividerColor,
+                              onTaskDelete: (() {
+                                print("Task Deleted");
+                              }),
+                              addTask: (task) {
+                                setState(() {
+                                  widget.tasks.add(task);
+                                });
+                              },
+                              duration: 100,
+                            );
+                          }),
                     ]),
               ),
             ],

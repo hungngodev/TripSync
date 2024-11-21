@@ -4,6 +4,7 @@ import './profile_page.dart';
 import './setting_page.dart';
 import './calendar_page.dart';
 import '../../login/onboarding_page.dart';
+import './creation.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -59,9 +60,8 @@ class _HomeState extends State<HomePage> {
       body: <Widget>[
         /// Home page
         ///
-
+        const CreationScreen(),
         const SearchPage(),
-        const OnboardingPage(),
         const CalendarPage(),
 
         /// Messages page
