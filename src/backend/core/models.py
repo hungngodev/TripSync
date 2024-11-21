@@ -17,6 +17,8 @@ class Activity(models.Model):
 class Calendar(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True)  # Reference to Traveller model
     name = models.CharField(max_length=255)
+    start_date = models.DateField(null = True)
+    end_date = models.DateField(null = True)
 
 class ChosenActivity(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=False)

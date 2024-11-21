@@ -29,8 +29,12 @@ class _HomeState extends State<HomePage> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.search),
             icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.search),
+            icon: Icon(Icons.search_rounded),
             label: 'Search',
           ),
           NavigationDestination(
@@ -54,13 +58,15 @@ class _HomeState extends State<HomePage> {
       ),
       body: <Widget>[
         /// Home page
-        SearchPage(),
-        OnboardingPage(),
-        CalendarPage(),
+        ///
+
+        const SearchPage(),
+        const OnboardingPage(),
+        const CalendarPage(),
 
         /// Messages page
-        ProfilePage(),
-        SettingPage()
+        const ProfilePage(),
+        const SettingPage()
       ][currentPageIndex],
     );
   }
