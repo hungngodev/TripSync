@@ -14,14 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'password',
-        )
+        fields = '__all__'
         validators = [
             UniqueTogetherValidator(
                 queryset=User.objects.all(),
@@ -32,15 +25,25 @@ class UserSerializer(serializers.ModelSerializer):
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
-        fields = ['id', 'location', 'category', 'description', 'source_link']
+        fields = '__all__'
 
 class CalendarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Calendar
-        fields = ['id', 'user', 'name']
+        fields = '__all__'
 
 class ChosenActivitySerializer(serializers.ModelSerializer):
-    activity = ActivitySerializer() 
+    activity = serializers.PrimaryKeyRelatedField(queryset=Activity.objects.all())  
     class Meta:
         model = ChosenActivity
-        fields = ['id', 'activity', 'calendar', 'user', 'start_date', 'end_date']
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        """
+        Override the to_representation method to include the full activity details
+        in the response (when sending data back to the frontend).
+        """
+        representation = super().to_representation(instance)
+        # Serialize the related activity using ActivitySerializer
+        representation['activity'] = ActivitySerializer(instance.activity).data
+        return representation

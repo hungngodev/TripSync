@@ -31,7 +31,7 @@ class _TimeZonePickerState extends State<_TimeZonePicker> {
                   });
 
                   // ignore: always_specify_types
-                  Future.delayed(const Duration(milliseconds: 200), () {
+                  Future.delayed(const Duration(milliseconds: 20), () {
                     // When task is over, close the dialog
                     Navigator.pop(context);
                   });

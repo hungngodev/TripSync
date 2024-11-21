@@ -1,32 +1,29 @@
 library event_calendar;
 
+import 'dart:math';
+
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'dart:math';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../../services/django/api_service.dart';
+
 import '../../provider/calender_time_provider.dart';
 import '../../util/mainColors.dart';
-import '../../util/table.dart';
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
-
-part '../../util/color-picker.dart';
-
-part '../../util/timezone-picker.dart';
 
 part '../../util/appointment-editor.dart';
+part '../../util/color-picker.dart';
+part '../../util/timezone-picker.dart';
 
-List<Color> _colorCollection = <Color>[];
+List<Color> _colorCollection = colorCollection;
 List<String> _colorNames = <String>[];
-int _selectedColorIndex = 0;
+Color _selectedColorIndex = Colors.blue;
 int _selectedTimeZoneIndex = 0;
-List<String> _timeZoneCollection = <String>[];
+List<String> _timeZoneCollection = timeZoneCollection;
 late DataSource _events;
 Meeting? _selectedAppointment;
 late DateTime _startDate;
@@ -36,9 +33,13 @@ late TimeOfDay _endTime;
 bool _isAllDay = false;
 String _subject = '';
 String _notes = '';
+int _selectedActivity = 1;
+late List<dynamic> chosenList;
+final ApiService apiService = ApiService();
+int _selectedMeeting = -1;
 
 class CalenderPage extends StatefulWidget {
-  const CalenderPage({super.key});
+  const CalenderPage({Key? key}) : super(key: key);
 
   @override
   State<CalenderPage> createState() => _CalenderPageState();
@@ -46,44 +47,16 @@ class CalenderPage extends StatefulWidget {
 
 class _CalenderPageState extends State<CalenderPage> {
   _CalenderPageState();
-  List<String> months = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC"
-  ];
-  List<Color> cardColors = [
-    maincolors.color1,
-    maincolors.color2,
-    maincolors.color3,
-    maincolors.color4
-  ];
-  List<Color> dividerColors = [
-    maincolors.color1Dark,
-    maincolors.color2Dark,
-    maincolors.color3Dark,
-    maincolors.color4Dark
-  ];
-  DateTime _selectedDateTime = DateTime.now();
 
   late List<String> eventNameCollection;
-  late List<Meeting> appointments;
+  List<Meeting> appointments = <Meeting>[];
   CalendarController calendarController = CalendarController();
 
   @override
   void initState() {
-    appointments = getMeetingDetails();
-    _events = DataSource(appointments);
+    getMeetingDetails();
     _selectedAppointment = null;
-    _selectedColorIndex = 0;
+    _selectedColorIndex = Colors.black;
     _selectedTimeZoneIndex = 0;
     _subject = '';
     _notes = '';
@@ -92,145 +65,6 @@ class _CalenderPageState extends State<CalenderPage> {
 
   @override
   Widget build(BuildContext context) {
-    Future<String> pickTime(start, initial) async {
-      TimeOfDay? time = await showTimePicker(
-        context: context,
-        initialTime: initial,
-        builder: (BuildContext context, Widget? child) {
-          return Theme(
-            data: ThemeData.light().copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.blue,
-                onPrimary: Colors.white,
-                onSurface: Colors.black,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blue, // button text color
-                ),
-              ),
-            ),
-            child: child!,
-          );
-        },
-      );
-      if (time != null) {
-        return time.format(context);
-      }
-      return '';
-    }
-
-    Future addTask() => showDialog(
-        context: context,
-        builder: (context) {
-          TimeOfDay initial = TimeOfDay.now();
-          String localStartDate = '';
-          String localEndDate = '';
-          TextEditingController addTaskbtn = TextEditingController();
-
-          return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setDialogState) {
-              return AlertDialog(
-                title: const Text("Add Activity"),
-                content: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // Aligns children to the start
-                  mainAxisSize: MainAxisSize.min, // Prevents overflow
-                  children: [
-                    const Text(
-                      "Enter Details", // Optional label
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                        height: 8), // Adds spacing between Text and TextField
-                    TextField(
-                      decoration: const InputDecoration(
-                        hintText: "Enter Title",
-                        border: OutlineInputBorder(), // Adds a visible border
-                      ),
-                      controller: addTaskbtn,
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () async {
-                        String? time = await pickTime(true, initial);
-                        if (time != null) {
-                          setDialogState(() {
-                            localStartDate = time;
-                          });
-                        }
-                      },
-                      child: localStartDate == ''
-                          ? const Text('Select Start Time')
-                          : Text(localStartDate),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () async {
-                        String? time = await pickTime(false, initial);
-                        if (time != null) {
-                          setDialogState(() {
-                            localEndDate = time;
-                          });
-                        }
-                      },
-                      child: localEndDate == ''
-                          ? const Text('Select End Time')
-                          : Text(localEndDate),
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      if (addTaskbtn.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Task name cannot be empty")),
-                        );
-                        return;
-                      }
-                      if (localStartDate.isEmpty || localEndDate.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text("Start and end dates must be selected")),
-                        );
-                        return;
-                      }
-                      if (localStartDate.compareTo(localEndDate) > 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text("Start date cannot be after end date")),
-                        );
-                        return;
-                      }
-
-                      // final Appointment app = Appointment(
-                      //     startTime: parseTimeStringToDateTime(
-                      //         localStartDate, _controller.displayDate!),
-                      //     endTime: parseTimeStringToDateTime(
-                      //         localEndDate, _controller.displayDate!),
-                      //     subject: addTaskbtn.text,
-                      //     color: Colors.pink);
-                      // _events?.appointments!.add(app);
-                      // _events?.notifyListeners(
-                      //     CalendarDataSourceAction.add, <Appointment>[app]);
-
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Add",
-                      style: GoogleFonts.poppins(color: Colors.black),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        });
     final selectedTimeProvider =
         Provider.of<SelectedTimeChangeProvider>(context, listen: false);
     return Scaffold(
@@ -277,7 +111,7 @@ class _CalenderPageState extends State<CalenderPage> {
                         Container(
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Colors.black,
+                            color: const Color.fromARGB(255, 147, 139, 174),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           child: Padding(
@@ -293,17 +127,6 @@ class _CalenderPageState extends State<CalenderPage> {
                         )
                       ],
                     ),
-                    // Container(
-                    //   height: 50,
-                    //   width: 50,
-                    //   decoration: BoxDecoration(
-                    //     borderRadius: BorderRadius.circular(50),
-                    //     color: const Color.fromARGB(255, 153, 154, 157),
-                    //   ),
-                    //   child: const Center(
-                    //     child: Icon(CupertinoIcons.add),
-                    //   ),
-                    // )
                   ],
                 ),
               ),
@@ -334,47 +157,144 @@ class _CalenderPageState extends State<CalenderPage> {
               Expanded(
                 child: Consumer<SelectedTimeChangeProvider>(
                   builder: (context, value, child) {
-                    //     floatingActionButton: FloatingActionButton(
-                    //       onPressed: addTask,
-                    //       child: GestureDetector(
-                    //           child: const Icon(
-                    //         CupertinoIcons.add,
-                    //         color: Colors.blue,
-                    //       )),
-                    //     ),
-
                     return SfCalendar(
-                        view: CalendarView.month,
-                        controller: calendarController,
-                        allowedViews: const [
-                          CalendarView.week,
-                          CalendarView.timelineWeek,
-                          CalendarView.month
-                        ],
-                        allowViewNavigation: true,
-                        todayHighlightColor: Colors.blue,
-                        // cellBorderColor: Colors.cyanAccent,
-                        showNavigationArrow: true,
-                        firstDayOfWeek: 1,
-                        showCurrentTimeIndicator: true,
-                        dataSource: _events,
-                        onTap: onCalendarTapped,
-                        appointmentBuilder:
-                            (context, calendarAppointmentDetails) {
-                          final Meeting meeting =
-                              calendarAppointmentDetails.appointments.first;
+                      view: CalendarView.day,
+                      controller: calendarController,
+                      allowedViews: const [
+                        CalendarView.day,
+                        CalendarView.week,
+                        CalendarView.timelineWeek,
+                        CalendarView.month
+                      ],
+                      onViewChanged: (ViewChangedDetails details) {
+                        List<DateTime> dates = details.visibleDates;
+                      },
+                      allowAppointmentResize: true,
+                      allowDragAndDrop: true,
+                      timeSlotViewSettings: const TimeSlotViewSettings(
+                        timeIntervalHeight: 80,
+                      ),
+                      allowViewNavigation: true,
+                      todayHighlightColor: Colors.blue,
+                      showNavigationArrow: true,
+                      firstDayOfWeek: 1,
+                      showCurrentTimeIndicator: true,
+                      dataSource: _events,
+                      onTap: onCalendarTapped,
+                      appointmentBuilder: (BuildContext context,
+                          CalendarAppointmentDetails details) {
+                        final Meeting meeting = details.appointments.first;
+                        if (meeting.isAllDay) {
                           return Container(
-                            color: meeting.background.withOpacity(0.8),
-                            child: Text(meeting.eventName),
+                            // color: meeting.background.withOpacity(0.7),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5)),
+                              color: meeting.background.withOpacity(1),
+                            ),
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              meeting.eventName,
+                              style: GoogleFonts.nunito(
+                                  color: Colors.white, fontSize: 15),
+                            ),
                           );
-                        },
-                        initialDisplayDate: DateTime(DateTime.now().year,
-                            DateTime.now().month, DateTime.now().day, 0, 0, 0),
-                        monthViewSettings: const MonthViewSettings(
-                            appointmentDisplayMode:
-                                MonthAppointmentDisplayMode.appointment),
-                        timeSlotViewSettings: const TimeSlotViewSettings(
-                            minimumAppointmentDuration: Duration(minutes: 60)));
+                        }
+
+                        return Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(3),
+                              height: details.bounds.height * 0.35,
+                              alignment: Alignment.topLeft,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.rectangle,
+                                borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(5),
+                                    topRight: Radius.circular(5)),
+                                color: meeting.background.withOpacity(1),
+                              ),
+                              child: SingleChildScrollView(
+                                  child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    meeting.eventName,
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                    maxLines: 3,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical:
+                                              details.bounds.height * 0.008)),
+                                  Text(
+                                    'Time: ${DateFormat('hh:mm a').format(meeting.from)} - ' +
+                                        '${DateFormat('hh:mm a').format(meeting.to)}',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white),
+                                  )
+                                ],
+                              )),
+                            ),
+                            Container(
+                              height: details.bounds.height * 0.55,
+                              padding: const EdgeInsets.fromLTRB(3, 5, 3, 2),
+                              color: meeting.background.withOpacity(0.7),
+                              alignment: Alignment.topLeft,
+                              child: SingleChildScrollView(
+                                  child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // details.bounds.height > 100
+                                  //     ? Padding(
+                                  //         padding: const EdgeInsets.symmetric(
+                                  //             vertical: 5),
+                                  //         child: Image(
+                                  //             // image:
+                                  //             //     ExactAssetImage(meeting.url),
+                                  //             image: const NetworkImage(
+                                  //                 'https://img.freepik.com/free-vector/world-tourism-day-concept-with-realistic-design_23-2147901978.jpg?t=st=1732163566~exp=1732167166~hmac=cf5af73b2ddc16523195d8ecb4bdbc46170ec1562437af88c1e3a8861259a0b4&w=2000'),
+                                  //             fit: BoxFit.fitWidth,
+                                  //             width: details.bounds.width,
+                                  //             height:
+                                  //                 details.bounds.height * 0.4),
+                                  //       )
+                                  //     : const SizedBox.shrink(),
+                                  Text(
+                                    meeting.description!,
+                                    style: GoogleFonts.nunito(
+                                        color: Colors.white, fontSize: 15),
+                                  )
+                                ],
+                              )),
+                            ),
+                            Container(
+                              height: details.bounds.height * 0.1,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.rectangle,
+                                borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(5),
+                                    bottomRight: Radius.circular(5)),
+                                color: meeting.background.withOpacity(1),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                      initialDisplayDate: DateTime(DateTime.now().year,
+                          DateTime.now().month, DateTime.now().day, 0, 0, 0),
+                      monthViewSettings: const MonthViewSettings(
+                          appointmentDisplayMode:
+                              MonthAppointmentDisplayMode.appointment),
+                    );
                   },
                 ),
               )
@@ -399,12 +319,15 @@ class _CalenderPageState extends State<CalenderPage> {
     }
 
     setState(() {
+      final Random random = Random();
       _selectedAppointment = null;
       _isAllDay = false;
-      _selectedColorIndex = 0;
+      _selectedColorIndex = _colorCollection[random.nextInt(9)];
       _selectedTimeZoneIndex = 0;
       _subject = '';
       _notes = '';
+      _selectedActivity = 1;
+      _selectedMeeting = -1;
       if (calendarController.view == CalendarView.month) {
         calendarController.view = CalendarView.day;
       } else {
@@ -414,8 +337,7 @@ class _CalenderPageState extends State<CalenderPage> {
           _startDate = meetingDetails.from;
           _endDate = meetingDetails.to;
           _isAllDay = meetingDetails.isAllDay;
-          _selectedColorIndex =
-              _colorCollection.indexOf(meetingDetails.background);
+          _selectedColorIndex = meetingDetails.background;
           _selectedTimeZoneIndex = meetingDetails.startTimeZone == ''
               ? 0
               : _timeZoneCollection.indexOf(meetingDetails.startTimeZone);
@@ -424,6 +346,8 @@ class _CalenderPageState extends State<CalenderPage> {
               : meetingDetails.eventName;
           _notes = meetingDetails.description;
           _selectedAppointment = meetingDetails;
+          _selectedActivity = meetingDetails.activity;
+          _selectedMeeting = meetingDetails.id;
         } else {
           final DateTime date = calendarTapDetails.date!;
           _startDate = date;
@@ -435,208 +359,78 @@ class _CalenderPageState extends State<CalenderPage> {
         Navigator.push<Widget>(
           context,
           MaterialPageRoute(
-              builder: (BuildContext context) => AppointmentEditor()),
+              builder: (BuildContext context) => const AppointmentEditor()),
         );
       }
     });
   }
 
-  List<Meeting> getMeetingDetails() {
-    final List<Meeting> meetingCollection = <Meeting>[];
-    eventNameCollection = <String>[];
-    eventNameCollection.add('General Meeting');
-    eventNameCollection.add('Plan Execution');
-    eventNameCollection.add('Project Plan');
-    eventNameCollection.add('Consulting');
-    eventNameCollection.add('Support');
-    eventNameCollection.add('Development Meeting');
-    eventNameCollection.add('Scrum');
-    eventNameCollection.add('Project Completion');
-    eventNameCollection.add('Release updates');
-    eventNameCollection.add('Performance Check');
+  Future<void> getMeetingDetails() async {
+    eventNameCollection = <String>[
+      'General Meeting',
+      'Plan Execution',
+      'Project Plan',
+      'Consulting',
+      'Support',
+      'Development Meeting',
+      'Scrum',
+      'Project Completion',
+      'Release updates',
+      'Performance Check',
+    ];
 
-    _colorCollection = <Color>[];
-    _colorCollection.add(const Color(0xFF0F8644));
-    _colorCollection.add(const Color(0xFF8B1FA9));
-    _colorCollection.add(const Color(0xFFD20100));
-    _colorCollection.add(const Color(0xFFFC571D));
-    _colorCollection.add(const Color(0xFF85461E));
-    _colorCollection.add(const Color(0xFFFF00FF));
-    _colorCollection.add(const Color(0xFF3D4FB5));
-    _colorCollection.add(const Color(0xFFE47C73));
-    _colorCollection.add(const Color(0xFF636363));
-
-    _colorNames = <String>[];
-    _colorNames.add('Green');
-    _colorNames.add('Purple');
-    _colorNames.add('Red');
-    _colorNames.add('Orange');
-    _colorNames.add('Caramel');
-    _colorNames.add('Magenta');
-    _colorNames.add('Blue');
-    _colorNames.add('Peach');
-    _colorNames.add('Gray');
-
-    _timeZoneCollection = <String>[];
-    _timeZoneCollection.add('Default Time');
-    _timeZoneCollection.add('AUS Central Standard Time');
-    _timeZoneCollection.add('AUS Eastern Standard Time');
-    _timeZoneCollection.add('Afghanistan Standard Time');
-    _timeZoneCollection.add('Alaskan Standard Time');
-    _timeZoneCollection.add('Arab Standard Time');
-    _timeZoneCollection.add('Arabian Standard Time');
-    _timeZoneCollection.add('Arabic Standard Time');
-    _timeZoneCollection.add('Argentina Standard Time');
-    _timeZoneCollection.add('Atlantic Standard Time');
-    _timeZoneCollection.add('Azerbaijan Standard Time');
-    _timeZoneCollection.add('Azores Standard Time');
-    _timeZoneCollection.add('Bahia Standard Time');
-    _timeZoneCollection.add('Bangladesh Standard Time');
-    _timeZoneCollection.add('Belarus Standard Time');
-    _timeZoneCollection.add('Canada Central Standard Time');
-    _timeZoneCollection.add('Cape Verde Standard Time');
-    _timeZoneCollection.add('Caucasus Standard Time');
-    _timeZoneCollection.add('Cen. Australia Standard Time');
-    _timeZoneCollection.add('Central America Standard Time');
-    _timeZoneCollection.add('Central Asia Standard Time');
-    _timeZoneCollection.add('Central Brazilian Standard Time');
-    _timeZoneCollection.add('Central Europe Standard Time');
-    _timeZoneCollection.add('Central European Standard Time');
-    _timeZoneCollection.add('Central Pacific Standard Time');
-    _timeZoneCollection.add('Central Standard Time');
-    _timeZoneCollection.add('China Standard Time');
-    _timeZoneCollection.add('Dateline Standard Time');
-    _timeZoneCollection.add('E. Africa Standard Time');
-    _timeZoneCollection.add('E. Australia Standard Time');
-    _timeZoneCollection.add('E. South America Standard Time');
-    _timeZoneCollection.add('Eastern Standard Time');
-    _timeZoneCollection.add('Egypt Standard Time');
-    _timeZoneCollection.add('Ekaterinburg Standard Time');
-    _timeZoneCollection.add('FLE Standard Time');
-    _timeZoneCollection.add('Fiji Standard Time');
-    _timeZoneCollection.add('GMT Standard Time');
-    _timeZoneCollection.add('GTB Standard Time');
-    _timeZoneCollection.add('Georgian Standard Time');
-    _timeZoneCollection.add('Greenland Standard Time');
-    _timeZoneCollection.add('Greenwich Standard Time');
-    _timeZoneCollection.add('Hawaiian Standard Time');
-    _timeZoneCollection.add('India Standard Time');
-    _timeZoneCollection.add('Iran Standard Time');
-    _timeZoneCollection.add('Israel Standard Time');
-    _timeZoneCollection.add('Jordan Standard Time');
-    _timeZoneCollection.add('Kaliningrad Standard Time');
-    _timeZoneCollection.add('Korea Standard Time');
-    _timeZoneCollection.add('Libya Standard Time');
-    _timeZoneCollection.add('Line Islands Standard Time');
-    _timeZoneCollection.add('Magadan Standard Time');
-    _timeZoneCollection.add('Mauritius Standard Time');
-    _timeZoneCollection.add('Middle East Standard Time');
-    _timeZoneCollection.add('Montevideo Standard Time');
-    _timeZoneCollection.add('Morocco Standard Time');
-    _timeZoneCollection.add('Mountain Standard Time');
-    _timeZoneCollection.add('Mountain Standard Time (Mexico)');
-    _timeZoneCollection.add('Myanmar Standard Time');
-    _timeZoneCollection.add('N. Central Asia Standard Time');
-    _timeZoneCollection.add('Namibia Standard Time');
-    _timeZoneCollection.add('Nepal Standard Time');
-    _timeZoneCollection.add('New Zealand Standard Time');
-    _timeZoneCollection.add('Newfoundland Standard Time');
-    _timeZoneCollection.add('North Asia East Standard Time');
-    _timeZoneCollection.add('North Asia Standard Time');
-    _timeZoneCollection.add('Pacific SA Standard Time');
-    _timeZoneCollection.add('Pacific Standard Time');
-    _timeZoneCollection.add('Pacific Standard Time (Mexico)');
-    _timeZoneCollection.add('Pakistan Standard Time');
-    _timeZoneCollection.add('Paraguay Standard Time');
-    _timeZoneCollection.add('Romance Standard Time');
-    _timeZoneCollection.add('Russia Time Zone 10');
-    _timeZoneCollection.add('Russia Time Zone 11');
-    _timeZoneCollection.add('Russia Time Zone 3');
-    _timeZoneCollection.add('Russian Standard Time');
-    _timeZoneCollection.add('SA Eastern Standard Time');
-    _timeZoneCollection.add('SA Pacific Standard Time');
-    _timeZoneCollection.add('SA Western Standard Time');
-    _timeZoneCollection.add('SE Asia Standard Time');
-    _timeZoneCollection.add('Samoa Standard Time');
-    _timeZoneCollection.add('Singapore Standard Time');
-    _timeZoneCollection.add('South Africa Standard Time');
-    _timeZoneCollection.add('Sri Lanka Standard Time');
-    _timeZoneCollection.add('Syria Standard Time');
-    _timeZoneCollection.add('Taipei Standard Time');
-    _timeZoneCollection.add('Tasmania Standard Time');
-    _timeZoneCollection.add('Tokyo Standard Time');
-    _timeZoneCollection.add('Tonga Standard Time');
-    _timeZoneCollection.add('Turkey Standard Time');
-    _timeZoneCollection.add('US Eastern Standard Time');
-    _timeZoneCollection.add('US Mountain Standard Time');
-    _timeZoneCollection.add('UTC');
-    _timeZoneCollection.add('UTC+12');
-    _timeZoneCollection.add('UTC-02');
-    _timeZoneCollection.add('UTC-11');
-    _timeZoneCollection.add('Ulaanbaatar Standard Time');
-    _timeZoneCollection.add('Venezuela Standard Time');
-    _timeZoneCollection.add('Vladivostok Standard Time');
-    _timeZoneCollection.add('W. Australia Standard Time');
-    _timeZoneCollection.add('W. Central Africa Standard Time');
-    _timeZoneCollection.add('W. Europe Standard Time');
-    _timeZoneCollection.add('West Asia Standard Time');
-    _timeZoneCollection.add('West Pacific Standard Time');
-    _timeZoneCollection.add('Yakutsk Standard Time');
-
-    final DateTime today = DateTime.now();
+    chosenList = await apiService.getChosenList();
     final Random random = Random();
-    for (int month = -1; month < 2; month++) {
-      for (int day = -5; day < 5; day++) {
-        for (int hour = 9; hour < 18; hour += 5) {
-          meetingCollection.add(Meeting(
-            from: today
-                .add(Duration(days: (month * 30) + day))
-                .add(Duration(hours: hour)),
-            to: today
-                .add(Duration(days: (month * 30) + day))
-                .add(Duration(hours: hour + 2)),
-            background: _colorCollection[random.nextInt(9)],
-            startTimeZone: '',
-            endTimeZone: '',
-            description: '',
-            isAllDay: false,
-            eventName: eventNameCollection[random.nextInt(7)],
-          ));
-        }
-      }
-    }
-
-    return meetingCollection;
-  }
-}
-
-DateTime parseTimeStringToDateTime(String timeString, DateTime baseDate) {
-  // Regular expression to match hour, minute, and period (AM/PM)
-  final regex = RegExp(r'(\d{1,2}):(\d{2})\s?(AM|PM)');
-
-  final match = regex.firstMatch(timeString);
-  if (match != null) {
-    int hour = int.parse(match.group(1)!);
-    int minute = int.parse(match.group(2)!);
-    String period = match.group(3)!;
-
-    // Convert to 24-hour format
-    if (period == "PM" && hour != 12) {
-      hour += 12;
-    } else if (period == "AM" && hour == 12) {
-      hour = 0;
-    }
-
-    // Create a DateTime object based on the base date
-    return DateTime(
-      baseDate.year,
-      baseDate.month,
-      baseDate.day,
-      hour,
-      minute,
-    );
-  } else {
-    throw FormatException("Invalid time format: $timeString");
+    _selectedActivity = chosenList[0]['id'];
+    print(_selectedActivity);
+    final backendCalendar = await apiService.getCalendar();
+    final List<Meeting> meetingCollection = backendCalendar
+        .map((event) => Meeting(
+              from: DateTime.parse(event['start_date']),
+              to: DateTime.parse(event['end_date']),
+              background: Color(int.parse('0x${event['color']}')),
+              startTimeZone: event['startTimeZone'],
+              endTimeZone: event['endTimeZone'],
+              description: event['description'],
+              eventName: event['title'],
+              subject: '',
+              url: 'assets/images/1.jpg',
+              activity: (event['activity']['id']),
+              id: event['id'],
+              isAllDay: event['isAllDay'],
+            ))
+        .toList();
+    print(meetingCollection);
+    // final DateTime today = DateTime.now();
+    // final Random random = Random();
+    // for (int month = -1; month < 2; month++) {
+    //   for (int day = -5; day < 5; day++) {
+    //     for (int hour = 9; hour < 18; hour += 5) {
+    //       meetingCollection.add(Meeting(
+    //         from: today
+    //             .add(Duration(days: (month * 30) + day))
+    //             .add(Duration(hours: hour)),
+    //         to: today
+    //             .add(Duration(days: (month * 30) + day))
+    //             .add(Duration(hours: hour + random.nextInt(4) + 2)),
+    //         background: _colorCollection[random.nextInt(9)],
+    //         startTimeZone: '',
+    //         endTimeZone: '',
+    //         description: 'loreum ipsum',
+    //         isAllDay: false,
+    //         eventName: eventNameCollection[random.nextInt(7)],
+    //         subject: '',
+    //         url: 'assets/images/1.jpg',
+    //         activity: _selectedActivity,
+    //         id: random.nextInt(1000),
+    //       ));
+    //     }
+    //   }
+    // }
+    setState(() {
+      appointments = meetingCollection;
+      _events = DataSource(appointments);
+    });
   }
 }
 
@@ -679,7 +473,11 @@ class Meeting {
       this.eventName = '',
       this.startTimeZone = '',
       this.endTimeZone = '',
-      this.description = ''});
+      this.description = '',
+      this.subject = '',
+      this.url = '',
+      this.activity,
+      required this.id});
 
   final String eventName;
   final DateTime from;
@@ -689,4 +487,164 @@ class Meeting {
   final String startTimeZone;
   final String endTimeZone;
   final String description;
+  final String subject;
+  final String url;
+  final dynamic activity;
+  final int id;
 }
+
+List<String> months = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC"
+];
+List<Color> cardColors = [
+  maincolors.color1,
+  maincolors.color2,
+  maincolors.color3,
+  maincolors.color4
+];
+List<Color> dividerColors = [
+  maincolors.color1Dark,
+  maincolors.color2Dark,
+  maincolors.color3Dark,
+  maincolors.color4Dark
+];
+final List<String> timeZoneCollection = [
+  'Default Time',
+  'AUS Central Standard Time',
+  'AUS Eastern Standard Time',
+  'Afghanistan Standard Time',
+  'Alaskan Standard Time',
+  'Arab Standard Time',
+  'Arabian Standard Time',
+  'Arabic Standard Time',
+  'Argentina Standard Time',
+  'Atlantic Standard Time',
+  'Azerbaijan Standard Time',
+  'Azores Standard Time',
+  'Bahia Standard Time',
+  'Bangladesh Standard Time',
+  'Belarus Standard Time',
+  'Canada Central Standard Time',
+  'Cape Verde Standard Time',
+  'Caucasus Standard Time',
+  'Cen. Australia Standard Time',
+  'Central America Standard Time',
+  'Central Asia Standard Time',
+  'Central Brazilian Standard Time',
+  'Central Europe Standard Time',
+  'Central European Standard Time',
+  'Central Pacific Standard Time',
+  'Central Standard Time',
+  'China Standard Time',
+  'Dateline Standard Time',
+  'E. Africa Standard Time',
+  'E. Australia Standard Time',
+  'E. South America Standard Time',
+  'Eastern Standard Time',
+  'Egypt Standard Time',
+  'Ekaterinburg Standard Time',
+  'FLE Standard Time',
+  'Fiji Standard Time',
+  'GMT Standard Time',
+  'GTB Standard Time',
+  'Georgian Standard Time',
+  'Greenland Standard Time',
+  'Greenwich Standard Time',
+  'Hawaiian Standard Time',
+  'India Standard Time',
+  'Iran Standard Time',
+  'Israel Standard Time',
+  'Jordan Standard Time',
+  'Kaliningrad Standard Time',
+  'Korea Standard Time',
+  'Libya Standard Time',
+  'Line Islands Standard Time',
+  'Magadan Standard Time',
+  'Mauritius Standard Time',
+  'Middle East Standard Time',
+  'Montevideo Standard Time',
+  'Morocco Standard Time',
+  'Mountain Standard Time',
+  'Mountain Standard Time (Mexico)',
+  'Myanmar Standard Time',
+  'N. Central Asia Standard Time',
+  'Namibia Standard Time',
+  'Nepal Standard Time',
+  'New Zealand Standard Time',
+  'Newfoundland Standard Time',
+  'North Asia East Standard Time',
+  'North Asia Standard Time',
+  'Pacific SA Standard Time',
+  'Pacific Standard Time',
+  'Pacific Standard Time (Mexico)',
+  'Pakistan Standard Time',
+  'Paraguay Standard Time',
+  'Romance Standard Time',
+  'Russia Time Zone 10',
+  'Russia Time Zone 11',
+  'Russia Time Zone 3',
+  'Russian Standard Time',
+  'SA Eastern Standard Time',
+  'SA Pacific Standard Time',
+  'SA Western Standard Time',
+  'SE Asia Standard Time',
+  'Samoa Standard Time',
+  'Singapore Standard Time',
+  'South Africa Standard Time',
+  'Sri Lanka Standard Time',
+  'Syria Standard Time',
+  'Taipei Standard Time',
+  'Tasmania Standard Time',
+  'Tokyo Standard Time',
+  'Tonga Standard Time',
+  'Turkey Standard Time',
+  'US Eastern Standard Time',
+  'US Mountain Standard Time',
+  'UTC',
+  'UTC+12',
+  'UTC-02',
+  'UTC-11',
+  'Ulaanbaatar Standard Time',
+  'Venezuela Standard Time',
+  'Vladivostok Standard Time',
+  'W. Australia Standard Time',
+  'W. Central Africa Standard Time',
+  'W. Europe Standard Time',
+  'West Asia Standard Time',
+  'West Pacific Standard Time',
+  'Yakutsk Standard Time',
+];
+final List<Color> colorCollection = [
+  Color(0xFF6a040f),
+  Color(0xFF5E60CE),
+  Color(0xFF6930C3),
+  Color(0xFF48BFE3),
+  Color(0xFF1a759f),
+  Color(0xFF3a0ca3),
+  Color(0xFF354f52),
+  Color(0xFF1f7a8c),
+  Color(0xFF2a9d8f),
+];
+final List<String> eventNameCollection = [
+  'General Meeting',
+  'Plan Execution',
+  'Project Plan',
+  'Consulting',
+  'Support',
+  'Development Meeting',
+  'Scrum',
+  'Project Completion',
+  'Release updates',
+  'Performance Check',
+];

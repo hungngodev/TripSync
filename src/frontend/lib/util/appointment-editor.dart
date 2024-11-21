@@ -8,6 +8,7 @@ class AppointmentEditor extends StatefulWidget {
 }
 
 class AppointmentEditorState extends State<AppointmentEditor> {
+  final TextEditingController activityController = TextEditingController();
   Widget _getAppointmentEditor(BuildContext context) {
     return Container(
         color: Colors.white,
@@ -234,6 +235,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                     return _TimeZonePicker();
                   },
                 ).then((dynamic value) => setState(() {}));
+                final TextEditingController iconController =
+                    TextEditingController();
               },
             ),
             const Divider(
@@ -242,17 +245,81 @@ class AppointmentEditorState extends State<AppointmentEditor> {
             ),
             ListTile(
               contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-              leading: Icon(Icons.lens,
-                  color: _colorCollection[_selectedColorIndex]),
+              leading: Icon(Icons.lens, color: _selectedColorIndex),
               title: Text(
-                _colorNames[_selectedColorIndex],
+                'Color',
+                style: GoogleFonts.getFont('Roboto', fontSize: 18),
               ),
+              trailing:
+                  Icon(Icons.arrow_forward_ios, color: _selectedColorIndex),
               onTap: () {
                 showDialog<Widget>(
                   context: context,
                   barrierDismissible: true,
                   builder: (BuildContext context) {
                     return _ColorPicker();
+                  },
+                ).then((dynamic value) => setState(() {}));
+              },
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
+              leading: const Icon(Icons.local_activity, color: Colors.black),
+              title: Text(
+                // ignore: prefer_interpolation_to_compose_strings
+                'Associated activity: ' +
+                    (chosenList
+                            .where((activity) =>
+                                activity['id'] == _selectedActivity)
+                            .isNotEmpty
+                        ? chosenList.firstWhere((activity) =>
+                            activity['id'] == _selectedActivity)['title']
+                        : 'No activity found'), // Return 'No activity found' if no match exists
+                style: GoogleFonts.getFont('Roboto', fontSize: 18),
+              ),
+              trailing: Icon(Icons.arrow_downward, color: _selectedColorIndex),
+              onTap: () {
+                showDialog<Widget>(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      content: Container(
+                        color: Colors.white,
+                        width: double.maxFinite,
+                        child: DropdownMenu(
+                          initialSelection: _selectedActivity,
+                          controller: activityController,
+                          // requestFocusOnTap is enabled/disabled by platforms when it is null.
+                          // On mobile platforms, this is false by default. Setting this to true will
+                          // trigger focus request on the text field and virtual keyboard will appear
+                          // afterward. On desktop platforms however, this defaults to true.
+                          requestFocusOnTap: true,
+                          label: const Text('Activity'),
+                          onSelected: (activity) {
+                            setState(() {
+                              _selectedActivity = activity;
+                            });
+                            Future.delayed(const Duration(milliseconds: 20),
+                                () {
+                              // When task is over, close the dialog
+                              Navigator.pop(context);
+                            });
+                          },
+
+                          dropdownMenuEntries:
+                              chosenList.map<DropdownMenuEntry>((activity) {
+                            return DropdownMenuEntry(
+                              value: activity['id'],
+                              label: activity['title'],
+                              style: MenuItemButton.styleFrom(
+                                foregroundColor: Colors.black,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    );
                   },
                 ).then((dynamic value) => setState(() {}));
               },
@@ -298,8 +365,13 @@ class AppointmentEditorState extends State<AppointmentEditor> {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: AppBar(
-              title: Text(getTile()),
-              backgroundColor: _colorCollection[_selectedColorIndex],
+              title: Text(
+                getTile(),
+                style: const TextStyle(
+                  color: Colors.white, // Change this to your desired color
+                ),
+              ),
+              backgroundColor: _selectedColorIndex,
               leading: IconButton(
                 icon: const Icon(
                   Icons.close,
@@ -316,7 +388,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                       Icons.done,
                       color: Colors.white,
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       final List<Meeting> meetings = <Meeting>[];
                       if (_selectedAppointment != null) {
                         _events.appointments!.removeAt(_events.appointments!
@@ -324,10 +396,34 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         _events.notifyListeners(CalendarDataSourceAction.remove,
                             <Meeting>[]..add(_selectedAppointment!));
                       }
+
+                      final data = {
+                        'activity': _selectedActivity,
+                        'start_date': _startDate.toString(),
+                        'end_date': _endDate.toString(),
+                        'title': _subject,
+                        'description': _notes,
+                        'isAllDay': _isAllDay,
+                        'color': _selectedColorIndex.toHexString().toString(),
+                        'startTimeZone': _selectedTimeZoneIndex == 0
+                            ? ''
+                            : _timeZoneCollection[_selectedTimeZoneIndex],
+                        'endTimeZone': _selectedTimeZoneIndex == 0
+                            ? ''
+                            : _timeZoneCollection[_selectedTimeZoneIndex],
+                        'calendar': 1,
+                      };
+                      final chosenId = _selectedMeeting != -1
+                          ? _selectedMeeting.toString()
+                          : await apiService.addChosenActivity(data);
+                      print(_selectedMeeting);
+                      if (_selectedMeeting != -1) {
+                        await apiService.updateChosenActivity(chosenId, data);
+                      }
                       meetings.add(Meeting(
                         from: _startDate,
                         to: _endDate,
-                        background: _colorCollection[_selectedColorIndex],
+                        background: _selectedColorIndex,
                         startTimeZone: _selectedTimeZoneIndex == 0
                             ? ''
                             : _timeZoneCollection[_selectedTimeZoneIndex],
@@ -337,6 +433,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         description: _notes,
                         isAllDay: _isAllDay,
                         eventName: _subject == '' ? '(No title)' : _subject,
+                        activity: _selectedActivity,
+                        id: int.parse(chosenId),
                       ));
 
                       _events.appointments!.add(meetings[0]);
@@ -358,16 +456,20 @@ class AppointmentEditorState extends State<AppointmentEditor> {
             floatingActionButton: _selectedAppointment == null
                 ? const Text('')
                 : FloatingActionButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_selectedAppointment != null) {
                         _events.appointments!.removeAt(_events.appointments!
                             .indexOf(_selectedAppointment));
                         _events.notifyListeners(CalendarDataSourceAction.remove,
                             <Meeting>[]..add(_selectedAppointment!));
+                        await apiService.deleteChosenActivity(
+                            _selectedAppointment!.id.toString());
                         _selectedAppointment = null;
+
                         Navigator.pop(context);
                       }
                     },
+                    // ignore: sort_child_properties_last
                     child:
                         const Icon(Icons.delete_outline, color: Colors.white),
                     backgroundColor: Colors.red,

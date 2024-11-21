@@ -47,6 +47,15 @@ class _Home extends State<SearchPage> {
 
   String _selectedItem = '';
   String _searchQuery = '';
+  void addLocation() {
+    String location = locationController.text;
+    String state = stateController.text;
+    print(locations);
+    setState(() {
+      // locations.add("$location, $state");
+      locations = [location];
+    });
+  }
 
   void deleteLocation(int index) {
     setState(() {
@@ -113,6 +122,31 @@ class _Home extends State<SearchPage> {
     });
   }
 
+  // void saveActivities() async {
+  //   // print(selectedActivities);
+  //   final chosenList = selectedActivities.map((activity) {
+  //     return {
+  //       'activity': activity['id'],
+  //     };
+  //   }).toList();
+
+  //   try {
+  //     await apiService.createChosenList(chosenList);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Activities saved successfully!'),
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     print(e);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Failed to save activities!'),
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> _launchURL(String url) async {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
@@ -176,6 +210,22 @@ class _Home extends State<SearchPage> {
                 ),
               );
             }).toList(),
+            // Save Button at the bottom of the drawer
+            // Padding(
+            //   padding: const EdgeInsets.all(16.0),
+            //   child: ElevatedButton(
+            //     onPressed:
+            //         saveActivities, // Call the save function when pressed
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: Colors.blue, // Button color
+            //       padding: EdgeInsets.symmetric(vertical: 14.0),
+            //     ),
+            //     child: const Text(
+            //       'Save',
+            //       style: TextStyle(fontSize: 18, color: Colors.white),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -186,6 +236,17 @@ class _Home extends State<SearchPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // ListView.builder(
+                  //   scrollDirection: Axis.vertical,
+                  //   shrinkWrap: true,
+                  //   itemCount: locations.length,
+                  //   itemBuilder: (context, index) {
+                  //     return Location(
+                  //       location: locations[index],
+                  //       deleteFunction: (context) => deleteLocation(index),
+                  //     );
+                  //   },
+                  // ),
                   SearchAnchor(builder:
                       (BuildContext context, SearchController controller) {
                     return SearchBar(
@@ -255,6 +316,49 @@ class _Home extends State<SearchPage> {
                       );
                     });
                   }),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: locationController,
+                              maxLines: 1,
+                              decoration: const InputDecoration(
+                                labelText: "Location",
+                                hintText: "Enter your Location here",
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextFormField(
+                              controller: stateController,
+                              maxLines: 1,
+                              decoration: const InputDecoration(
+                                labelText: "State",
+                                hintText: "Enter your State here",
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: ElevatedButton(
+                      onPressed: addLocation,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                      ),
+                      child: const Text(
+                        'Set Location',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     height: 110,
                     child: ListView.builder(
@@ -303,6 +407,7 @@ class _Home extends State<SearchPage> {
                     padding: const EdgeInsets.all(20.0),
                     child: ElevatedButton(
                       onPressed: () async {
+                        // String places = locations.join(',');
                         String keys = keywords.join(',');
                         List<List<String>> matchingPairs = pairs.where((pair) {
                           return keys.contains(pair[0]) ||

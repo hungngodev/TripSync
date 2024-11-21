@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import '../services/django/api_service.dart';
 import '../provider/calender_time_provider.dart';
 import 'package:intl/intl.dart';
-import './table.dart';
 
 class DayCard extends StatefulWidget {
   final DateTime selectedDate;

@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
+from datetime import datetime
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -81,13 +82,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
         queryset = Activity.objects.all()
         category = self.request.query_params.get('category', None)
         location = self.request.query_params.get('location', None)
-
+        print("Category:", location)
+        limit = 30
         if category:
             queryset = queryset.filter(category__iexact=category)  # Case-insensitive match
         if location:
-            queryset = queryset.filter(location__iexact=location)  # Case-insensitive match
+            queryset = queryset.filter(location__icontains=location.lower())
 
-        return queryset
+        return queryset[:limit]
 
     def list(self, request):
         activities = self.get_queryset()
@@ -183,12 +185,17 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
     def create(self, request):
         adding = {
             'user': request.user.id,
-            'activity': request.data['activity']
+            **request.data  
+
         }
+        print(adding)
         serializer = self.get_serializer(data=adding)
         if serializer.is_valid():
+            print("Serializer is valid")
             chosen_activity = serializer.save()
             return Response(self.get_serializer(chosen_activity).data, status=status.HTTP_201_CREATED)
+        print("Serializer is invalid")
+        print("Errors:", serializer.errors)  
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
@@ -197,11 +204,19 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def update(self, request, pk=None):
+        print("Updating chosen activity")
         chosen_activity = self.get_object()
-        serializer = self.get_serializer(chosen_activity, data=request.data)
+        adding = {
+            'user': request.user.id,
+            **request.data
+
+        }
+        serializer = self.get_serializer(chosen_activity, data=adding)
         if serializer.is_valid():
             updated_chosen_activity = serializer.save()
             return Response(self.get_serializer(updated_chosen_activity).data)
+        print("Serializer is invalid")
+        print("Errors:", serializer.errors)  
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def partial_update(self, request, pk=None):
@@ -219,7 +234,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
 
     def get_all_chosen_activities_of_traveller(self, traveller_id):
         return self.queryset.filter(user_id=traveller_id, 
-                                    calendar_id=None).select_related('activity')
+                                 calendar_id = None   ).select_related('activity')
 
     def get_all_chosen_activities_of_calendar(self, calendar_id):
         return self.queryset.filter(calendar_id=calendar_id)
@@ -230,9 +245,11 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['get'])
+    @action(detail=False, methods=['get'])
     def calendar(self, request, pk=None):
-        activities = self.get_all_chosen_activities_of_calendar(pk)
+        activities =self.queryset.filter(user_id=request.user.id,  start_date__isnull=False,   
+                                    calendar_id=1).select_related('activity')
+
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
     

@@ -1,14 +1,16 @@
 import 'dart:async';
 
-import './calender_page.dart';
-import '../../provider/time_provider.dart';
-import '../../util/task_cards.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../provider/time_provider.dart';
+import '../../services/django/api_service.dart';
+import '../../util/task_cards.dart';
+import './calender_page.dart';
 
 class TodayPage extends StatefulWidget {
   const TodayPage({super.key});
@@ -18,6 +20,8 @@ class TodayPage extends StatefulWidget {
 }
 
 class _TodayPageState extends State<TodayPage> {
+  List<dynamic> meeting = [];
+  final ApiService apiService = ApiService();
   @override
   void initState() {
     // TODO: implement initState
@@ -26,6 +30,16 @@ class _TodayPageState extends State<TodayPage> {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       timeProvider.setTime();
     });
+    fetchCalendar();
+  }
+
+  Future<void> fetchCalendar() async {
+    final response = await ApiService().getCalendar();
+    if (response != null) {
+      setState(() {
+        meeting = response;
+      });
+    }
   }
 
   @override
@@ -72,15 +86,23 @@ class _TodayPageState extends State<TodayPage> {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  children: [
-                    TaskCard(
-                      clr: const Color.fromARGB(255, 173, 155, 140),
-                      title: "You have a trip at Amhert Museum",
-                      start: "3:00 PM",
-                      end: "5:00 PM",
-                      duration: "2 hours",
-                    ),
-                  ],
+                  children: meeting.map((task) {
+                    print(task);
+                    DateTime start = DateTime.parse(task['start_date']);
+                    DateTime end = DateTime.parse(task['end_date']);
+                    Duration duration = end.difference(start);
+                    if (start.day != DateTime.now().day ||
+                        start.isAfter(DateTime.now())) {
+                      return const SizedBox();
+                    }
+                    return TaskCard(
+                      clr: Color(int.parse('0x${task['color']}')),
+                      title: task['title'], // Pass title
+                      start: DateFormat('h:mm a').format(start.toLocal()),
+                      end: DateFormat('h:mm a').format(end.toLocal()),
+                      duration: '${duration.inHours} hours', // Pass duration
+                    );
+                  }).toList(),
                 ),
               ),
             ),
@@ -110,7 +132,7 @@ class _TodayPageState extends State<TodayPage> {
                           child: Container(
                             height: 50,
                             decoration: BoxDecoration(
-                                color: Colors.black,
+                                color: const Color.fromARGB(255, 147, 139, 174),
                                 borderRadius: BorderRadius.circular(24)),
                             child: Padding(
                               padding:
@@ -130,10 +152,12 @@ class _TodayPageState extends State<TodayPage> {
                         ),
                         GestureDetector(
                           onTap: (() => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: ((context) =>
-                                      const CalenderPage())))),
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) =>
+                                          const CalenderPage()))).then((value) {
+                                fetchCalendar();
+                              })),
                           child: Container(
                             height: 50,
                             decoration: BoxDecoration(
@@ -156,18 +180,6 @@ class _TodayPageState extends State<TodayPage> {
                         )
                       ],
                     ),
-                    // Container(
-                    //   height: 50,
-                    //   width: 50,
-                    //   decoration: BoxDecoration(
-                    //     border: Border.all(),
-                    //     borderRadius: BorderRadius.circular(50),
-                    //     color: const Color.fromARGB(255, 153, 154, 157),
-                    //   ),
-                    //   child: const Center(
-                    //     child: Icon(CupertinoIcons.add),
-                    //   ),
-                    // )
                   ],
                 ),
                 const SizedBox(
