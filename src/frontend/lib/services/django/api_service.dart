@@ -13,7 +13,6 @@ class ApiService {
   // GET request with endpoint path
   Future<dynamic> getData({Map<String, String>? queryParameters}) async {
     String endpoint = 'activities';
-    print(queryParameters);
     final uri = Uri.parse('$baseUrl$endpoint')
         .replace(queryParameters: queryParameters);
     try {
@@ -144,6 +143,10 @@ class ApiService {
                 ['description'], // Extract description
             'chosenId': activity['id'], // Use top-level ID as chosenId
             'title': activity['activity']['title'], // Extract title
+            'category': activity['activity']['category'], // Extract category
+            'source_link': activity['activity']
+                ['source_link'], // Extract source_link
+            'address': activity['activity']['address'], // Extract address
           };
         }),
       );

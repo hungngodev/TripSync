@@ -46,7 +46,7 @@ class _TodayPageState extends State<TodayPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SlidingUpPanel(
-      maxHeight: 440,
+      maxHeight: 350,
       defaultPanelState: PanelState.OPEN,
       isDraggable: true,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),

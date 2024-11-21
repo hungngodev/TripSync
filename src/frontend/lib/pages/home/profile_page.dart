@@ -38,7 +38,8 @@ class ProfilePage extends StatelessWidget {
                         onPressed: () {},
                         heroTag: 'mesage',
                         elevation: 0,
-                        backgroundColor: Colors.red,
+                        backgroundColor:
+                            const Color.fromARGB(255, 147, 139, 174),
                         label: const Text("Message"),
                         icon: const Icon(Icons.message_rounded),
                       ),
@@ -126,7 +127,10 @@ class _TopPortion extends StatelessWidget {
               gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
-                  colors: [Color(0xff0043ba), Color(0xff006df1)]),
+                  colors: [
+                    const Color.fromARGB(255, 147, 139, 174),
+                    Color(0xff006df1)
+                  ]),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(50),
                 bottomRight: Radius.circular(50),

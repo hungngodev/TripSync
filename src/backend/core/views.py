@@ -15,6 +15,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from datetime import datetime
+from django.db.models import Q
+
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -82,10 +84,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
         queryset = Activity.objects.all()
         category = self.request.query_params.get('category', None)
         location = self.request.query_params.get('location', None)
-        print("Category:", location)
+        print("Category:", category)
+        category = category.lower() if category else None
         limit = 30
         if category:
-            queryset = queryset.filter(category__iexact=category)  # Case-insensitive match
+            categories = category.split(',')
+            query = Q()
+            for c in categories:
+                query |= Q(category__icontains=c)
+            queryset = queryset.filter(query)  # Case-insensitive match
         if location:
             queryset = queryset.filter(location__icontains=location.lower())
 

@@ -3,6 +3,7 @@ import './search_page.dart';
 import './profile_page.dart';
 import './setting_page.dart';
 import './calendar_page.dart';
+import '../../login/onboarding_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -54,29 +55,7 @@ class _HomeState extends State<HomePage> {
       body: <Widget>[
         /// Home page
         SearchPage(),
-
-        /// Notifications page
-        // const Padding(
-        //   padding: EdgeInsets.all(8.0),
-        //   child: Column(
-        //     children: <Widget>[
-        //       Card(
-        //         child: ListTile(
-        //           leading: Icon(Icons.notifications_sharp),
-        //           title: Text('Notification 1'),
-        //           subtitle: Text('This is a notification'),
-        //         ),
-        //       ),
-        //       Card(
-        //         child: ListTile(
-        //           leading: Icon(Icons.notifications_sharp),
-        //           title: Text('Notification 2'),
-        //           subtitle: Text('This is a notification'),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
+        OnboardingPage(),
         CalendarPage(),
 
         /// Messages page

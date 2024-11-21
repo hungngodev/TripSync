@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../services/django/api_service.dart';
-import '../../util/keyword.dart';
 import '../../../util/location.dart';
 import '../../bloc/authentication_bloc.dart';
 import '../../bloc/authentication_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -20,10 +21,12 @@ class _Home extends State<SearchPage> {
   TextEditingController keywordController = TextEditingController();
   final ApiService apiService = ApiService();
   List<dynamic> data = [];
-
   List<Map<String, dynamic>> selectedActivities = [];
-  List<String> locations = [];
-  List<String> keywords = [];
+  String _selectedItem = '';
+  final SearchController _searchController = SearchController();
+  final Set<dynamic> _filters = {};
+  Set<String> options = {'hotel', 'restaurant', 'entertainments'};
+  final Set<String> original = {'hotel', 'restaurant', 'entertainments'};
 
   @override
   void initState() {
@@ -45,27 +48,25 @@ class _Home extends State<SearchPage> {
     }
   }
 
-  String _selectedItem = '';
-  String _searchQuery = '';
-
-  void deleteLocation(int index) {
-    setState(() {
-      locations.removeAt(index);
-    });
-  }
-
   void addKeyword() {
+    print("Adding keyword");
     String keyword = keywordController.text;
     if (keyword.isNotEmpty) {
       setState(() {
-        keywords = [keyword];
+        options.add(keyword);
       });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a keyword!'),
+        ),
+      );
     }
   }
 
-  void deleteKeyword(int index) {
+  void deleteKeyword(String val) {
     setState(() {
-      keywords.removeAt(index);
+      options.remove(val);
     });
   }
 
@@ -86,6 +87,9 @@ class _Home extends State<SearchPage> {
           'id': activity['id'],
           'location': activity['location'],
           'description': activity['description'],
+          'category': activity['category'],
+          'source_link': activity['source_link'],
+          'title': activity['title'],
           'chosenId': chosenId,
         });
       });
@@ -113,6 +117,27 @@ class _Home extends State<SearchPage> {
     });
   }
 
+  void search() async {
+    print("Searching for $_selectedItem");
+    final String filter =
+        _filters.map((e) => e.toString().split('.').last).join(',');
+    print("Filter by: $filter");
+    try {
+      List<dynamic> fetchData = await apiService.getData(
+        queryParameters: {
+          'location': _selectedItem,
+          'category':
+              _filters.map((e) => e.toString().split('.').last).join(','),
+        },
+      );
+      setState(() {
+        data = fetchData;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> _launchURL(String url) async {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
@@ -126,9 +151,11 @@ class _Home extends State<SearchPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text('MA Traveling Suggestion',
-            style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 147, 139, 174),
+        title: Text(
+          "Search Page",
+          style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -136,36 +163,207 @@ class _Home extends State<SearchPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.black,
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 147, 139, 174),
               ),
               child: Text(
-                'Your Selected Activities',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+                "Selected Activity",
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Confirm Clear'),
+                      content: const Text(
+                          'Are you sure you want to clear this list?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Perform delete action
+                            clearActivities();
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text(
+                'Clear',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.red,
+                ),
               ),
             ),
             ...selectedActivities.map((activity) {
+              print(activity);
               return Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+                    const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          activity['id'].toString() +
-                              ' ' +
-                              activity['location'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                          ),
-                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                activity['title']!.substring(
+                                  0,
+                                  activity['title']!.length > 20
+                                      ? 20
+                                      : activity['title']!.length,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  // Show a dialog before performing the delete action
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Activity Details'),
+                                        content: SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // Title
+                                              Text(
+                                                activity['title']!,
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Location
+                                              Text(
+                                                "Location: ${activity['location']}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Address
+                                              Text(
+                                                "Address: ${activity['address'] ?? 'N/A'}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Category
+                                              Text(
+                                                "Category: ${activity['category']}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.blueGrey,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Description
+                                              Text(
+                                                "Description: ${activity['description']}",
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Source Link
+                                              GestureDetector(
+                                                onTap: () => _launchURL(
+                                                    activity['source_link']!),
+                                                child: Text(
+                                                  "Source: ${activity['source_link']}",
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.blue,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context)
+                                                  .pop(); // Close the dialog
+                                            },
+                                            child: const Text('Close'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                icon: const Icon(Icons.info),
+                                color: Colors.blue,
+                              ),
+                            ]),
                         IconButton(
-                          onPressed: () => deleteActivity(
-                              selectedActivities.indexOf(activity)),
+                          onPressed: () {
+                            // Show a dialog before performing the delete action
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Confirm Delete'),
+                                  content: const Text(
+                                      'Are you sure you want to delete this activity?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // Perform delete action
+                                        deleteActivity(selectedActivities
+                                            .indexOf(activity));
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           icon: const Icon(Icons.delete),
                           color: Colors.red,
                         ),
@@ -186,91 +384,100 @@ class _Home extends State<SearchPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  SearchAnchor(builder:
-                      (BuildContext context, SearchController controller) {
-                    return SearchBar(
-                      controller: controller,
-                      padding: const MaterialStatePropertyAll<EdgeInsets>(
-                          EdgeInsets.symmetric(horizontal: 16.0)),
-                      onTap: () {
-                        controller.openView();
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery =
-                              value; // Update the search query on each change
-                        });
-
-                        controller.openView();
-                      },
-                      onSubmitted: (String value) {
-                        setState(() {
-                          _searchQuery = value;
-                          _selectedItem =
-                              value; // Treat the submitted text as selected
-                        });
-                        print(_searchQuery);
-                        // controller.closeView(value);
-                      },
-                      leading: const Icon(Icons.search),
-                      // trailing: <Widget>[
-                      //   Tooltip(
-                      //     message: 'Change brightness mode',
-                      //     child: IconButton(
-                      //       isSelected: isDark,
-                      //       onPressed: () {
-                      //         setState(() {
-                      //           isDark = !isDark;
-                      //         });r
-                      //       },
-                      //       icon: const Icon(Icons.wb_sunny_outlined),
-                      //       selectedIcon:
-                      //           const Icon(Icons.brightness_2_outlined),
-                      //     ),
-                      //   )
-                      // ],
-                    );
-                  }, suggestionsBuilder:
-                      (BuildContext context, SearchController controller) {
-                    final suggestions = [
-                      'New York',
-                      'Amherst',
-                      'Boston',
-                      'Chicago',
-                      'Los Angeles',
-                      'San Francisco',
-                      'Seattle',
-                      'Washington D.C.'
-                    ];
-                    return List<ListTile>.generate(8, (int index) {
-                      return ListTile(
-                        title: Text(suggestions[index]),
+                  const SizedBox(height: 10),
+                  SearchAnchor(
+                    searchController: _searchController,
+                    builder:
+                        (BuildContext context, SearchController controller) {
+                      return SearchBar(
+                        controller: controller,
+                        padding: const WidgetStatePropertyAll<EdgeInsets>(
+                            EdgeInsets.symmetric(horizontal: 20.0)),
                         onTap: () {
-                          setState(() {
-                            _selectedItem = suggestions[
-                                index]; // Update state when an item is selected
-                          });
-                          controller.closeView(suggestions[index]);
+                          controller.openView();
                         },
+                        leading: const Icon(Icons.search),
+                        trailing: <Widget>[
+                          Tooltip(
+                            message: 'Search',
+                            child: IconButton(
+                              icon: const Icon(Icons.send),
+                              onPressed: () {
+                                print('Searching for ');
+                                setState(() {
+                                  _selectedItem = controller
+                                      .text; // Treat the current text as selected
+                                });
+                              },
+                            ),
+                          )
+                        ],
                       );
-                    });
-                  }),
-                  SizedBox(
-                    height: 110,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemCount: keywords.length,
-                      itemBuilder: (context, index) {
-                        return Keyword(
-                          keyword: keywords[index],
-                          deleteFunction: () => deleteKeyword(index),
-                        );
-                      },
-                    ),
+                    },
+                    suggestionsBuilder:
+                        (BuildContext context, SearchController controller) {
+                      return List<Widget>.generate(suggestions.length,
+                          (int index) {
+                        if (suggestions[index].contains(controller.text)) {
+                          return ListTile(
+                            title: Text(suggestions[index]),
+                            onTap: () {
+                              setState(() {
+                                _selectedItem = suggestions[
+                                    index]; // Update state when an item is selected
+                              });
+                              controller.closeView(suggestions[index]);
+                              search();
+                            },
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      });
+                    },
+                    viewOnSubmitted: (value) {
+                      print("Submitted: $value");
+                      setState(() {
+                        _selectedItem = value;
+                      });
+                      _searchController.closeView(value);
+                      search();
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 5.0,
+                    children: options.map((String exercise) {
+                      return FilterChip(
+                        label: Text(exercise),
+                        selected: _filters.contains(exercise),
+                        onSelected: (bool selected) {
+                          setState(() {
+                            if (selected) {
+                              _filters.add(exercise);
+                            } else {
+                              _filters.remove(exercise);
+                            }
+                          });
+                          search();
+                        },
+                        deleteIcon: original.contains(exercise)
+                            ? null
+                            : const Icon(Icons
+                                .close), // Show delete icon only if the condition is met
+                        onDeleted: original.contains(exercise)
+                            ? null
+                            : () {
+                                setState(() {
+                                  options.remove(
+                                      exercise); // Perform the delete action
+                                });
+                                search();
+                              }, //
+                      );
+                    }).toList(),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(0.0),
                     child: Container(
                       padding: const EdgeInsets.all(24),
                       child: Row(
@@ -279,57 +486,22 @@ class _Home extends State<SearchPage> {
                             child: TextFormField(
                               controller: keywordController,
                               maxLines: 1,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: "Keyword",
                                 hintText: "Enter a keyword for your holiday.",
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    addKeyword(); // Call the addKeyword function when the icon is pressed
+                                  },
+                                ),
                               ),
+                              onFieldSubmitted: (String value) {
+                                addKeyword(); // Call the addKeyword function when Enter is pressed
+                              },
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: addKeyword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'Add Keywords',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        String keys = keywords.join(',');
-                        List<List<String>> matchingPairs = pairs.where((pair) {
-                          return keys.contains(pair[0]) ||
-                              keys.contains(pair[1]);
-                        }).toList();
-                        print(matchingPairs);
-                        try {
-                          List<dynamic> fetchData = await apiService.getData(
-                            queryParameters: {
-                              'location': _searchQuery,
-                              'category': matchingPairs[0][0],
-                              'keywords': keys,
-                            },
-                          );
-                          setState(() {
-                            data = fetchData;
-                          });
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                      ),
-                      child: const Text(
-                        "Submit",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ),
                   ),
@@ -433,9 +605,307 @@ class _Home extends State<SearchPage> {
   }
 }
 
-List<String> keywords = ['hotel', 'restaurant', 'entertainments'];
-List<List<String>> pairs = [
-  ['hotel', 'Hotel'],
-  ['restaurant', 'Restaurant'],
-  ['entertainments', 'Entertainment']
+final suggestions = [
+  "Los Angeles",
+  "Aspen",
+  "Austin",
+  "Manhattan",
+  "Miami",
+  "Phoenix",
+  "Chicago",
+  "Seattle",
+  "Las Vegas",
+  "Burlington",
+  "Boston",
+  "Atlanta",
+  "Amherst",
+  "Cambridge",
+  "Worcester",
+  "Springfield",
+  "Lowell",
+  "Brockton",
+  "Quincy",
+  "Newton",
+  "Lynn",
+  "Somerville",
+  "Framingham",
+  "Peabody",
+  "Revere",
+  "Malden",
+  "Taunton",
+  "Chelsea",
+  "Pittsfield",
+  "Medford",
+  "Weymouth",
+  "Haverhill",
+  "Marlborough",
+  "Beverly",
+  "Fitchburg",
+  "Danvers",
+  "Northampton",
+  "Westfield",
+  "Westborough",
+  "Andover",
+  "New York",
+  "San Francisco",
+  "Houston",
+  "Dallas",
+  "San Diego",
+  "Denver",
+  "Orlando",
+  "Detroit",
+  "Tampa",
+  "Indianapolis",
+  "Salt Lake City",
+  "Sacramento",
+  "Kansas City",
+  "Pittsburgh",
+  "Anchorage",
+  "Richmond",
+  "New Orleans",
+  "Baltimore",
+  "Columbus",
+  "St. Louis",
+  "Milwaukee",
+  "Louisville",
+  "Cleveland",
+  "Minneapolis",
+  "Raleigh",
+  "Charlotte",
+  "Portland",
+  "Nashville",
+  "Birmingham",
+  "Madison",
+  "Tucson",
+  "Fort Worth",
+  "Boulder",
+  "Grand Rapids",
+  "Little Rock",
+  "Shreveport",
+  "Montgomery",
+  "Boise",
+  "Jacksonville",
+  "Lincoln",
+  "Toledo",
+  "Tulsa",
+  "Fargo",
+  "Des Moines",
+  "Billings",
+  "Macon",
+  "Wichita",
+  "Davenport",
+  "Bakersfield",
+  "Lexington",
+  "Huntsville",
+  "Sioux Falls",
+  "Duluth",
+  "Evansville",
+  "Fort Wayne",
+  "Chattanooga",
+  "Spokane",
+  "Lafayette",
+  "Augusta",
+  "Jackson",
+  "Rockford",
+  "Omaha",
+  "Charleston",
+  "Vancouver",
+  "Fort Collins",
+  "Charleston",
+  "Albuquerque",
+  "Rochester",
+  "Bismarck",
+  "Asheville",
+  "Boise",
+  "Myrtle Beach",
+  "Salem",
+  "Santa Fe",
+  "Pocatello",
+  "Flagstaff",
+  "Joplin",
+  "Cedar Rapids",
+  "Evansville",
+  "Rapid City",
+  "Montpelier",
+  "Hartford",
+  "Pueblo",
+  "Muskogee",
+  "Bloomington",
+  "Champaign",
+  "Ithaca",
+  "Lexington",
+  "Cincinnati",
+  "Chico",
+  "Ann Arbor",
+  "Traverse City",
+  "Plymouth",
+  "Tallahassee",
+  "Medford",
+  "Waterloo",
+  "Abilene",
+  "Burlington",
+  "Frankfort",
+  "Peoria",
+  "Carmel",
+  "Indianapolis",
+  "Lafayette",
+  "Augusta",
+  "Manchester",
+  "St. Paul",
+  "Davenport",
+  "Rapid City",
+  "Bowling Green",
+  "Abington",
+  "Adams",
+  "Amesbury",
+  "Amherst",
+  "Andover",
+  "Arlington",
+  "Athol",
+  "Attleboro",
+  "Barnstable",
+  "Bedford",
+  "Beverly",
+  "Boston",
+  "Bourne",
+  "Braintree",
+  "Brockton",
+  "Brookline",
+  "Cambridge",
+  "Canton",
+  "Charlestown",
+  "Chelmsford",
+  "Chelsea",
+  "Chicopee",
+  "Clinton",
+  "Cohasset",
+  "Concord",
+  "Danvers",
+  "Dartmouth",
+  "Dedham",
+  "Dennis",
+  "Duxbury",
+  "Eastham",
+  "Edgartown",
+  "Everett",
+  "Fairhaven",
+  "Fall River",
+  "Falmouth",
+  "Fitchburg",
+  "Framingham",
+  "Gloucester",
+  "Great Barrington",
+  "Greenfield",
+  "Groton",
+  "Harwich",
+  "Haverhill",
+  "Hingham",
+  "Holyoke",
+  "Hyannis",
+  "Ipswich",
+  "Lawrence",
+  "Lenox",
+  "Leominster",
+  "Lexington",
+  "Lowell",
+  "Ludlow",
+  "Lynn",
+  "Malden",
+  "Marblehead",
+  "Marlborough",
+  "Medford",
+  "Milton",
+  "Nahant",
+  "Natick",
+  "New Bedford",
+  "Newburyport",
+  "Newton",
+  "North Adams",
+  "Northampton",
+  "Norton",
+  "Norwood",
+  "Peabody",
+  "Pittsfield",
+  "Plymouth",
+  "Provincetown",
+  "Quincy",
+  "Randolph",
+  "Revere",
+  "Salem",
+  "Sandwich",
+  "Saugus",
+  "Somerville",
+  "South Hadley",
+  "Springfield",
+  "Stockbridge",
+  "Stoughton",
+  "Sturbridge",
+  "Sudbury",
+  "Taunton",
+  "Tewksbury",
+  "Truro",
+  "Watertown",
+  "Webster",
+  "Wellesley",
+  "Wellfleet",
+  "West Bridgewater",
+  "West Springfield",
+  "Westfield",
+  "Weymouth",
+  "Whitman",
+  "Williamstown",
+  "Woburn",
+  "Woods Hole",
+  "Worcester",
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming",
+  "District of Columbia"
 ];

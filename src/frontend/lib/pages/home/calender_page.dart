@@ -166,9 +166,6 @@ class _CalenderPageState extends State<CalenderPage> {
                         CalendarView.timelineWeek,
                         CalendarView.month
                       ],
-                      onViewChanged: (ViewChangedDetails details) {
-                        List<DateTime> dates = details.visibleDates;
-                      },
                       allowAppointmentResize: true,
                       allowDragAndDrop: true,
                       timeSlotViewSettings: const TimeSlotViewSettings(
@@ -253,21 +250,6 @@ class _CalenderPageState extends State<CalenderPage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // details.bounds.height > 100
-                                  //     ? Padding(
-                                  //         padding: const EdgeInsets.symmetric(
-                                  //             vertical: 5),
-                                  //         child: Image(
-                                  //             // image:
-                                  //             //     ExactAssetImage(meeting.url),
-                                  //             image: const NetworkImage(
-                                  //                 'https://img.freepik.com/free-vector/world-tourism-day-concept-with-realistic-design_23-2147901978.jpg?t=st=1732163566~exp=1732167166~hmac=cf5af73b2ddc16523195d8ecb4bdbc46170ec1562437af88c1e3a8861259a0b4&w=2000'),
-                                  //             fit: BoxFit.fitWidth,
-                                  //             width: details.bounds.width,
-                                  //             height:
-                                  //                 details.bounds.height * 0.4),
-                                  //       )
-                                  //     : const SizedBox.shrink(),
                                   Text(
                                     meeting.description!,
                                     style: GoogleFonts.nunito(
