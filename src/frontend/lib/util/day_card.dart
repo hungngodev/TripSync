@@ -1,26 +1,21 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import './time_cards.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../services/django/api_service.dart';
-import '../provider/calender_time_provider.dart';
-import 'package:intl/intl.dart';
 
 class DayCard extends StatefulWidget {
   final DateTime selectedDate;
+  final DateTime endDate;
   final Color cardColor;
   final Color dividerColor;
-  var tasks;
+  final String name;
   DayCard({
     Key? key,
     required this.selectedDate,
     required this.cardColor,
     required this.dividerColor,
-    required this.tasks,
+    required this.name,
+    required this.endDate,
   }) : super(key: key);
 
   @override
@@ -28,122 +23,30 @@ class DayCard extends StatefulWidget {
 }
 
 class _DayCardState extends State<DayCard> {
-  // var tasks = new Map();
-
-  List<List<Map<String, dynamic>>> organizeTasks(List<dynamic> tasks) {
-    // Helper function to parse a time string into a DateTime object
-    DateTime parseTime(String time) {
-      final format = DateFormat('h:mm a');
-      return format.parse(time);
-    }
-
-    // Helper function to create a blank task
-    Map<String, dynamic> createBlankTask(DateTime start, DateTime end) {
-      return {
-        'task': 'Blank',
-        'startDate': start,
-        'endDate': end,
-      };
-    }
-
-    // Define the baseline range from 5 AM to 4 AM next day
-    final DateTime baseStart = DateFormat('h:mm a').parse('5:00 AM');
-    final DateTime baseEnd =
-        DateFormat('h:mm a').parse('4:00 AM').add(Duration(days: 1));
-
-    // Step 1: Create a deep copy of the tasks list
-    List<Map<String, dynamic>> tasksCopy = tasks.map((task) {
-      return {
-        'task': task['task'],
-        'startDate': parseTime(task['startDate']),
-        'endDate': parseTime(task['endDate']),
-      };
-    }).toList();
-
-    // Step 2: Sort the copied tasks by startDate, then by endDate
-    tasksCopy.sort((a, b) {
-      int startComparison = a['startDate'].compareTo(b['startDate']);
-      if (startComparison != 0) return startComparison;
-      return a['endDate'].compareTo(b['endDate']);
-    });
-
-    // Step 3: Organize tasks into rows
-    List<List<Map<String, dynamic>>> rows = [];
-
-    for (var task in tasksCopy) {
-      bool placed = false;
-
-      // Try to place the task in an existing row
-      for (var row in rows) {
-        if (row.every((existingTask) =>
-            task['startDate'].isAfter(existingTask['endDate']) ||
-            task['endDate'].isBefore(existingTask['startDate']))) {
-          row.add(task);
-          placed = true;
-          break;
-        }
-      }
-
-      // If no suitable row found, create a new row
-      if (!placed) {
-        rows.add([task]);
-      }
-    }
-
-    // Step 4: Fill in blank intervals in each row
-    for (var row in rows) {
-      List<Map<String, dynamic>> filledRow = [];
-      DateTime currentTime = baseStart;
-
-      for (var task in row) {
-        if (task['startDate'].isAfter(currentTime)) {
-          filledRow.add(createBlankTask(currentTime, task['startDate']));
-        }
-        filledRow.add(task);
-        currentTime = task['endDate'];
-      }
-
-      // Fill in the gap between the last task and the end of the day
-      if (currentTime.isBefore(baseEnd)) {
-        filledRow.add(createBlankTask(currentTime, baseEnd));
-      }
-
-      // Replace the row with the filled row
-      row.clear();
-      row.addAll(filledRow);
-    }
-    print(rows);
-    return rows;
-  }
-
   TextEditingController addTaskbtn = TextEditingController();
 
   List<String> tasksList6am = [];
   List<String> timeList = [
-    "5 am",
-    "6 am",
-    "7 am",
-    "8 am",
-    "9 am",
-    "10 am",
-    "11 am",
-    "12 pm",
-    "1 pm",
-    "2pm",
-    "3pm",
-    "4pm",
-    "5pm",
-    "6 pm",
-    "7 pm",
-    "8 pm",
-    "9 pm",
-    "10 pm",
-    "11 pm",
-    " 12 am",
-    "1 am",
-    "2 am",
-    "3 am",
-    "4 am"
+    "5:00",
+    "6:00",
+    "7:00",
+    "8:00",
+    "9:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+    "18:00",
+    "19:00",
+    "20:00",
+    "21:00",
+    "22:00",
+    "23:00",
+    "24:00",
   ];
   List<String> days = [
     "MONDAY",
@@ -171,11 +74,10 @@ class _DayCardState extends State<DayCard> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.tasks);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Container(
-        height: 220,
+        height: 185,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
             // rgb()
@@ -188,24 +90,25 @@ class _DayCardState extends State<DayCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List<Widget>.generate(
+                      widget.name.split(' ').length,
+                      (index) => Text(
+                        widget.name.split(' ')[index],
+                        style: GoogleFonts.poppins(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                   Text(
-                    days[widget.selectedDate.weekday - 1],
+                    "${DateTime.now().difference(widget.selectedDate).inDays} days ago",
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                     ),
                   ),
-                  Wrap(direction: Axis.vertical, spacing: -20, children: [
-                    Text(
-                      widget.selectedDate.day.toString(),
-                      style: GoogleFonts.poppins(
-                          fontSize: 50, fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      months[widget.selectedDate.month - 1],
-                      style: GoogleFonts.poppins(
-                          fontSize: 50, fontWeight: FontWeight.w500),
-                    ),
-                  ]),
                 ],
               ),
               const SizedBox(
@@ -213,7 +116,7 @@ class _DayCardState extends State<DayCard> {
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height,
-                width: 235,
+                width: 250,
                 child: Stack(
                     clipBehavior: Clip
                         .none, // Allows the task list to overflow the Stack bounds
@@ -223,18 +126,12 @@ class _DayCardState extends State<DayCard> {
                           itemCount: timeList.length,
                           itemBuilder: (context, index) {
                             return TimeCard(
+                              icon: Icons.house,
+                              color: iconColors[index % iconColors.length],
                               tasksList6am: tasksList6am,
                               time_for_card: timeList[index],
                               index: index,
                               dividerColor: widget.dividerColor,
-                              onTaskDelete: (() {
-                                print("Task Deleted");
-                              }),
-                              addTask: (task) {
-                                setState(() {
-                                  widget.tasks.add(task);
-                                });
-                              },
                               duration: 100,
                             );
                           }),
@@ -246,43 +143,14 @@ class _DayCardState extends State<DayCard> {
       ),
     );
   }
-
-  List<dynamic> task_list() {
-    List<dynamic> tasks = [];
-    for (int i in widget.tasks) {
-      for (int j in widget.tasks[i].keys) {
-        tasks.add(widget.tasks[i][j]);
-      }
-    }
-    return tasks;
-  }
-
-  Future onTaskTap(int index, addTaskProvider) => showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Edit Activity"),
-            content: TextField(
-              controller: addTaskbtn,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Ok"),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    widget.tasks?.removeAt(index);
-                  });
-                  Navigator.pop(context);
-                },
-                child: Text("Delete"),
-              ),
-            ],
-          );
-        },
-      );
 }
+
+const List<Color> iconColors = [
+  Color(0x00f5d4),
+  Color(0x00bbf9),
+  Color(0xfee440),
+  Color(0xf15bb5),
+  Color(0x9b5de5),
+  Color(0xff0054),
+  Color(0x8ac926),
+];

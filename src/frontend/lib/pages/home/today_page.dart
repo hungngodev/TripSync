@@ -114,7 +114,7 @@ class _TodayPageState extends State<TodayPage> {
           height: ScreenUtil().screenHeight,
           width: ScreenUtil().screenWidth,
           // rgba(153,154,157,255)
-          color: Color.fromARGB(255, 186, 187, 190),
+          color: const Color.fromARGB(255, 186, 187, 190),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
             child: Column(

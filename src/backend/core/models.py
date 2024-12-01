@@ -19,6 +19,7 @@ class Calendar(models.Model):
     name = models.CharField(max_length=255)
     start_date = models.DateField(null = True)
     end_date = models.DateField(null = True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class ChosenActivity(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=False)

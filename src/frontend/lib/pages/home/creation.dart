@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/pages/home/calender_page.dart';
+
+import '../../util/day_card.dart';
+import '../../util/mainColors.dart';
 
 class CreationScreen extends StatefulWidget {
   const CreationScreen({super.key});
@@ -50,17 +54,6 @@ class _CreationState extends State<CreationScreen> {
                   ),
                 ]),
                 const SizedBox(height: 20),
-                // Container(
-                //   width: double.infinity,
-                //   height: 200,
-                //   decoration: BoxDecoration(
-                //     borderRadius: BorderRadius.circular(15),
-                //     image: const DecorationImage(
-                //       fit: BoxFit.fill,
-                //       image: AssetImage("assets/images/4.jpg"),
-                //     ),
-                //   ),
-                // ),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -186,6 +179,25 @@ class _CreationState extends State<CreationScreen> {
                     const SizedBox(height: 20),
                   ],
                 ),
+                Container(
+                    height: 320,
+                    child: ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      itemCount: 10,
+                      itemBuilder: (context, index) {
+                        return DayCard(
+                          name: "Boston Trip",
+                          endDate:
+                              DateTime.now().add(Duration(days: index + 10)),
+                          selectedDate:
+                              DateTime.now().subtract(Duration(days: index)),
+                          cardColor: iconColors[index % iconColors.length]
+                              .withOpacity(1),
+                          dividerColor: iconColors[index % iconColors.length]
+                              .withOpacity(0.2),
+                        );
+                      },
+                    ))
               ],
             ),
           ),
@@ -270,4 +282,27 @@ final List<Activity> activities = [
     reviews: 23,
     isLiked: false,
   ),
+];
+
+List<Color> cardColors = [
+  maincolors.color1,
+  maincolors.color2,
+  maincolors.color3,
+  maincolors.color4
+];
+List<Color> dividerColors = [
+  maincolors.color1Dark,
+  maincolors.color2Dark,
+  maincolors.color3Dark,
+  maincolors.color4Dark
+];
+
+const List<Color> iconColors = [
+  Color(0x00f5d4),
+  Color(0x00bbf9),
+  Color(0xfee440),
+  Color(0xf15bb5),
+  Color(0x9b5de5),
+  Color(0xff0054),
+  Color(0x8ac926),
 ];

@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+
 import '../services/django/api_service.dart';
-import '../provider/calender_time_provider.dart';
 
 class TimeCard extends StatefulWidget {
   final ApiService apiService = ApiService();
@@ -13,20 +11,18 @@ class TimeCard extends StatefulWidget {
   final Color dividerColor;
   final int index;
   final int duration;
-  final void Function() onTaskDelete;
-  final void Function(
-    Map<String, dynamic> task,
-  ) addTask;
+  final IconData icon;
+  final Color color;
   TimeCard({
     super.key,
-    required this.addTask,
     required this.tasksList6am,
     // ignore: non_constant_identifier_names
     required this.time_for_card,
     required this.index,
     required this.dividerColor,
-    required this.onTaskDelete,
     required this.duration,
+    required this.icon,
+    required this.color,
   });
 
   @override
@@ -56,7 +52,7 @@ class _TimeCardState extends State<TimeCard> {
         Row(
           children: [
             VerticalDivider(
-                width: 20,
+                width: 10,
                 thickness: 1,
                 indent: 0,
                 endIndent: 0,
@@ -70,7 +66,11 @@ class _TimeCardState extends State<TimeCard> {
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                 ),
                 // Placeholder for where the task list will be
-                const SizedBox(height: 120, width: 100),
+                Icon(
+                  widget.icon,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 100, width: 20),
               ],
             ),
           ],
