@@ -2,8 +2,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .models import  Activity, Calendar, ChosenActivity
-from .serializers import  ActivitySerializer, CalendarSerializer, ChosenActivitySerializer
+from .models import  Activity, Calendar, ChosenActivity, Post
+from .serializers import  ActivitySerializer, CalendarSerializer, ChosenActivitySerializer, PostSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
@@ -287,3 +287,50 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         activities = self.get_all_chosen_activities_of_calendar(request.user.id, 1)
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
+    
+    
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    
+    def list(self, request):
+        posts = Post.objects.all()
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        adding = {
+            'author': request.user.id,
+            **request.data
+        }
+        serializer = self.get_serializer(data= adding)
+        if serializer.is_valid():
+            post = serializer.save()
+            return Response(self.get_serializer(post).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk=None):
+        post = self.get_object()
+        serializer = self.get_serializer(post)
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        post = self.get_object()
+        serializer = self.get_serializer(post, data=request.data)
+        if serializer.is_valid():
+            updated_post = serializer.save()
+            return Response(self.get_serializer(updated_post).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, pk=None):
+        post = self.get_object()
+        serializer = self.get_serializer(post, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_post = serializer.save()
+            return Response(self.get_serializer(updated_post).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        post = self.get_object()
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

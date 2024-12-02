@@ -35,3 +35,15 @@ class ChosenActivity(models.Model):
     endTimeZone = models.CharField(max_length=255, null=True, blank = True)
     color = models.CharField(max_length=255, null=True, blank = True)
     
+class Post(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    image_url = models.URLField(null=True, blank=True)
+    calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, null=True)
+    date_posted = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(get_user_model(), related_name='post_likes', blank=True, default=None)
+    
+    def __str__(self):
+        return self.title

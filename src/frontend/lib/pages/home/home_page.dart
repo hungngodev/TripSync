@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import './search_page.dart';
 import './profile_page.dart';
+import './posts.dart';
 import './setting_page.dart';
 import './calendar_page.dart';
-import '../../login/onboarding_page.dart';
+import './friends.dart';
 import './creation.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
@@ -52,7 +53,7 @@ class _HomeState extends State<HomePage> {
         const CalendarPage(),
 
         /// Messages page
-        const ProfilePage(),
+        PostPage(),
         const SettingPage()
       ][_page],
     );
