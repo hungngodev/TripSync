@@ -147,7 +147,11 @@ class CalendarViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = self.get_serializer(data=request.data)
+        adding = {
+            'user': request.user.id,
+            **request.data
+        }
+        serializer = self.get_serializer(data= adding)
         if serializer.is_valid():
             calendar = serializer.save()
             return Response(self.get_serializer(calendar).data, status=status.HTTP_201_CREATED)
@@ -178,6 +182,7 @@ class CalendarViewSet(viewsets.ModelViewSet):
         calendar = self.get_object()
         calendar.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
 class ChosenActivityViewSet(viewsets.ModelViewSet):
     queryset = ChosenActivity.objects.all()
     serializer_class = ChosenActivitySerializer
@@ -243,8 +248,13 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user_id=traveller_id, 
                                  calendar_id = None   ).select_related('activity')
 
-    def get_all_chosen_activities_of_calendar(self, calendar_id):
-        return self.queryset.filter(calendar_id=calendar_id)
+    def get_all_chosen_activities_of_calendar(self, user_id,  calendar_id):
+        return self.queryset.filter(user_id=user_id,  start_date__isnull=False,   
+                                    calendar_id=calendar_id).select_related('activity')
+        
+    def get_all_chosen_activities_of_calendar_today(self, user_id):
+        return self.queryset.filter(user_id=user_id,  start_date__isnull=False,   
+                                   calendar_id__isnull=False,   start_date__date=datetime.now().date()).select_related('activity')
     
     @action(detail=False, methods=['get'])
     def chosen_list(self, request):
@@ -252,41 +262,20 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=True, methods=['get'])
     def calendar(self, request, pk=None):
-        activities =self.queryset.filter(user_id=request.user.id,  start_date__isnull=False,   
-                                    calendar_id=1).select_related('activity')
-
+        activities = self.get_all_chosen_activities_of_calendar(request.user.id, pk)
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
     
-    @action(detail=False, methods=['post'])
-    def bulk_create(self, request):
-        print("Bulk create chosen activities")
-        # Assuming the request body will contain a list of chosen activities
-        activities_data = request.data
-        user = request.user
-        activities_data = [
-    {
-        "activity": 1,  # Assume activity ID 1 exists
-        "calendar": 2,  # Assume calendar ID 2 exists
-        "user": 3,      # Assume user ID 3 exists
-        "start_date": "2024-12-01",  # Example start date
-        "end_date": "2024-12-07"     # Example end date
-    },
-    {
-        "activity": 2,  # Assume activity ID 2 exists
-        "calendar": 1,  # Assume calendar ID 1 exists
-        "user": 4,      # Assume user ID 4 exists
-        "start_date": "2024-12-05",
-        "end_date": "2024-12-10"
-    }
-]
-        print(activities_data)
-        serializer = ChosenActivitySerializer(data=activities_data, many=True)
-        if serializer.is_valid():
-            # Save all the chosen activities in bulk
-            print("Saving all the chosen activities in bulk")
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['get'])
+    def today(self, request):
+        activities = self.get_all_chosen_activities_of_calendar_today(request.user.id)
+        serializer = self.get_serializer(activities, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def peek(self, request):
+        activities = self.get_all_chosen_activities_of_calendar(request.user.id, 1)
+        serializer = self.get_serializer(activities, many=True)
+        return Response(serializer.data)

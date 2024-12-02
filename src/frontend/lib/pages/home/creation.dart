@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/pages/home/calender_page.dart';
 
 import '../../util/day_card.dart';
+import 'package:intl/intl.dart';
 import '../../util/mainColors.dart';
+import '../../services/django/api_service.dart';
 
 class CreationScreen extends StatefulWidget {
   const CreationScreen({super.key});
@@ -20,6 +22,120 @@ const catgories = [
 
 class _CreationState extends State<CreationScreen> {
   String currentCat = "All";
+  bool isLoading = false;
+  late Map<String, Map<String, Map<String, dynamic>>> events = {};
+  final TextEditingController _controller = TextEditingController();
+  final ApiService apiService = ApiService();
+
+  @override
+  void dispose() {
+    // Always dispose of the controller when it's no longer needed
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    getEvents();
+    super.initState();
+  }
+
+  Future<T> fakeAsync<T>(T result,
+          [Duration delay = const Duration(milliseconds: 500)]) =>
+      Future.delayed(delay, () => result);
+
+  Future<void> getEvents() async {
+    await fakeAsync(null);
+    DateTime dayOnly = DateTime.now()
+        .toLocal()
+        .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+    DateTime nextDay = DateTime.now()
+        .toLocal()
+        .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0)
+        .add(Duration(days: 1));
+
+    setState(() {
+      events = {
+        DateFormat('yyyy-MM-dd').format(dayOnly): {
+          '09:00': {
+            'icons': [Icons.flight_takeoff],
+            'hasEvent': true,
+          },
+          '10:00': {
+            'icons': [Icons.hotel],
+            'hasEvent': true,
+          },
+          '12:00': {
+            'icons': [Icons.restaurant],
+            'hasEvent': true,
+          },
+          '14:00': {
+            'icons': [Icons.local_taxi],
+            'hasEvent': true,
+          },
+          '16:00': {
+            'icons': [Icons.flight_takeoff],
+            'hasEvent': true,
+          },
+          '18:00': {
+            'icons': [Icons.hotel],
+            'hasEvent': true,
+          },
+          '20:00': {
+            'icons': [Icons.restaurant],
+            'hasEvent': true,
+          },
+          '22:00': {
+            'icons': [Icons.local_taxi],
+            'hasEvent': true,
+          },
+        },
+        DateFormat('yyyy-MM-dd').format(nextDay): {
+          '09:00': {
+            'icons': [Icons.flight_takeoff],
+            'hasEvent': true,
+          },
+          '10:00': {
+            'icons': [Icons.hotel],
+            'hasEvent': true,
+          },
+          '12:00': {
+            'icons': [Icons.restaurant],
+            'hasEvent': true,
+          },
+          '14:00': {
+            'icons': [Icons.local_taxi],
+            'hasEvent': true,
+          },
+          '16:00': {
+            'icons': [Icons.flight_takeoff],
+            'hasEvent': true,
+          },
+          '18:00': {
+            'icons': [Icons.hotel],
+            'hasEvent': true,
+          },
+          '20:00': {
+            'icons': [Icons.restaurant],
+            'hasEvent': true,
+          },
+          '22:00': {
+            'icons': [Icons.local_taxi],
+            'hasEvent': true,
+          },
+        },
+      };
+    });
+  }
+
+  Future<void> create() async {
+    print(_controller.text);
+    String id = await apiService.createCalendar(_controller.text);
+    print(id);
+    setState(() {
+      isLoading = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,14 +176,7 @@ class _CreationState extends State<CreationScreen> {
                     children: List.generate(
                       activities.length,
                       (index) => GestureDetector(
-                        onTap: () => {
-                          //   Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => RecipeScreen(food: activities[index]),
-                          //   ),
-                          // )
-                        },
+                        onTap: () => {},
                         child: Container(
                           margin: const EdgeInsets.only(right: 10),
                           width: 200,
@@ -142,12 +251,51 @@ class _CreationState extends State<CreationScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Create your new Trip",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Create your new Trip",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      style: const TextStyle(fontSize: 20),
+                      controller: _controller, //
+                      decoration: InputDecoration(
+                        hintText: "Enter the name",
+                        hintStyle: const TextStyle(fontSize: 20),
+                        prefixIcon: const Icon(Icons.create),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.all(
+                              10.0), // Adjust the padding as needed
+                          child: FloatingActionButton(
+                            onPressed: isLoading ? null : create,
+                            backgroundColor:
+                                const Color.fromARGB(255, 147, 139, 174),
+                            child: isLoading
+                                ? Container(
+                                    width: 24,
+                                    height: 24,
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Icon(Icons.add,
+                                    size: 35, color: Colors.white),
+                          ),
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 Column(
@@ -157,7 +305,7 @@ class _CreationState extends State<CreationScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "Review your previous journeys",
+                          "Your Past Trips",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -172,7 +320,10 @@ class _CreationState extends State<CreationScreen> {
                             //   ),
                             // )
                           },
-                          child: const Text("View all"),
+                          child: const Text("View all",
+                              style: TextStyle(
+                                fontSize: 15,
+                              )),
                         ),
                       ],
                     ),
@@ -187,14 +338,17 @@ class _CreationState extends State<CreationScreen> {
                       itemBuilder: (context, index) {
                         return DayCard(
                           name: "Boston Trip",
-                          endDate:
-                              DateTime.now().add(Duration(days: index + 10)),
                           selectedDate:
                               DateTime.now().subtract(Duration(days: index)),
-                          cardColor: iconColors[index % iconColors.length]
+                          cardColor: myCardColors[index % myCardColors.length]
                               .withOpacity(1),
-                          dividerColor: iconColors[index % iconColors.length]
-                              .withOpacity(0.2),
+                          dividerColor:
+                              dividerColors[index % dividerColors.length]
+                                  .withOpacity(0.2),
+                          listOfEvent: events[DateFormat('yyyy-MM-dd').format(
+                                  DateTime.now()
+                                      .subtract(Duration(days: index)))] ??
+                              {},
                         );
                       },
                     ))
@@ -284,17 +438,15 @@ final List<Activity> activities = [
   ),
 ];
 
-List<Color> cardColors = [
-  maincolors.color1,
+List<Color> myCardColors = [
   maincolors.color2,
-  maincolors.color3,
-  maincolors.color4
+  Color(0x6d7988).withOpacity(0.8),
+  Color(0xa698ae).withOpacity(0.8),
 ];
 List<Color> dividerColors = [
-  maincolors.color1Dark,
   maincolors.color2Dark,
-  maincolors.color3Dark,
-  maincolors.color4Dark
+  Color(0x6d7988),
+  Color(0xa698ae),
 ];
 
 const List<Color> iconColors = [

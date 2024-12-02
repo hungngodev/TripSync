@@ -5,17 +5,17 @@ import './time_cards.dart';
 
 class DayCard extends StatefulWidget {
   final DateTime selectedDate;
-  final DateTime endDate;
   final Color cardColor;
   final Color dividerColor;
   final String name;
+  Map<String, Map<String, dynamic>> listOfEvent = {};
   DayCard({
     Key? key,
     required this.selectedDate,
     required this.cardColor,
     required this.dividerColor,
     required this.name,
-    required this.endDate,
+    required this.listOfEvent,
   }) : super(key: key);
 
   @override
@@ -26,52 +26,7 @@ class _DayCardState extends State<DayCard> {
   TextEditingController addTaskbtn = TextEditingController();
 
   List<String> tasksList6am = [];
-  List<String> timeList = [
-    "5:00",
-    "6:00",
-    "7:00",
-    "8:00",
-    "9:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-    "20:00",
-    "21:00",
-    "22:00",
-    "23:00",
-    "24:00",
-  ];
-  List<String> days = [
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-    "SUNDAY"
-  ];
-  List<String> months = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC"
-  ];
-
+  List<String> timeList = multiplyList(time, 3);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -99,6 +54,7 @@ class _DayCardState extends State<DayCard> {
                         style: GoogleFonts.poppins(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -107,6 +63,7 @@ class _DayCardState extends State<DayCard> {
                     "${DateTime.now().difference(widget.selectedDate).inDays} days ago",
                     style: GoogleFonts.poppins(
                       fontSize: 18,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -116,7 +73,7 @@ class _DayCardState extends State<DayCard> {
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height,
-                width: 250,
+                width: MediaQuery.of(context).size.width * 0.5,
                 child: Stack(
                     clipBehavior: Clip
                         .none, // Allows the task list to overflow the Stack bounds
@@ -126,8 +83,14 @@ class _DayCardState extends State<DayCard> {
                           itemCount: timeList.length,
                           itemBuilder: (context, index) {
                             return TimeCard(
-                              icon: Icons.house,
-                              color: iconColors[index % iconColors.length],
+                              icons: widget.listOfEvent[timeList[index]]
+                                      ?["icons"] ??
+                                  [],
+                              hasEvent: widget.listOfEvent
+                                  .containsKey(timeList[index]),
+                              color: widget.listOfEvent[timeList[index]]
+                                      ?["color"] ??
+                                  Colors.white,
                               tasksList6am: tasksList6am,
                               time_for_card: timeList[index],
                               index: index,
@@ -154,3 +117,34 @@ const List<Color> iconColors = [
   Color(0xff0054),
   Color(0x8ac926),
 ];
+List<String> time = [
+  "9:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+  "22:00",
+  "23:00",
+  "24:00",
+  "1:00",
+  "2:00",
+  "3:00",
+  "4:00",
+  "5:00",
+  "6:00",
+  "7:00",
+  "8:00"
+];
+
+List<String> multiplyList(List<String> list, int times) {
+  return List<String>.from(
+      Iterable.generate(times, (_) => list).expand((x) => x));
+}

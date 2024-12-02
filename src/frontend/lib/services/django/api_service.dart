@@ -158,10 +158,10 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> getCalendar() async {
+  Future<List<dynamic>> getTodayCalendar() async {
     final user = await userDao.getUser();
     final token = user.token;
-    const endpoint = 'chosen-activities/calendar';
+    const endpoint = 'chosen-activities/today';
     final url = Uri.parse('$baseUrl$endpoint/');
     final response = await http.get(
       url,
@@ -175,11 +175,93 @@ class ApiService {
       print("Activity retrieved successfully");
       final selected = json.decode(response.body);
       print("Selected activities: $selected");
+      return selected;
+    } else {
+      print("Failed to retrieve activity: ${response.statusCode}");
+      return [];
+    }
+  }
+
+  Future<List<dynamic>> getCalendar(id) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'chosen-activities/$id/calendar';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print("Activity retrieved successfully");
+      final selected = json.decode(response.body);
+      print("Selected Calendar activities $id: $selected");
 
       // Ensure that selected is a List of Maps and handle nested data properly
       return selected;
     } else {
       print("Failed to retrieve activity: ${response.statusCode}");
+      return [];
+    }
+  }
+
+  Future<String> createCalendar(name) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    const endpoint = 'calendars';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.post(url,
+        headers: {
+          'Authorization': 'Token $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'name': 'name',
+        }));
+    print(response.body);
+    if (response.statusCode == 201) {
+      print("Calendar created successfully");
+      return json.decode(response.body)['id'].toString();
+    } else {
+      print("Failed to create calendar: ${response.statusCode}");
+      return '';
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCalendars() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    const endpoint = 'calendars';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print("Calendars retrieved successfully");
+      final calendars = json.decode(response.body);
+      print("Calendars: $calendars");
+
+      // Ensure that selected is a List of Maps and handle nested data properly
+      List<Map<String, dynamic>> calendarList = List<Map<String, dynamic>>.from(
+        calendars.map((calendar) {
+          return {
+            'id': calendar['id'].toString(),
+            'name': calendar['name'],
+          };
+        }),
+      );
+      print("Mapped calendars: $calendarList");
+      return calendarList;
+    } else {
+      print("Failed to retrieve calendars: ${response.statusCode}");
       return [];
     }
   }

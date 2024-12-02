@@ -34,7 +34,7 @@ class _TodayPageState extends State<TodayPage> {
   }
 
   Future<void> fetchCalendar() async {
-    final response = await ApiService().getCalendar();
+    final response = await ApiService().getTodayCalendar();
     if (response != null) {
       setState(() {
         meeting = response;
@@ -87,7 +87,6 @@ class _TodayPageState extends State<TodayPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: meeting.map((task) {
-                    print(task);
                     DateTime start = DateTime.parse(task['start_date']);
                     DateTime end = DateTime.parse(task['end_date']);
                     Duration duration = end.difference(start);
@@ -112,7 +111,7 @@ class _TodayPageState extends State<TodayPage> {
       body: SafeArea(
         child: Container(
           height: ScreenUtil().screenHeight,
-          width: ScreenUtil().screenWidth,
+          width: ScreenUtil().screenWidth * 0.9,
           // rgba(153,154,157,255)
           color: const Color.fromARGB(255, 186, 187, 190),
           child: Padding(
@@ -155,7 +154,7 @@ class _TodayPageState extends State<TodayPage> {
                                   context,
                                   MaterialPageRoute(
                                       builder: ((context) =>
-                                          const CalenderPage()))).then((value) {
+                                          CalenderPage()))).then((value) {
                                 fetchCalendar();
                               })),
                           child: Container(
@@ -186,7 +185,7 @@ class _TodayPageState extends State<TodayPage> {
                   height: 30,
                 ),
                 Text(
-                  "Tuesday",
+                  DateFormat('EEEE').format(DateTime.now()),
                   style: GoogleFonts.poppins(fontSize: 20),
                 ),
                 const SizedBox(

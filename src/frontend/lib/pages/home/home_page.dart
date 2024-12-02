@@ -5,6 +5,7 @@ import './setting_page.dart';
 import './calendar_page.dart';
 import '../../login/onboarding_page.dart';
 import './creation.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,48 +15,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomeState extends State<HomePage> {
-  int currentPageIndex = 0;
-
+  int _page = 0;
+  GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
+      bottomNavigationBar: CurvedNavigationBar(
+        buttonBackgroundColor: const Color.fromARGB(255, 147, 139, 174),
+        color: const Color.fromARGB(255, 186, 187, 190),
+        backgroundColor: Colors.white,
+        key: _bottomNavigationKey,
+        items: <Widget>[
+          Icon(Icons.home_outlined,
+              size: 30, color: _page == 0 ? Colors.white : Colors.black),
+          Icon(Icons.search_rounded,
+              size: 30, color: _page == 1 ? Colors.white : Colors.black),
+          Icon(Icons.calendar_today,
+              size: 30, color: _page == 2 ? Colors.white : Colors.black),
+          Icon(Icons.account_circle,
+              size: 30, color: _page == 3 ? Colors.white : Colors.black),
+          Icon(Icons.settings,
+              size: 30, color: _page == 4 ? Colors.white : Colors.black),
+        ],
+        onTap: (index) {
           setState(() {
-            currentPageIndex = index;
+            _page = index;
           });
         },
-        indicatorColor: const Color.fromARGB(255, 147, 139, 174),
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.search),
-            icon: Icon(Icons.search_rounded),
-            label: 'Search',
-          ),
-          NavigationDestination(
-            icon: Badge(child: Icon(Icons.calendar_today)),
-            label: 'Calendar',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              label: Text('2'),
-              child: Icon(Icons.account_circle),
-            ),
-            label: 'Profile',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              child: Icon(Icons.settings),
-            ),
-            label: 'Setting',
-          ),
-        ],
       ),
       body: <Widget>[
         /// Home page
@@ -67,7 +54,7 @@ class _HomeState extends State<HomePage> {
         /// Messages page
         const ProfilePage(),
         const SettingPage()
-      ][currentPageIndex],
+      ][_page],
     );
   }
 }

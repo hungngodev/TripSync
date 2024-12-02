@@ -11,8 +11,9 @@ class TimeCard extends StatefulWidget {
   final Color dividerColor;
   final int index;
   final int duration;
-  final IconData icon;
+  final List<IconData> icons;
   final Color color;
+  final bool hasEvent;
   TimeCard({
     super.key,
     required this.tasksList6am,
@@ -21,8 +22,9 @@ class TimeCard extends StatefulWidget {
     required this.index,
     required this.dividerColor,
     required this.duration,
-    required this.icon,
+    required this.icons,
     required this.color,
+    required this.hasEvent,
   });
 
   @override
@@ -52,7 +54,7 @@ class _TimeCardState extends State<TimeCard> {
         Row(
           children: [
             VerticalDivider(
-                width: 10,
+                width: 20,
                 thickness: 1,
                 indent: 0,
                 endIndent: 0,
@@ -66,10 +68,16 @@ class _TimeCardState extends State<TimeCard> {
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                 ),
                 // Placeholder for where the task list will be
-                Icon(
-                  widget.icon,
-                  color: Colors.black,
-                ),
+                if (widget.hasEvent)
+                  Column(
+                    children: widget.icons
+                        .map((icon) => Icon(
+                              icon,
+                              color: widget.color,
+                            ))
+                        .toList(),
+                  ),
+
                 const SizedBox(height: 100, width: 20),
               ],
             ),
