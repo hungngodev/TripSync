@@ -157,8 +157,12 @@ class _Home extends State<SearchPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 147, 139, 174),
+        // title: Text(
+        //   currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
+        //   style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+        // ),
         title: Text(
-          currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
+          'Search Page',
           style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -246,75 +250,164 @@ class _Home extends State<SearchPage> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: const Text('Activity Details'),
+                                        title: Text(
+                                          ' Details',
+                                          style: GoogleFonts.getFont('Roboto',
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
                                         content: SingleChildScrollView(
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
                                               // Title
-                                              Text(
-                                                activity['title']!,
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.title,
+                                                      color: Colors.blue),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      activity['title']!,
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Playfair Display',
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black,
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              const SizedBox(height: 10),
+                                              const Divider(height: 20),
 
                                               // Location
-                                              Text(
-                                                "Location: ${activity['location']}",
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.grey,
-                                                ),
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.location_on,
+                                                      color: Colors.red),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      "${activity['location']}",
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Lora',
+                                                        fontSize: 16,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                               const SizedBox(height: 10),
 
                                               // Address
-                                              Text(
-                                                "Address: ${activity['address'] ?? 'N/A'}",
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.grey,
-                                                ),
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.home,
+                                                      color: Colors.green),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      "${activity['address'] ?? 'N/A'}",
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Lora',
+                                                        fontSize: 16,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                               const SizedBox(height: 10),
 
-                                              // Category
-                                              Text(
-                                                "Category: ${activity['category']}",
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.blueGrey,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-
-                                              // Description
-                                              Text(
-                                                "Description: ${activity['description']}",
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.black87,
-                                                ),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                      activity['category'] ==
+                                                              'restaurant'
+                                                          ? Icons.restaurant
+                                                          : activity['category'] ==
+                                                                  'hotel'
+                                                              ? Icons.hotel
+                                                              : Icons
+                                                                  .local_activity,
+                                                      color: Colors.black),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                      "${activity['category']}",
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Lora',
+                                                        fontSize: 16,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                      softWrap: true,
+                                                      overflow: TextOverflow
+                                                          .ellipsis),
+                                                ],
                                               ),
                                               const SizedBox(height: 10),
 
                                               // Source Link
-                                              GestureDetector(
-                                                onTap: () => _launchURL(
-                                                    activity['source_link']!),
-                                                child: Text(
-                                                  "Source: ${activity['source_link']}",
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.blue,
-                                                    decoration: TextDecoration
-                                                        .underline,
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.link,
+                                                      color: Colors.blue),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: GestureDetector(
+                                                      onTap: () => _launchURL(
+                                                          activity[
+                                                              'source_link']!),
+                                                      child: Text(
+                                                        activity[
+                                                            'source_link']!,
+                                                        style:
+                                                            GoogleFonts.roboto(
+                                                          fontSize: 14,
+                                                          color: Colors.blue,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline,
+                                                        ),
+                                                        softWrap: true,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
+                                                ],
+                                              ),
+                                              const Divider(height: 20),
+                                              // Description
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Icon(Icons.description,
+                                                      color: Colors.amber),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      "${activity['description']}",
+                                                      style: GoogleFonts.nunito(
+                                                        fontSize: 14,
+                                                        color: Colors.black87,
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
@@ -325,7 +418,13 @@ class _Home extends State<SearchPage> {
                                               Navigator.of(context)
                                                   .pop(); // Close the dialog
                                             },
-                                            child: const Text('Close'),
+                                            child: Text(
+                                              'Close',
+                                              style: GoogleFonts.roboto(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       );

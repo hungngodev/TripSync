@@ -9,7 +9,14 @@ class AppointmentEditor extends StatefulWidget {
 
 class AppointmentEditorState extends State<AppointmentEditor> {
   final TextEditingController activityController = TextEditingController();
+
   Widget _getAppointmentEditor(BuildContext context) {
+    dynamic currentActivity = (chosenList
+            .where((activity) => activity['id'] == _selectedActivity)
+            .isNotEmpty
+        ? chosenList
+            .firstWhere((activity) => activity['id'] == _selectedActivity)
+        : 'No activity found');
     return Container(
         color: Colors.white,
         child: ListView(
@@ -63,7 +70,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                 ])),
             ListTile(
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-                leading: const Text(''),
+                leading:
+                    const Icon(Icons.share_arrival_time, color: Colors.black87),
                 title: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -140,7 +148,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                     ])),
             ListTile(
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-                leading: const Text(''),
+                leading:
+                    const Icon(Icons.departure_board, color: Colors.black87),
                 title: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -235,13 +244,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                     return _TimeZonePicker();
                   },
                 ).then((dynamic value) => setState(() {}));
-                final TextEditingController iconController =
-                    TextEditingController();
               },
-            ),
-            const Divider(
-              height: 1.0,
-              thickness: 1,
             ),
             ListTile(
               contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
@@ -262,20 +265,56 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                 ).then((dynamic value) => setState(() {}));
               },
             ),
+            const Divider(
+              height: 1.0,
+              thickness: 1,
+            ),
             ListTile(
-              contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-              leading: const Icon(Icons.local_activity, color: Colors.black),
+              contentPadding: const EdgeInsets.all(5),
+              leading: const Icon(
+                Icons.subject,
+                color: Colors.black87,
+              ),
+              title: TextField(
+                controller: TextEditingController(text: _notes),
+                onChanged: (String value) {
+                  _notes = value;
+                },
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w400),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Add description',
+                ),
+              ),
+            ),
+            const Divider(
+              height: 1.0,
+              thickness: 1,
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+              leading: Icon(
+                  currentActivity['category'] == 'restaurant'
+                      ? Icons.restaurant
+                      : currentActivity['category'] == 'hotel'
+                          ? Icons.hotel
+                          : Icons.local_activity,
+                  color: Colors.black),
               title: Text(
                 // ignore: prefer_interpolation_to_compose_strings
-                'Associated activity: ' +
-                    (chosenList
-                            .where((activity) =>
-                                activity['id'] == _selectedActivity)
-                            .isNotEmpty
-                        ? chosenList.firstWhere((activity) =>
-                            activity['id'] == _selectedActivity)['title']
-                        : 'No activity found'), // Return 'No activity found' if no match exists
-                style: GoogleFonts.getFont('Roboto', fontSize: 18),
+                (chosenList
+                        .where(
+                            (activity) => activity['id'] == _selectedActivity)
+                        .isNotEmpty
+                    ? chosenList.firstWhere((activity) =>
+                        activity['id'] == _selectedActivity)['title']
+                    : 'No activity found'), // Return 'No activity found' if no match exists
+                style: GoogleFonts.getFont('Playfair Display', fontSize: 18),
               ),
               trailing: Icon(Icons.arrow_downward, color: _selectedColorIndex),
               onTap: () {
@@ -324,36 +363,53 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                 ).then((dynamic value) => setState(() {}));
               },
             ),
-            const Divider(
-              height: 1.0,
-              thickness: 1,
+            ListTile(
+              isThreeLine: true,
+              contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+              leading: const Icon(Icons.location_on, color: Colors.black),
+              title: Text(
+                // ignore: prefer_interpolation_to_compose_strings
+                currentActivity[
+                    'location'], // Return 'No location found' if no match exists
+                style: GoogleFonts.getFont('Lora', fontSize: 18),
+              ),
+              subtitle: Text(
+                // ignore: prefer_interpolation_to_compose_strings
+                currentActivity[
+                    'address'], // Return 'No address found' if no match exists
+                style: GoogleFonts.getFont('Nunito', fontSize: 13),
+              ),
             ),
             ListTile(
-              contentPadding: const EdgeInsets.all(5),
-              leading: const Icon(
-                Icons.subject,
-                color: Colors.black87,
+              isThreeLine: true,
+              contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+              leading: const Icon(Icons.description, color: Colors.black),
+              title: Text(
+                // ignore: prefer_interpolation_to_compose_strings
+                'Description:', // Return 'No description found' if no match exists
+
+                style: GoogleFonts.getFont('Lora', fontSize: 18),
               ),
-              title: TextField(
-                controller: TextEditingController(text: _notes),
-                onChanged: (String value) {
-                  _notes = value;
-                },
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w400),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Add description',
-                ),
+              subtitle: Text(
+                // ignore: prefer_interpolation_to_compose_strings
+                currentActivity[
+                    'description'], // Return 'No description found' if no match exists
+                style: GoogleFonts.getFont('Nunito', fontSize: 18),
               ),
             ),
-            const Divider(
-              height: 1.0,
-              thickness: 1,
+            ListTile(
+              contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+              leading: const Icon(Icons.link, color: Colors.black),
+              title: Text(
+                // ignore: prefer_interpolation_to_compose_strings
+                currentActivity[
+                    'source_link'], // Return 'No source link found' if no match exists
+                style: GoogleFonts.getFont('Lato',
+                    fontSize: 18,
+                    decoration: TextDecoration.underline,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.blue),
+              ),
             ),
           ],
         ));
