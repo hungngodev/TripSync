@@ -34,6 +34,7 @@ class CalendarSerializer(serializers.ModelSerializer):
 
 class ChosenActivitySerializer(serializers.ModelSerializer):
     activity = serializers.PrimaryKeyRelatedField(queryset=Activity.objects.all())  
+    calendar = serializers.PrimaryKeyRelatedField(queryset=Calendar.objects.all())
     class Meta:
         model = ChosenActivity
         fields = '__all__'
@@ -46,4 +47,5 @@ class ChosenActivitySerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         # Serialize the related activity using ActivitySerializer
         representation['activity'] = ActivitySerializer(instance.activity).data
+        representation['calendar'] = CalendarSerializer(instance.calendar).data
         return representation

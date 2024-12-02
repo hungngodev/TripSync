@@ -8,13 +8,17 @@ class TaskCard extends StatelessWidget {
   String start = "3:00 PM";
   String end = "5:00 PM";
   String duration = "2 Hour";
+  String description = "You have a trip at Amhert Museum";
+  String source = 'My Calendar';
   TaskCard(
       {super.key,
       required this.clr,
       required this.title,
       required this.start,
       required this.end,
-      required this.duration});
+      required this.duration,
+      required this.description,
+      required this.source});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,18 @@ class TaskCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 35,
+                height: 2,
+              ),
+              Text(
+                source,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(
+                height: 24,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -93,7 +108,18 @@ class TaskCard extends StatelessWidget {
                     ],
                   ),
                 ],
-              )
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+              Text(
+                description,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
         ),

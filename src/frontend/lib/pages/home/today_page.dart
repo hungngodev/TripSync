@@ -87,6 +87,7 @@ class _TodayPageState extends State<TodayPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: meeting.map((task) {
+                    print(task);
                     DateTime start = DateTime.parse(task['start_date']);
                     DateTime end = DateTime.parse(task['end_date']);
                     Duration duration = end.difference(start);
@@ -95,12 +96,13 @@ class _TodayPageState extends State<TodayPage> {
                       return const SizedBox();
                     }
                     return TaskCard(
-                      clr: Color(int.parse('0x${task['color']}')),
-                      title: task['title'], // Pass title
-                      start: DateFormat('h:mm a').format(start.toLocal()),
-                      end: DateFormat('h:mm a').format(end.toLocal()),
-                      duration: '${duration.inHours} hours', // Pass duration
-                    );
+                        clr: Color(int.parse('0x${task['color']}')),
+                        title: task['title'], // Pass title
+                        start: DateFormat('h:mm a').format(start.toLocal()),
+                        end: DateFormat('h:mm a').format(end.toLocal()),
+                        duration: '${duration.inHours} hours', // Pass duration
+                        description: task['description'],
+                        source: 'From ' + task['calendar']['name']);
                   }).toList(),
                 ),
               ),
@@ -248,7 +250,7 @@ class _TodayPageState extends State<TodayPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "1:20 PM ",
+                            DateFormat('h:mm a').format(DateTime.now()),
                             style: GoogleFonts.poppins(
                               fontSize: 28,
                             ),
@@ -260,7 +262,7 @@ class _TodayPageState extends State<TodayPage> {
                             ),
                           ),
                           Text(
-                            "6:20 PM ",
+                            DateFormat('h:mm a').format(DateTime.now().toUtc()),
                             style: GoogleFonts.poppins(
                               fontSize: 28,
                             ),

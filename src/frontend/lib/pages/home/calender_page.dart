@@ -61,16 +61,18 @@ class _CalenderPageState extends State<CalenderPage> {
   late List<Item> _items = <Item>[];
   List<Meeting> appointments = <Meeting>[];
   CalendarController calendarController = CalendarController();
+  bool valid = false;
+  bool isLoading = true;
+
   @override
   void initState() {
-    currentCalendar = widget.current == '' ? '1' : widget.current;
-    getCalendarNames();
-    getMeetingDetails(widget.current == '' ? 1 : int.parse(widget.current));
+    getInformations();
     _selectedAppointment = null;
     _selectedColorIndex = Colors.black;
     _selectedTimeZoneIndex = 0;
     _subject = '';
     _notes = '';
+    valid = _items.isNotEmpty;
     super.initState();
   }
 
@@ -80,252 +82,326 @@ class _CalenderPageState extends State<CalenderPage> {
         Provider.of<SelectedTimeChangeProvider>(context, listen: false);
     return Scaffold(
       body: SlidingUpPanel(
-        maxHeight: 750,
+        maxHeight: 720,
         defaultPanelState: PanelState.OPEN,
         isDraggable: false,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
         panel: Padding(
           padding: const EdgeInsets.only(top: 20, left: 5, right: 5),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: !isLoading
+              ? Column(
                   children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: (() => Navigator.pop(context)),
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(24)),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              child: Center(
-                                child: Text(
-                                  "Today",
-                                  style: GoogleFonts.poppins(
-                                      color: Colors.black, fontSize: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: (() => Navigator.pop(context)),
+                                child: Container(
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(),
+                                      borderRadius: BorderRadius.circular(24)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: Center(
+                                      child: Text(
+                                        "Today",
+                                        style: GoogleFonts.poppins(
+                                            color: Colors.black, fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 147, 139, 174),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Center(
-                              child: Text(
-                                "Calendar",
-                                style: GoogleFonts.poppins(
-                                    color: Colors.white, fontSize: 16),
+                              const SizedBox(
+                                width: 10,
                               ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              _items.length > 0
-                  ? CustomDropdown<Item>(
-                      hintText: 'Select job role',
-                      items: _items,
-                      initialItem: _items.firstWhere(
-                        (item) => item.id == currentCalendar,
-                        orElse: () => _items[
-                            0], // Optionally, handle the case where no item is found
-                      ),
-                      onChanged: (value) {
-                        print('changing value to: $value');
-                      },
-                    )
-                  : const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text('No calendar found',
-                          style: TextStyle(color: Colors.black, fontSize: 30)),
-                    ),
-              _items.length > 0
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      height: 110,
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(22)),
-                      child: DatePicker(
-                        DateTime.now(),
-                        initialSelectedDate: DateTime.now(),
-                        width: 60,
-                        selectionColor:
-                            const Color.fromARGB(255, 147, 139, 174),
-                        dateTextStyle: GoogleFonts.poppins(
-                            color: Colors.grey, fontSize: 26),
-                        onDateChange: (date) {
-                          selectedTimeProvider.setSelectedDate(date);
-                          calendarController.displayDate = date;
-                        },
-                      ),
-                    )
-                  : SizedBox.shrink(),
-              _items.length > 0
-                  ? Expanded(
-                      child: Consumer<SelectedTimeChangeProvider>(
-                        builder: (context, value, child) {
-                          return SfCalendar(
-                            view: CalendarView.day,
-                            controller: calendarController,
-                            allowedViews: const [
-                              CalendarView.day,
-                              CalendarView.week,
-                              CalendarView.timelineWeek,
-                              CalendarView.month
-                            ],
-                            allowAppointmentResize: true,
-                            allowDragAndDrop: true,
-                            timeSlotViewSettings: const TimeSlotViewSettings(
-                              timeIntervalHeight: 80,
-                            ),
-                            allowViewNavigation: true,
-                            todayHighlightColor: Colors.blue,
-                            showNavigationArrow: true,
-                            firstDayOfWeek: 1,
-                            showCurrentTimeIndicator: true,
-                            dataSource: _events,
-                            onTap: onCalendarTapped,
-                            appointmentBuilder: (BuildContext context,
-                                CalendarAppointmentDetails details) {
-                              final Meeting meeting =
-                                  details.appointments.first;
-                              if (meeting.isAllDay) {
-                                return Container(
-                                  // color: meeting.background.withOpacity(0.7),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(5)),
-                                    color: meeting.background.withOpacity(1),
-                                  ),
-                                  padding: const EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    meeting.eventName,
-                                    style: GoogleFonts.nunito(
-                                        color: Colors.white, fontSize: 15),
-                                  ),
-                                );
-                              }
-
-                              return Column(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(3),
-                                    height: details.bounds.height * 0.35,
-                                    alignment: Alignment.topLeft,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                      borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(5),
-                                          topRight: Radius.circular(5)),
-                                      color: meeting.background.withOpacity(1),
+                              Container(
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(255, 147, 139, 174),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: Center(
+                                    child: Text(
+                                      "Calendar",
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.white, fontSize: 16),
                                     ),
-                                    child: SingleChildScrollView(
-                                        child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          meeting.eventName,
-                                          style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                          maxLines: 3,
-                                          softWrap: false,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical:
-                                                    details.bounds.height *
-                                                        0.008)),
-                                        Text(
-                                          'Time: ${DateFormat('hh:mm a').format(meeting.from)} - ' +
-                                              '${DateFormat('hh:mm a').format(meeting.to)}',
-                                          style: GoogleFonts.poppins(
-                                              color: Colors.white),
-                                        )
-                                      ],
-                                    )),
                                   ),
-                                  Container(
-                                    height: details.bounds.height * 0.55,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(3, 5, 3, 2),
-                                    color: meeting.background.withOpacity(0.7),
-                                    alignment: Alignment.topLeft,
-                                    child: SingleChildScrollView(
-                                        child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          meeting.description!,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    _items.isNotEmpty && valid
+                        ? CustomDropdown<Item>(
+                            hintText: 'Select job role',
+                            items: _items,
+                            initialItem: _items.firstWhere(
+                              (item) => item.id == currentCalendar,
+                              orElse: () => _items[
+                                  0], // Optionally, handle the case where no item is found
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                currentCalendar = value!.id;
+                              });
+                              getMeetingDetails();
+                            },
+                          )
+                        : Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Colors
+                                        .orangeAccent, // Background color for emphasis
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(
+                                            0x33000000), // 20% opacity black
+                                        spreadRadius: 2,
+                                        blurRadius: 4,
+                                        offset: Offset(
+                                            0, 2), // Slight shadow offset
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(
+                                        10), // Extra padding for inner spacing
+                                    child: Text(
+                                      'No calendar found or you have not chosen any activities',
+                                      style: TextStyle(
+                                        color: Colors
+                                            .white, // White text color for contrast
+                                        fontSize:
+                                            28, // Slightly smaller font size
+                                        fontWeight: FontWeight
+                                            .bold, // Bold text for emphasis
+                                        letterSpacing:
+                                            1.2, // Space out the letters for a modern look
+                                        height:
+                                            1.5, // Line height for better readability
+                                      ),
+                                      textAlign: TextAlign
+                                          .center, // Center the text for better positioning
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.6,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  image: const DecorationImage(
+                                    image: AssetImage('assets/images/8.jpg'),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                    _items.isNotEmpty && valid
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            height: 110,
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(22)),
+                            child: DatePicker(
+                              DateTime.now(),
+                              initialSelectedDate: DateTime.now(),
+                              width: 60,
+                              selectionColor:
+                                  const Color.fromARGB(255, 147, 139, 174),
+                              dateTextStyle: GoogleFonts.poppins(
+                                  color: Colors.grey, fontSize: 26),
+                              onDateChange: (date) {
+                                selectedTimeProvider.setSelectedDate(date);
+                                calendarController.displayDate = date;
+                              },
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    _items.isNotEmpty && valid
+                        ? Expanded(
+                            child: Consumer<SelectedTimeChangeProvider>(
+                              builder: (context, value, child) {
+                                return SfCalendar(
+                                  view: CalendarView.day,
+                                  controller: calendarController,
+                                  allowedViews: const [
+                                    CalendarView.day,
+                                    CalendarView.week,
+                                    CalendarView.timelineWeek,
+                                    CalendarView.month
+                                  ],
+                                  allowAppointmentResize: true,
+                                  allowDragAndDrop: true,
+                                  timeSlotViewSettings:
+                                      const TimeSlotViewSettings(
+                                    timeIntervalHeight: 80,
+                                  ),
+                                  allowViewNavigation: true,
+                                  todayHighlightColor: Colors.blue,
+                                  showNavigationArrow: true,
+                                  firstDayOfWeek: 1,
+                                  showCurrentTimeIndicator: true,
+                                  dataSource: _events,
+                                  onTap: onCalendarTapped,
+                                  appointmentBuilder: (BuildContext context,
+                                      CalendarAppointmentDetails details) {
+                                    final Meeting meeting =
+                                        details.appointments.first;
+                                    if (meeting.isAllDay) {
+                                      return Container(
+                                        // color: meeting.background.withOpacity(0.7),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.rectangle,
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(5)),
+                                          color:
+                                              meeting.background.withOpacity(1),
+                                        ),
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        child: Text(
+                                          meeting.eventName,
                                           style: GoogleFonts.nunito(
                                               color: Colors.white,
                                               fontSize: 15),
-                                        )
+                                        ),
+                                      );
+                                    }
+
+                                    return Column(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(3),
+                                          height: details.bounds.height * 0.35,
+                                          alignment: Alignment.topLeft,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.rectangle,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                    topLeft: Radius.circular(5),
+                                                    topRight:
+                                                        Radius.circular(5)),
+                                            color: meeting.background
+                                                .withOpacity(1),
+                                          ),
+                                          child: SingleChildScrollView(
+                                              child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                meeting.eventName,
+                                                style: GoogleFonts.poppins(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                maxLines: 3,
+                                                softWrap: false,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: details
+                                                              .bounds.height *
+                                                          0.008)),
+                                              Text(
+                                                'Time: ${DateFormat('hh:mm a').format(meeting.from)} - ${DateFormat('hh:mm a').format(meeting.to)}',
+                                                style: GoogleFonts.poppins(
+                                                    color: Colors.white),
+                                              )
+                                            ],
+                                          )),
+                                        ),
+                                        Container(
+                                          height: details.bounds.height * 0.55,
+                                          padding: const EdgeInsets.fromLTRB(
+                                              3, 5, 3, 2),
+                                          color: meeting.background
+                                              .withOpacity(0.7),
+                                          alignment: Alignment.topLeft,
+                                          child: SingleChildScrollView(
+                                              child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                meeting.description!,
+                                                style: GoogleFonts.nunito(
+                                                    color: Colors.white,
+                                                    fontSize: 15),
+                                              )
+                                            ],
+                                          )),
+                                        ),
+                                        Container(
+                                          height: details.bounds.height * 0.1,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.rectangle,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                    bottomLeft:
+                                                        Radius.circular(5),
+                                                    bottomRight:
+                                                        Radius.circular(5)),
+                                            color: meeting.background
+                                                .withOpacity(1),
+                                          ),
+                                        ),
                                       ],
-                                    )),
-                                  ),
-                                  Container(
-                                    height: details.bounds.height * 0.1,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                      borderRadius: const BorderRadius.only(
-                                          bottomLeft: Radius.circular(5),
-                                          bottomRight: Radius.circular(5)),
-                                      color: meeting.background.withOpacity(1),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                            initialDisplayDate: DateTime(
-                                DateTime.now().year,
-                                DateTime.now().month,
-                                DateTime.now().day,
-                                0,
-                                0,
-                                0),
-                            monthViewSettings: const MonthViewSettings(
-                                appointmentDisplayMode:
-                                    MonthAppointmentDisplayMode.appointment),
-                          );
-                        },
-                      ),
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
+                                    );
+                                  },
+                                  initialDisplayDate: DateTime(
+                                      DateTime.now().year,
+                                      DateTime.now().month,
+                                      DateTime.now().day,
+                                      0,
+                                      0,
+                                      0),
+                                  monthViewSettings: const MonthViewSettings(
+                                      appointmentDisplayMode:
+                                          MonthAppointmentDisplayMode
+                                              .appointment),
+                                );
+                              },
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ],
+                )
+              : const Center(
+                  child: CircularProgressIndicator(),
+                ),
         ),
         body: SafeArea(
           child: Container(
@@ -391,32 +467,34 @@ class _CalenderPageState extends State<CalenderPage> {
     });
   }
 
-  Future<void> getCalendarNames() async {
+  Future<void> getInformations() async {
     final List<dynamic> calendarNames = await apiService.getCalendars();
     setState(() {
       _items = calendarNames
           .map((event) => Item(event['name'], event['id']))
           .toList();
     });
+    setState(() {
+      currentCalendar = _items.isNotEmpty ? _items[0].id : '';
+    });
+    await getMeetingDetails();
+    await Future.delayed(
+        Duration(milliseconds: 300), () => 'Fake async result');
+    setState(() {
+      isLoading = false;
+    });
   }
 
-  Future<void> getMeetingDetails(calendarId) async {
-    eventNameCollection = <String>[
-      'General Meeting',
-      'Plan Execution',
-      'Project Plan',
-      'Consulting',
-      'Support',
-      'Development Meeting',
-      'Scrum',
-      'Project Completion',
-      'Release updates',
-      'Performance Check',
-    ];
-
+  Future<void> getMeetingDetails() async {
     chosenList = await apiService.getChosenList();
-    _selectedActivity = chosenList.length > 0 ? chosenList[0]['id'] : 1;
-    final backendCalendar = await apiService.getCalendar(calendarId);
+    if (chosenList.isEmpty) {
+      setState(() {
+        valid = false;
+      });
+      return;
+    }
+    _selectedActivity = chosenList.isNotEmpty ? chosenList[0]['id'] : 1;
+    final backendCalendar = await apiService.getCalendar(currentCalendar);
     final List<Meeting> meetingCollection = backendCalendar
         .map((event) => Meeting(
               from: DateTime.parse(event['start_date']),
@@ -436,6 +514,7 @@ class _CalenderPageState extends State<CalenderPage> {
     setState(() {
       appointments = meetingCollection;
       _events = DataSource(appointments);
+      valid = true;
     });
   }
 }
@@ -632,15 +711,15 @@ final List<String> timeZoneCollection = [
   'Yakutsk Standard Time',
 ];
 final List<Color> colorCollection = [
-  Color(0xFF6a040f),
-  Color(0xFF5E60CE),
-  Color(0xFF6930C3),
-  Color(0xFF48BFE3),
-  Color(0xFF1a759f),
-  Color(0xFF3a0ca3),
-  Color(0xFF354f52),
-  Color(0xFF1f7a8c),
-  Color(0xFF2a9d8f),
+  const Color(0xFF6a040f),
+  const Color(0xFF5E60CE),
+  const Color(0xFF6930C3),
+  const Color(0xFF48BFE3),
+  const Color(0xFF1a759f),
+  const Color(0xFF3a0ca3),
+  const Color(0xFF354f52),
+  const Color(0xFF1f7a8c),
+  const Color(0xFF2a9d8f),
 ];
 final List<String> eventNameCollection = [
   'General Meeting',

@@ -81,6 +81,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     queryset = Activity.objects.all()
 
     def get_queryset(self):
+        
         queryset = Activity.objects.all()
         category = self.request.query_params.get('category', None)
         location = self.request.query_params.get('location', None)
@@ -142,8 +143,9 @@ class CalendarViewSet(viewsets.ModelViewSet):
     serializer_class = CalendarSerializer
     
     def list(self, request):
-        calendars = self.queryset
+        calendars =Calendar.objects.all()
         serializer = self.get_serializer(calendars, many=True)
+        print(serializer.data)
         return Response(serializer.data)
 
     def create(self, request):
@@ -190,11 +192,13 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
     
     
     def list(self, request):
+        self.queryset = ChosenActivity.objects.all()
         chosen_activities = self.queryset
         serializer = self.get_serializer(chosen_activities, many=True)
         return Response(serializer.data)
 
     def create(self, request):
+        
         adding = {
             'user': request.user.id,
             **request.data  
@@ -211,6 +215,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
+        self.queryset = ChosenActivity.objects.all()
         chosen_activity = self.get_object()
         serializer = self.get_serializer(chosen_activity)
         return Response(serializer.data)
@@ -245,14 +250,17 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_all_chosen_activities_of_traveller(self, traveller_id):
+        self.queryset = ChosenActivity.objects.all()
         return self.queryset.filter(user_id=traveller_id, 
                                  calendar_id = None   ).select_related('activity')
 
     def get_all_chosen_activities_of_calendar(self, user_id,  calendar_id):
+        self.queryset = ChosenActivity.objects.all()
         return self.queryset.filter(user_id=user_id,  start_date__isnull=False,   
                                     calendar_id=calendar_id).select_related('activity')
         
     def get_all_chosen_activities_of_calendar_today(self, user_id):
+        self.queryset = ChosenActivity.objects.all()
         return self.queryset.filter(user_id=user_id,  start_date__isnull=False,   
                                    calendar_id__isnull=False,   start_date__date=datetime.now().date()).select_related('activity')
     

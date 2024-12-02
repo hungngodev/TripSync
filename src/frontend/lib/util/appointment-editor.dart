@@ -411,7 +411,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         'endTimeZone': _selectedTimeZoneIndex == 0
                             ? ''
                             : _timeZoneCollection[_selectedTimeZoneIndex],
-                        'calendar': currentCalendar,
+                        'calendar': int.parse(currentCalendar),
                       };
                       final chosenId = _selectedMeeting != -1
                           ? _selectedMeeting.toString()

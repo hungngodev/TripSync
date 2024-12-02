@@ -218,9 +218,7 @@ class ApiService {
           'Authorization': 'Token $token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'name': 'name',
-        }));
+        body: json.encode({'name': name}));
     print(response.body);
     if (response.statusCode == 201) {
       print("Calendar created successfully");
