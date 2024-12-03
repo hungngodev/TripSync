@@ -53,7 +53,7 @@ class _HomeState extends State<HomePage> {
         const CalendarPage(),
 
         /// Messages page
-        PostPage(),
+        const PostPage(),
         const SettingPage()
       ][_page],
     );

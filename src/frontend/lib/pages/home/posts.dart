@@ -1,8 +1,8 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'dart:math';
 
 import '../../model/global.dart';
 import '../../provider/post_provider.dart';
@@ -52,160 +52,185 @@ class _PostPageState extends State<PostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (context) => PostProvider()..fetchPosts(),
-        child: Scaffold(
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(0),
-              child: AppBar(backgroundColor: Colors.white, elevation: 0),
-            ),
-            body:
-                Consumer<PostProvider>(builder: (context, postProvider, child) {
-              final posts = postProvider.posts;
-              return CustomScrollView(
-                slivers: <Widget>[
-                  SliverList(
-                    delegate: SliverChildListDelegate([
-                      _getSeparator(5),
-                      Container(
-                        decoration: const BoxDecoration(color: Colors.white),
-                        child: Column(children: <Widget>[
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 147, 139, 174),
+          // title: Text(
+          //   currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
+          //   style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+          // ),
+          title: Text(
+            'New Feeds',
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+          ),
+          iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 0,
+        ),
+        body: ChangeNotifierProvider(
+            create: (context) => PostProvider()..fetchPosts(),
+            child: Scaffold(
+                appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(0),
+                  child: AppBar(backgroundColor: Colors.white, elevation: 0),
+                ),
+                body: Consumer<PostProvider>(
+                    builder: (context, postProvider, child) {
+                  final posts = postProvider.posts;
+                  return CustomScrollView(
+                    slivers: <Widget>[
+                      SliverList(
+                        delegate: SliverChildListDelegate([
+                          _getSeparator(5),
                           Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: <Widget>[
-                                      CircleAvatar(
-                                        backgroundImage:
-                                            NetworkImage(userProfileImage),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: TextField(
-                                          controller: postTitleController,
-                                          decoration: const InputDecoration(
-                                            hintText: 'What\'s on your mind ?',
-                                            hintStyle: TextStyle(
-                                                color: Colors.black87),
+                            decoration:
+                                const BoxDecoration(color: Colors.white),
+                            child: Column(children: <Widget>[
+                              Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: <Widget>[
+                                          CircleAvatar(
+                                            backgroundImage:
+                                                NetworkImage(userProfileImage),
                                           ),
-                                        ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: TextField(
+                                              controller: postTitleController,
+                                              decoration: const InputDecoration(
+                                                hintText:
+                                                    'What\'s on your mind ?',
+                                                hintStyle: TextStyle(
+                                                    color: Colors.black87),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
+                                      TextField(
+                                        controller: postSubController,
+                                        decoration: const InputDecoration(
+                                            label: Text('Description'),
+                                            hintText: "Insert your message",
+                                            border: InputBorder.none),
+                                        autofocus: true,
+                                      ),
+                                      const ListTile(
+                                        title: Text('Share your Calendar',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 15,
+                                            )),
+                                        leading: Icon(Icons.calendar_month,
+                                            color: const Color.fromARGB(
+                                                255, 147, 139, 174)),
+                                      ),
+                                      CustomDropdown<Item>(
+                                        hintText: 'Select job role',
+                                        items: _items,
+                                        initialItem: _items.firstWhere(
+                                          (item) => item.id == chosenCalendar,
+                                          orElse: () => _items[
+                                              0], // Optionally, handle the case where no item is found
+                                        ),
+                                        onChanged: (value) async {
+                                          setState(() {
+                                            chosenCalendar = value!.id;
+                                          });
+                                        },
+                                      )
                                     ],
-                                  ),
-                                  TextField(
-                                    controller: postSubController,
-                                    decoration: const InputDecoration(
-                                        label: Text('Description'),
-                                        hintText: "Insert your message",
-                                        border: InputBorder.none),
-                                    autofocus: true,
-                                  ),
-                                  const ListTile(
-                                    title: Text('Share your Calendar',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 15,
-                                        )),
-                                    leading: Icon(Icons.calendar_month),
-                                  ),
-                                  CustomDropdown<Item>(
-                                    hintText: 'Select job role',
-                                    items: _items,
-                                    initialItem: _items.firstWhere(
-                                      (item) => item.id == chosenCalendar,
-                                      orElse: () => _items[
-                                          0], // Optionally, handle the case where no item is found
-                                    ),
-                                    onChanged: (value) async {
-                                      setState(() {
-                                        chosenCalendar = value!.id;
-                                      });
-                                    },
-                                  )
-                                ],
-                              )),
-                          const Divider(),
-                          Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                _buildPostOptionButton(
-                                    Icons.video_call, 'Live'),
-                                _buildPostOptionButton(Icons.photo, 'Photo'),
-                                _buildPostOptionButton(
-                                    Icons.location_on, 'Check In'),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
-                            child: MaterialButton(
-                              height: 50,
-                              minWidth: double.infinity,
-                              onPressed: !loading
-                                  ? () async {
-                                      setState(() {
-                                        isSubmitting = true;
-                                      });
-                                      final title = postTitleController.text;
-                                      final subtitle = postSubController.text;
-                                      final calendar = chosenCalendar;
-                                      await Provider.of<PostProvider>(context,
-                                              listen: false)
-                                          .addPost({
-                                        'title': title,
-                                        'content': subtitle,
-                                        'calendar': calendar
-                                      });
-                                      postTitleController.clear();
-                                      postSubController.clear();
+                                  )),
+                              const Divider(),
+                              Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    _buildPostOptionButton(
+                                        Icons.video_call, 'Live'),
+                                    _buildPostOptionButton(
+                                        Icons.photo, 'Photo'),
+                                    _buildPostOptionButton(
+                                        Icons.location_on, 'Check In'),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 6, 20, 6),
+                                child: MaterialButton(
+                                  height: 50,
+                                  minWidth: double.infinity,
+                                  onPressed: !loading
+                                      ? () async {
+                                          setState(() {
+                                            isSubmitting = true;
+                                          });
+                                          final title =
+                                              postTitleController.text;
+                                          final subtitle =
+                                              postSubController.text;
+                                          final calendar = chosenCalendar;
+                                          await Provider.of<PostProvider>(
+                                                  context,
+                                                  listen: false)
+                                              .addPost({
+                                            'title': title,
+                                            'content': subtitle,
+                                            'calendar': calendar
+                                          });
+                                          postTitleController.clear();
+                                          postSubController.clear();
 
-                                      setState(() {
-                                        isSubmitting = false;
-                                      });
-                                    }
-                                  : null,
-                              color: Colors.blue.withOpacity(1),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50)),
-                              child: !isSubmitting
-                                  ? const Text(
-                                      "Post",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 18,
-                                          color: Colors.white),
-                                    )
-                                  : const CircularProgressIndicator(
-                                      color: Colors.white,
-                                    ),
-                            ),
+                                          setState(() {
+                                            isSubmitting = false;
+                                          });
+                                        }
+                                      : null,
+                                  color:
+                                      const Color.fromARGB(255, 147, 139, 174),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50)),
+                                  child: !isSubmitting
+                                      ? const Text(
+                                          "Post",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 18,
+                                              color: Colors.white),
+                                        )
+                                      : const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        ),
+                                ),
+                              ),
+                            ]),
                           ),
+                          _getSeparator(10),
+                          postProvider.posts.isEmpty
+                              ? const Padding(
+                                  padding: const EdgeInsets.all(180),
+                                  child: const CircularProgressIndicator())
+                              : Column(
+                                  children: postProvider.posts
+                                      .map((post) => _getPost(post, context))
+                                      .expand((element) => element)
+                                      .toList(),
+                                )
                         ]),
                       ),
-                      _getSeparator(10),
-                      postProvider.posts.isEmpty
-                          ? const Padding(
-                              padding: const EdgeInsets.all(180),
-                              child: const CircularProgressIndicator())
-                          : Column(
-                              children: postProvider.posts
-                                  .map((post) => _getPost(post, context))
-                                  .expand((element) => element)
-                                  .toList(),
-                            )
-                    ]),
-                  ),
-                ],
-              );
-            })));
+                    ],
+                  );
+                }))));
   }
 
   Widget _getSeparator(double height) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).dividerColor),
+      decoration:
+          BoxDecoration(color: const Color.fromARGB(255, 186, 187, 190)),
       constraints: BoxConstraints(maxHeight: height),
     );
   }
@@ -256,12 +281,16 @@ class _PostPageState extends State<PostPage> {
                   children: <Widget>[
                     Text(postUserName,
                         style: const TextStyle(
-                            fontWeight: FontWeight.w700, color: Colors.black)),
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                          fontSize: 20,
+                        )),
                     Row(
                       children: <Widget>[
                         Text(timeAgo(postTime),
                             style: const TextStyle(
-                                color: Colors.grey, fontSize: 12)),
+                                color: Colors.grey, fontSize: 16)),
+                        const SizedBox(width: 5),
                         const Icon(Icons.language, size: 15, color: Colors.grey)
                       ],
                     ),
@@ -288,7 +317,8 @@ class _PostPageState extends State<PostPage> {
                         hintStyle: TextStyle(color: Colors.black87),
                       ),
                     ),
-              leading: const Icon(Icons.album),
+              leading: const Icon(Icons.album,
+                  color: const Color.fromARGB(255, 147, 139, 174)),
             ),
           ),
           Padding(
@@ -352,7 +382,8 @@ class _PostPageState extends State<PostPage> {
                               });
                             },
                           ),
-                    leading: Icon(Icons.calendar_today),
+                    leading: Icon(Icons.calendar_today,
+                        color: const Color.fromARGB(255, 147, 139, 174)),
                   ),
                   SizedBox(
                     height: 300,

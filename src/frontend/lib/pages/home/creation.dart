@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../../services/django/api_service.dart';
@@ -25,6 +26,7 @@ class _CreationState extends State<CreationScreen> {
   late Map<String, Map<String, Map<String, dynamic>>> events = {};
   final TextEditingController _controller = TextEditingController();
   final ApiService apiService = ApiService();
+  late List<dynamic> calendars = [];
 
   @override
   void dispose() {
@@ -45,6 +47,11 @@ class _CreationState extends State<CreationScreen> {
 
   Future<void> getEvents() async {
     await fakeAsync(null);
+    final calendarList = await apiService.getCalendars();
+    setState(() {
+      calendars = calendarList;
+    });
+    print(calendars);
     DateTime dayOnly = DateTime.now()
         .toLocal()
         .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
@@ -137,6 +144,19 @@ class _CreationState extends State<CreationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 147, 139, 174),
+        // title: Text(
+        //   currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
+        //   style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+        // ),
+        title: Text(
+          'Home',
+          style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(

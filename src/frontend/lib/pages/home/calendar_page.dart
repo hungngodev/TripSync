@@ -1,9 +1,11 @@
-import './today_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
 import '../../provider/calender_time_provider.dart';
 import '../../provider/time_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import './today_page.dart';
 
 MaterialColor white = const MaterialColor(
   0xFFFFFFFF,
@@ -31,17 +33,32 @@ class CalendarPage extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TimeProvider()),
         ChangeNotifierProvider(create: (_) => SelectedTimeChangeProvider())
       ],
-      child: ScreenUtilInit(
-          designSize: const Size(360, 690),
-          minTextAdapt: true,
-          splitScreenMode: true,
-          builder: (context, child) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(primarySwatch: Colors.grey),
-              home: const TodayPage(),
-            );
-          }),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 147, 139, 174),
+          // title: Text(
+          //   currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
+          //   style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+          // ),
+          title: Text(
+            'Calendar',
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+          ),
+          iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 0,
+        ),
+        body: ScreenUtilInit(
+            designSize: const Size(360, 690),
+            minTextAdapt: true,
+            splitScreenMode: true,
+            builder: (context, child) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData(primarySwatch: Colors.grey),
+                home: const TodayPage(),
+              );
+            }),
+      ),
     );
   }
 }
