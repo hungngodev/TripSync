@@ -9,6 +9,14 @@ class AppointmentEditor extends StatefulWidget {
 
 class AppointmentEditorState extends State<AppointmentEditor> {
   final TextEditingController activityController = TextEditingController();
+  final TextEditingController _subjectController =
+      TextEditingController(text: _subject);
+
+  @override
+  void dispose() {
+    activityController.dispose();
+    super.dispose();
+  }
 
   Widget _getAppointmentEditor(BuildContext context) {
     dynamic currentActivity = (chosenList
@@ -16,7 +24,14 @@ class AppointmentEditorState extends State<AppointmentEditor> {
             .isNotEmpty
         ? chosenList
             .firstWhere((activity) => activity['id'] == _selectedActivity)
-        : 'No activity found');
+        : {
+            'category': 'Select type',
+            'location': 'Where is it happening?',
+            'address': 'Address awaits!',
+            'description': 'What makes it special?',
+            'source_link': 'Learn more here!'
+          });
+
     return Container(
         color: Colors.white,
         child: ListView(
@@ -26,7 +41,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
               contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
               leading: const Text(''),
               title: TextField(
-                controller: TextEditingController(text: _subject),
+                controller: _subjectController,
                 onChanged: (String value) {
                   _subject = value;
                 },
@@ -313,8 +328,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         .isNotEmpty
                     ? chosenList.firstWhere((activity) =>
                         activity['id'] == _selectedActivity)['title']
-                    : 'No activity found'), // Return 'No activity found' if no match exists
-                style: GoogleFonts.getFont('Playfair Display', fontSize: 18),
+                    : 'Choose your activity'), // Return 'No activity found' if no match exists
+                style: GoogleFonts.getFont('Lora', fontSize: 18),
               ),
               trailing: Icon(Icons.arrow_downward, color: _selectedColorIndex),
               onTap: () {
@@ -422,7 +437,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
         home: Scaffold(
             appBar: AppBar(
               title: Text(
-                getTile(),
+                getTitle(),
                 style: const TextStyle(
                   color: Colors.white, // Change this to your desired color
                 ),
@@ -472,7 +487,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                       final chosenId = _selectedMeeting != -1
                           ? _selectedMeeting.toString()
                           : await apiService.addChosenActivity(data);
-                      print(_selectedMeeting);
                       if (_selectedMeeting != -1) {
                         await apiService.updateChosenActivity(chosenId, data);
                       }
@@ -521,7 +535,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         await apiService.deleteChosenActivity(
                             _selectedAppointment!.id.toString());
                         _selectedAppointment = null;
-
                         Navigator.pop(context);
                       }
                     },
@@ -532,7 +545,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                   )));
   }
 
-  String getTile() {
+  String getTitle() {
     return _subject.isEmpty ? 'New event' : 'Event details';
   }
 }

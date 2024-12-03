@@ -60,7 +60,7 @@ class _TodayPageState extends State<TodayPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Today's Activities",
+                    "Upcoming Activities",
                     style: GoogleFonts.poppins(
                         fontSize: 18, fontWeight: FontWeight.w600),
                   ),
@@ -87,19 +87,22 @@ class _TodayPageState extends State<TodayPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: meeting.map((task) {
-                    print(task);
                     DateTime start = DateTime.parse(task['start_date']);
                     DateTime end = DateTime.parse(task['end_date']);
                     Duration duration = end.difference(start);
-                    if (start.day != DateTime.now().day ||
-                        start.isAfter(DateTime.now())) {
-                      return const SizedBox();
-                    }
+                    DateTime current = DateTime.now().toLocal();
+                    int diff = start.day - current.day;
+                    String date = diff == 0
+                        ? 'Today'
+                        : diff == 1
+                            ? 'Tomorrow'
+                            : DateFormat('EEEE').format(start);
                     return TaskCard(
+                        date: date,
                         clr: Color(int.parse('0x${task['color']}')),
                         title: task['title'], // Pass title
-                        start: DateFormat('h:mm a').format(start.toLocal()),
-                        end: DateFormat('h:mm a').format(end.toLocal()),
+                        start: DateFormat('h:mm a').format(start),
+                        end: DateFormat('h:mm a').format(end),
                         duration: '${duration.inHours} hours', // Pass duration
                         description: task['description'],
                         source: 'From ' + task['calendar']['name']);
@@ -252,7 +255,7 @@ class _TodayPageState extends State<TodayPage> {
                           Text(
                             DateFormat('h:mm a').format(DateTime.now()),
                             style: GoogleFonts.poppins(
-                              fontSize: 28,
+                              fontSize: 20,
                             ),
                           ),
                           Text(
@@ -264,7 +267,7 @@ class _TodayPageState extends State<TodayPage> {
                           Text(
                             DateFormat('h:mm a').format(DateTime.now().toUtc()),
                             style: GoogleFonts.poppins(
-                              fontSize: 28,
+                              fontSize: 20,
                             ),
                           ),
                           Text(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:provider/provider.dart';
 
+import '../../provider/post_provider.dart';
 import '../../model/global.dart';
 import '../../services/django/api_service.dart';
 import '../../util/user_avatar.dart';
@@ -18,10 +20,12 @@ class _PostPageState extends State<PostPage> {
   bool hasStory = true;
   final apiService = ApiService();
   final List<dynamic> _events = [];
-  late List<Item> _items = <Item>[];
-  String currentCalendar = '';
+  late List<Item> _items = <Item>[Item('', '')];
+  String chosenCalendar = '';
   TextEditingController postTitle = TextEditingController();
   TextEditingController postSubtitle = TextEditingController();
+  bool loading = true;
+  bool isSubmitting = false;
 
   @override
   void initState() {
@@ -51,40 +55,98 @@ class _PostPageState extends State<PostPage> {
     final data = await apiService.getCalendar('5');
     setState(() {
       _events.addAll(data);
+      loading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(0),
-        child: AppBar(backgroundColor: Colors.white, elevation: 0),
-      ),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverList(
-            delegate: SliverChildListDelegate([
-              _getSeparator(5),
-              _addPost(),
-              _getSeparator(10),
-              Column(
-                children: _getPost(
-                    postImage:
-                        'https://images.unsplash.com/photo-1732888169391-9001089d6342?q=80&w=3385&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Drr',
-                    postText: 'This is a post body',
-                    postTime: DateTime.now(),
-                    postUserImage: userProfileImage,
-                    postUserName: 'John Doe',
-                    postTitle: 'Title',
-                    postSubtitle: 'Subtitle',
-                    events: DataSource(transform(_events))),
-              ),
-            ]),
-          ),
-        ],
-      ),
-    );
+    return ChangeNotifierProvider(
+        create: (context) => PostProvider()..fetchPosts(),
+        child: Scaffold(
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(0),
+              child: AppBar(backgroundColor: Colors.white, elevation: 0),
+            ),
+            body:
+                Consumer<PostProvider>(builder: (context, postProvider, child) {
+              final posts = postProvider.posts;
+              return CustomScrollView(
+                slivers: <Widget>[
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      _getSeparator(5),
+                      Container(
+                        decoration: const BoxDecoration(color: Colors.white),
+                        child: Column(children: <Widget>[
+                          _addPostHeader(),
+                          const Divider(),
+                          _addPostOptions(),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
+                            child: MaterialButton(
+                              height: 50,
+                              minWidth: double.infinity,
+                              onPressed: !loading
+                                  ? () async {
+                                      setState(() {
+                                        isSubmitting = true;
+                                      });
+                                      final title = postTitle.text;
+                                      final subtitle = postSubtitle.text;
+                                      final calendar = chosenCalendar;
+                                      await Provider.of<PostProvider>(context,
+                                              listen: false)
+                                          .addPost({
+                                        'title': title,
+                                        'content': subtitle,
+                                        'calendar': calendar
+                                      });
+                                      setState(() {
+                                        isSubmitting = false;
+                                      });
+                                    }
+                                  : null,
+                              color: Colors.blue.withOpacity(1),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: !isSubmitting
+                                  ? const Text(
+                                      "Post",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 18,
+                                          color: Colors.white),
+                                    )
+                                  : const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ),
+                            ),
+                          ),
+                        ]),
+                      ),
+                      _getSeparator(10),
+                      postProvider.posts.isEmpty
+                          ? const Padding(
+                              padding: const EdgeInsets.all(180),
+                              child: const CircularProgressIndicator())
+                          : Column(
+                              children: _getPost(
+                              postImage:
+                                  'https://images.unsplash.com/photo-1732888169391-9001089d6342?q=80&w=3385&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Drr',
+                              postText: 'This is a post body',
+                              postTime: DateTime.now(),
+                              postUserImage: userProfileImage,
+                              postUserName: 'John Doe',
+                              postTitle: 'Title',
+                              postSubtitle: 'Subtitle',
+                            ))
+                    ]),
+                  ),
+                ],
+              );
+            })));
   }
 
   Widget _getSeparator(double height) {
@@ -125,20 +187,24 @@ class _PostPageState extends State<PostPage> {
               autofocus: true,
             ),
             const ListTile(
-              title: Text('Share your Calendar'),
+              title: Text('Share your Calendar',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 15,
+                  )),
               leading: Icon(Icons.calendar_month),
             ),
             CustomDropdown<Item>(
               hintText: 'Select job role',
               items: _items,
               initialItem: _items.firstWhere(
-                (item) => item.id == currentCalendar,
+                (item) => item.id == chosenCalendar,
                 orElse: () => _items[
                     0], // Optionally, handle the case where no item is found
               ),
               onChanged: (value) {
                 setState(() {
-                  currentCalendar = value!.id;
+                  chosenCalendar = value!.id;
                 });
               },
             )
@@ -167,17 +233,6 @@ class _PostPageState extends State<PostPage> {
         style: TextButton.styleFrom(foregroundColor: Colors.grey),
         onPressed: () {},
       ),
-    );
-  }
-
-  Widget _addPost() {
-    return Container(
-      decoration: const BoxDecoration(color: Colors.white),
-      child: Column(children: <Widget>[
-        _addPostHeader(),
-        const Divider(),
-        _addPostOptions(),
-      ]),
     );
   }
 
@@ -212,11 +267,15 @@ class _PostPageState extends State<PostPage> {
               ),
             ],
           ),
-          const Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Icon(Icons.star_border, color: Colors.grey),
+              _buildLikeButton(),
+              // _buildFavoriteButton(),
+              Text(likes.toString(),
+                  style: const TextStyle(color: Colors.black, fontSize: 20)),
               const SizedBox(width: 10),
-              Icon(Icons.more_horiz, color: Colors.grey)
+              const Icon(Icons.more_horiz, color: Colors.grey)
             ],
           ),
         ],
@@ -239,29 +298,17 @@ class _PostPageState extends State<PostPage> {
           padding: const EdgeInsets.only(left: 10),
           child: Text(subtitlePost, style: const TextStyle(fontSize: 15)),
         ),
-        const SizedBox(height: 10),
-        Container(
-          constraints: const BoxConstraints(maxHeight: 350),
-          decoration: BoxDecoration(
-            color: Colors.yellow,
-            image: DecorationImage(
-              image: NetworkImage(imagePost),
-              fit: BoxFit.fill,
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget postLikesAndComments() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        _buildLikeButton(),
-        // _buildFavoriteButton(),
-        Text(likes.toString(),
-            style: const TextStyle(color: Colors.black, fontSize: 20)),
+        // const SizedBox(height: 10),
+        // Container(
+        //   constraints: const BoxConstraints(maxHeight: 350),
+        //   decoration: BoxDecoration(
+        //     color: Colors.yellow,
+        //     image: DecorationImage(
+        //       image: NetworkImage(imagePost),
+        //       fit: BoxFit.fill,
+        //     ),
+        //   ),
+        // )
       ],
     );
   }
@@ -292,7 +339,7 @@ class _PostPageState extends State<PostPage> {
       String? postUserName,
       String? postTitle,
       String? postSubtitle,
-      DataSource? events}) {
+      dynamic? events}) {
     return [
       _postHeader(postUserName, postTime, postUserImage),
       _postBody(
@@ -301,33 +348,35 @@ class _PostPageState extends State<PostPage> {
         postTitle,
         postSubtitle,
       ),
-      postLikesAndComments(),
-      Container(
-        height: 300,
-        child: SfCalendar(
-          allowAppointmentResize: true,
-          allowDragAndDrop: true,
-          view: CalendarView.schedule,
-          scheduleViewSettings: ScheduleViewSettings(
-            hideEmptyScheduleWeek: true,
-            monthHeaderSettings: MonthHeaderSettings(
-              monthFormat: 'MMMM yyyy',
-              height: 60,
-              backgroundColor: calendarColors[0].withOpacity(0.5),
-              monthTextStyle: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+        child: SizedBox(
+          height: 300,
+          child: SfCalendar(
+            allowAppointmentResize: true,
+            allowDragAndDrop: true,
+            view: CalendarView.schedule,
+            scheduleViewSettings: ScheduleViewSettings(
+              hideEmptyScheduleWeek: true,
+              monthHeaderSettings: MonthHeaderSettings(
+                monthFormat: 'MMMM yyyy',
+                height: 0,
+                backgroundColor: calendarColors[0].withOpacity(0.5),
+                monthTextStyle: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500),
+              ),
             ),
+            allowViewNavigation: true,
+            todayHighlightColor: Colors.blue,
+            showNavigationArrow: true,
+            firstDayOfWeek: 1,
+            showCurrentTimeIndicator: true,
+            dataSource: events,
+            // initialDisplayDate: DateTime(DateTime.now().year,
+            //     DateTime.now().month, DateTime.now().day, 0, 0, 0),
           ),
-          allowViewNavigation: true,
-          todayHighlightColor: Colors.blue,
-          showNavigationArrow: true,
-          firstDayOfWeek: 1,
-          showCurrentTimeIndicator: true,
-          dataSource: events,
-          // initialDisplayDate: DateTime(DateTime.now().year,
-          //     DateTime.now().month, DateTime.now().day, 0, 0, 0),
         ),
       ),
       const Divider(),
@@ -356,86 +405,6 @@ String timeAgo(DateTime dateTime) {
   } else {
     return 'just now';
   }
-}
-
-class DataSource extends CalendarDataSource {
-  DataSource(List<Meeting> source) {
-    appointments = source;
-  }
-
-  @override
-  bool isAllDay(int index) => appointments![index].isAllDay;
-
-  @override
-  String getSubject(int index) => appointments![index].eventName;
-
-  @override
-  String getStartTimeZone(int index) => appointments![index].startTimeZone;
-
-  @override
-  String getNotes(int index) => appointments![index].description;
-
-  @override
-  String getEndTimeZone(int index) => appointments![index].endTimeZone;
-
-  @override
-  Color getColor(int index) => appointments![index].background;
-
-  @override
-  DateTime getStartTime(int index) => appointments![index].from;
-
-  @override
-  DateTime getEndTime(int index) => appointments![index].to;
-}
-
-class Meeting {
-  Meeting(
-      {required this.from,
-      required this.to,
-      this.background = Colors.green,
-      this.isAllDay = false,
-      this.eventName = '',
-      this.startTimeZone = '',
-      this.endTimeZone = '',
-      this.description = '',
-      this.subject = '',
-      this.url = '',
-      this.activity,
-      required this.id});
-
-  final String eventName;
-  final DateTime from;
-  final DateTime to;
-  final Color background;
-  final bool isAllDay;
-  final String startTimeZone;
-  final String endTimeZone;
-  final String description;
-  final String subject;
-  final String url;
-  final dynamic activity;
-  final int id;
-}
-
-List<Meeting> transform(List<dynamic> backendCalendar) {
-  final List<Meeting> meetingCollection = backendCalendar
-      .map((event) => Meeting(
-            from: DateTime.parse(event['start_date']),
-            to: DateTime.parse(event['end_date']),
-            background: Color(int.parse('0x${event['color']}')),
-            startTimeZone: event['startTimeZone'],
-            endTimeZone: event['endTimeZone'],
-            description: event['description'],
-            eventName: event['title'],
-            subject: '',
-            url: 'assets/images/1.jpg',
-            activity: (event['activity']['id']),
-            id: event['id'],
-            isAllDay: event['isAllDay'],
-          ))
-      .toList();
-  print(meetingCollection);
-  return meetingCollection;
 }
 
 const List<Color> calendarColors = [

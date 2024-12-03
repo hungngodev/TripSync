@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from datetime import datetime
 
 class Activity(models.Model):
     CATEGORY_CHOICES = [
@@ -21,7 +22,27 @@ class Calendar(models.Model):
     end_date = models.DateField(null = True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+class ChosenActivityManager(models.Manager):
+    def get_activities_of_traveller(self, user_id):
+        return self.filter(user_id=user_id, calendar_id=None).select_related('activity')
+
+    def get_activities_of_calendar(self, user_id, calendar_id):
+        return self.filter(
+            user_id=user_id, start_date__isnull=False, calendar_id=calendar_id
+        ).select_related('activity')
+
+    def get_activities_of_calendar_today(self, user_id):
+        return self.filter(
+            user_id=user_id,
+            start_date__isnull=False,
+            calendar_id__isnull=False,
+            start_date__date=datetime.now().date(),
+        ).select_related('activity')
+
+
 class ChosenActivity(models.Model):
+    objects = ChosenActivityManager()
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=False)
     calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=False)  # Reference to Traveller model

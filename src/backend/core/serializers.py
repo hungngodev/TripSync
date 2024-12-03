@@ -57,6 +57,18 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = '__all__'
+        
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked_by_user(self, obj):
+        user = self.context.get('request').user
+        return user.is_authenticated and obj.likes.filter(id=user.id).exists()
+    
+    def is_belong_to_user(self, obj):
+        user = self.context.get('request').user
+        return user.is_authenticated and obj.author == user
+    
     def to_representation(self, instance):
         """
         Override the to_representation method to include the full activity details
@@ -66,4 +78,8 @@ class PostSerializer(serializers.ModelSerializer):
         # Serialize the related activity using ActivitySerializer
         representation['calendar'] = CalendarSerializer(instance.calendar).data
         representation['author'] = UserSerializer(instance.author).data
+        representation['likes_count'] = self.get_likes_count(instance)
+        representation['is_liked_by_user'] = self.get_is_liked_by_user(instance)
+        representation['is_belong_to_user'] = self.is_belong_to_user(instance)
+        representation['events'] = ChosenActivitySerializer(ChosenActivity.objects.get_activities_of_calendar(instance.author.id, instance.calendar.id), many=True).data
         return representation

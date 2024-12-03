@@ -263,4 +263,40 @@ class ApiService {
       return [];
     }
   }
+
+  Future<List<dynamic>> getPosts() async {
+    return [];
+  }
+
+  Future<dynamic> addPost(post) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    const endpoints = 'posts';
+    final url = Uri.parse('$baseUrl$endpoints/');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(post),
+    );
+    if (response.statusCode == 201) {
+      print("Post added successfully");
+      print(json.decode(response.body));
+      return json.decode(response.body);
+    } else {
+      print("Failed to add post: ${response.statusCode}");
+    }
+
+    return;
+  }
+
+  Future<void> deletePost(id) async {
+    return;
+  }
+
+  Future<void> updatePost(id) async {
+    return;
+  }
 }
