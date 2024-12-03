@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Activity, Calendar, ChosenActivity, Post
+from .models import Activity, Calendar, ChosenActivity, Post, Friend
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework import serializers
@@ -82,4 +82,18 @@ class PostSerializer(serializers.ModelSerializer):
         representation['is_liked_by_user'] = self.get_is_liked_by_user(instance)
         representation['is_belong_to_user'] = self.is_belong_to_user(instance)
         representation['events'] = ChosenActivitySerializer(ChosenActivity.objects.get_activities_of_calendar(instance.author.id, instance.calendar.id), many=True).data
+        representation['is_friend'] = Friend.objects.are_friends(self.context.get('request').user, instance.author)
+        return representation
+    
+class FriendSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    friend = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    class Meta:
+        model = Friend
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = UserSerializer(instance.user).data
+        representation['friend'] = UserSerializer(instance.friend).data
         return representation

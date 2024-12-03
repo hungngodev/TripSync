@@ -34,10 +34,12 @@ class _HomeState extends State<HomePage> {
               size: 30, color: _page == 1 ? Colors.white : Colors.black),
           Icon(Icons.calendar_today,
               size: 30, color: _page == 2 ? Colors.white : Colors.black),
-          Icon(Icons.account_circle,
+          Icon(Icons.feed,
               size: 30, color: _page == 3 ? Colors.white : Colors.black),
-          Icon(Icons.settings,
+          Icon(Icons.people,
               size: 30, color: _page == 4 ? Colors.white : Colors.black),
+          Icon(Icons.settings,
+              size: 30, color: _page == 5 ? Colors.white : Colors.black),
         ],
         onTap: (index) {
           setState(() {
@@ -54,6 +56,7 @@ class _HomeState extends State<HomePage> {
 
         /// Messages page
         const PostPage(),
+        FriendsPage(),
         const SettingPage()
       ][_page],
     );

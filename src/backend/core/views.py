@@ -2,8 +2,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .models import  Activity, Calendar, ChosenActivity, Post
-from .serializers import  ActivitySerializer, CalendarSerializer, ChosenActivitySerializer, PostSerializer
+from .models import  Activity, Calendar, ChosenActivity, Post, Friend
+from .serializers import  ActivitySerializer, CalendarSerializer, ChosenActivitySerializer, PostSerializer, FriendSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
@@ -335,3 +335,61 @@ class PostViewSet(viewsets.ModelViewSet):
         else:
             post.likes.remove(user)
         return Response(status=status.HTTP_200_OK)
+class FriendViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing friend relationships.
+    """
+    queryset = Friend.objects.all()
+    serializer_class = FriendSerializer
+
+    def perform_create(self, serializer):
+        """
+        Automatically assign the current user as the 'user' field when creating a friend.
+        """
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def accept_friend(self, request, pk=None):
+        """
+        Custom action to accept a friend request.
+        """
+        friend_instance = self.get_object()
+        if friend_instance.status:
+            return Response({"detail": "Friend request already accepted."}, status=status.HTTP_400_BAD_REQUEST)
+        friend_instance.status = True
+        friend_instance.save()
+        return Response({"detail": "Friend request accepted."}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def remove_friend(self, request, pk=None):
+        """
+        Custom action to remove a friend.
+        """
+        friend_instance = self.get_object()
+        friend_instance.delete()
+        return Response({"detail": "Friend removed successfully."}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def mutual_friends(self, request):
+        """
+        Custom action to get mutual friends between the current user and another user.
+        """
+        user = request.user
+        other_user_id = request.query_params.get('other_user_id')
+        if not other_user_id:
+            return Response({"detail": "other_user_id is required as a query parameter."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            other_user = User.objects.get(pk=other_user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Other user not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        user_friends = Friend.objects.filter(user=user, status=True).values_list('friend', flat=True)
+        other_user_friends = Friend.objects.filter(user=other_user, status=True).values_list('friend', flat=True)
+        mutual_friend_ids = set(user_friends).intersection(set(other_user_friends))
+
+        mutual_friends = User.objects.filter(id__in=mutual_friend_ids)
+        return Response(
+            {"mutual_friends": [{"id": mf.id, "username": mf.username} for mf in mutual_friends]},
+            status=status.HTTP_200_OK
+        )

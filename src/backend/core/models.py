@@ -68,3 +68,56 @@ class Post(models.Model):
     
     def __str__(self):
         return self.title
+
+class FriendsManager(models.Manager):
+    def get_friends(self, user):
+        """Retrieve all approved friends of a user."""
+        return self.filter(user=user, status=True).values_list('friend', flat=True)
+
+    def are_friends(self, user1, user2):
+        """Check if two users are friends."""
+        return self.filter(
+            models.Q(user=user1, friend=user2) | models.Q(user=user2, friend=user1),
+            status=True
+        ).exists()
+
+    def get_pending_requests(self, user):
+        """Retrieve all pending friend requests for a user."""
+        return self.filter(friend=user, status=False)
+
+    def send_request(self, user, friend):
+        """Send a friend request."""
+        if not self.are_friends(user, friend):
+            return self.get_or_create(user=user, friend=friend, defaults={'status': False})
+
+    def accept_request(self, user, friend):
+        """Accept a friend request."""
+        try:
+            request = self.get(user=friend, friend=user, status=False)
+            request.status = True
+            request.save()
+            return request
+        except self.model.DoesNotExist:
+            return None
+
+    def remove_friend(self, user, friend):
+        """Remove a friend connection."""
+        self.filter(
+            models.Q(user=user, friend=friend) | models.Q(user=friend, friend=user)
+        ).delete()
+
+    def mutual_friends_count(self, user1, user2):
+        """Get the count of mutual friends between two users."""
+        friends_user1 = set(self.get_friends(user1))
+        friends_user2 = set(self.get_friends(user2))
+        mutual_friends = friends_user1.intersection(friends_user2)
+        return len(mutual_friends)
+
+class Friend(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='user')
+    friend = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='friend')
+    status = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    objects = FriendsManager()
+    def __str__(self):
+        return self.user.username + ' - ' + self.friend.username
