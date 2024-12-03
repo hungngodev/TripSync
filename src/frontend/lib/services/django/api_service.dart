@@ -18,7 +18,7 @@ class ApiService {
     try {
       final response = await http.get(uri);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         return json.decode(response.body);
       } else {
         throw Exception('Failed to load data');
@@ -64,7 +64,7 @@ class ApiService {
       body: json.encode(activity),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity added successfully: ${response.body}");
       return json.decode(response.body)['id'].toString();
     } else {
@@ -87,7 +87,7 @@ class ApiService {
       body: json.encode(activity),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity updated successfully");
     } else {
       print("Failed to update activity: ${response.statusCode}");
@@ -127,7 +127,7 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity retrieved successfully");
       final selected = json.decode(response.body);
       print("Selected activities: $selected");
@@ -171,7 +171,7 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity retrieved successfully");
       final selected = json.decode(response.body);
       print("Selected activities: $selected");
@@ -195,7 +195,7 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity retrieved successfully");
       final selected = json.decode(response.body);
       print("Selected Calendar activities $id: $selected");
@@ -220,7 +220,7 @@ class ApiService {
         },
         body: json.encode({'name': name}));
     print(response.body);
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Calendar created successfully");
       return json.decode(response.body)['id'].toString();
     } else {
@@ -242,7 +242,7 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Calendars retrieved successfully");
       final calendars = json.decode(response.body);
       print("Calendars: $calendars");
@@ -265,6 +265,24 @@ class ApiService {
   }
 
   Future<List<dynamic>> getPosts() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    const endpoints = 'posts';
+    final url = Uri.parse('$baseUrl$endpoints/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Post fetched successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to fetch posts: ${response.statusCode}");
+    }
+
     return [];
   }
 
@@ -281,7 +299,7 @@ class ApiService {
       },
       body: json.encode(post),
     );
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       print("Post added successfully");
       print(json.decode(response.body));
       return json.decode(response.body);
@@ -292,7 +310,49 @@ class ApiService {
     return;
   }
 
+  Future<void> toggleLike(id, like) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'posts/$id/like';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    print('id: $id, like: $like');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'like': like}),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Post liked successfully");
+    } else {
+      print("Failed to like post: ${response.statusCode}");
+    }
+  }
+
   Future<void> deletePost(id) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'posts/$id';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201 ||
+        response.statusCode == 200 ||
+        response.statusCode == 204) {
+      print("Post delete successfully");
+    } else {
+      print("Failed to delete post: ${response.statusCode}");
+    }
+
     return;
   }
 

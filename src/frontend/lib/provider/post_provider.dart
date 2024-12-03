@@ -17,6 +17,7 @@ class Post {
     required this.id,
     required this.isLiked,
     required this.belong,
+    required this.calendarName,
   });
 
   final String postImage;
@@ -31,6 +32,8 @@ class Post {
   final int id;
   final bool isLiked;
   final bool belong;
+  final String calendarName;
+  bool isEditing = false;
 }
 
 class PostProvider with ChangeNotifier {
@@ -40,8 +43,8 @@ class PostProvider with ChangeNotifier {
   List<Post> get posts => _posts;
 
   Future<void> fetchPosts() async {
-    // final response = await apiService.getPosts();
-    // _posts = response.map<Post>((p) => processData(p)).toList();
+    final response = await apiService.getPosts();
+    _posts = response.map<Post>((p) => processData(p)).toList();
     notifyListeners();
   }
 
@@ -56,7 +59,23 @@ class PostProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void editPost(Post updatedPost) {
+  void beginEdit(postId) {
+    final index = _posts.indexWhere((p) => p.id == postId);
+    if (index != -1) {
+      _posts[index].isEditing = true;
+      notifyListeners();
+    }
+  }
+
+  void stopEdit(postId) {
+    final index = _posts.indexWhere((p) => p.id == postId);
+    if (index != -1) {
+      _posts[index].isEditing = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> editPost(dynamic updatedPost) async {
     final index = _posts.indexWhere((p) => p.id == updatedPost.id);
     if (index != -1) {
       // Optimistically update the UI
@@ -73,7 +92,7 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  void deletePost(String postId) {
+  Future<void> deletePost(int postId) async {
     final post = _posts.firstWhere((p) => p.id == postId,
         orElse: () => Post(
               postImage: '',
@@ -88,18 +107,37 @@ class PostProvider with ChangeNotifier {
               id: -1,
               isLiked: false,
               belong: false,
+              calendarName: '',
             ));
     if (post.id != -1) {
-      // Optimistically remove from the UI
+      print('Deleting post with id: $postId');
+      await apiService.deletePost(postId);
       _posts.remove(post);
       notifyListeners();
+    }
+  }
 
-      // Call API to sync with backend
-      apiService.deletePost(postId).catchError((error) {
-        // Rollback if the API call fails
-        _posts.add(post);
-        notifyListeners();
-      });
+  Future<void> toggleLike(int id, bool like) async {
+    final index = _posts.indexWhere((p) => p.id == id);
+    if (index != -1) {
+      // Optimistically update the UI
+      await apiService.toggleLike(id, like);
+      final oldPost = _posts[index];
+      _posts[index] = Post(
+          postImage: oldPost.postImage,
+          postText: oldPost.postText,
+          postTime: oldPost.postTime,
+          postUserImage: oldPost.postUserImage,
+          postUserName: oldPost.postUserName,
+          postTitle: oldPost.postTitle,
+          postSubtitle: oldPost.postSubtitle,
+          events: oldPost.events,
+          likes: oldPost.likes + (like ? 1 : -1),
+          id: oldPost.id,
+          isLiked: like ? true : false,
+          belong: oldPost.belong,
+          calendarName: oldPost.calendarName);
+      notifyListeners();
     }
   }
 }
@@ -180,12 +218,10 @@ List<Meeting> transform(List<dynamic> backendCalendar) {
             isAllDay: event['isAllDay'],
           ))
       .toList();
-  print(meetingCollection);
   return meetingCollection;
 }
 
 Post processData(Map<String, dynamic> data) {
-  print(data);
   return Post(
       postImage:
           'https://img.freepik.com/free-photo/beautiful-view-sunset-sea_23-2148019892.jpg?t=st=1733194360~exp=1733197960~hmac=ebbb218f09d5846d04de98d27d0b3f62f69103b3d16e3542f81190b86ad05d6e&w=1060',
@@ -200,5 +236,6 @@ Post processData(Map<String, dynamic> data) {
       likes: data['likes_count'],
       id: data['id'],
       isLiked: data['is_liked_by_user'],
-      belong: data['is_belong_to_user']);
+      belong: data['is_belong_to_user'],
+      calendarName: data['calendar']['name']);
 }

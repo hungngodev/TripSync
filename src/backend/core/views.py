@@ -320,3 +320,14 @@ class PostViewSet(viewsets.ModelViewSet):
         post = self.get_object()
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+        like = request.data.get('like', None)
+        if like:
+            post.likes.add(user)
+        else:
+            post.likes.remove(user)
+        return Response(status=status.HTTP_200_OK)

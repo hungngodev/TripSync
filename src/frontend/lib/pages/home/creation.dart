@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/pages/home/calender_page.dart';
-
-import '../../util/day_card.dart';
 import 'package:intl/intl.dart';
-import '../../util/mainColors.dart';
+
 import '../../services/django/api_service.dart';
+import '../../util/day_card.dart';
+import '../../util/mainColors.dart';
 
 class CreationScreen extends StatefulWidget {
   const CreationScreen({super.key});
@@ -52,7 +51,7 @@ class _CreationState extends State<CreationScreen> {
     DateTime nextDay = DateTime.now()
         .toLocal()
         .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0)
-        .add(Duration(days: 1));
+        .add(const Duration(days: 1));
 
     setState(() {
       events = {
@@ -129,9 +128,7 @@ class _CreationState extends State<CreationScreen> {
   }
 
   Future<void> create() async {
-    print(_controller.text);
     String id = await apiService.createCalendar(_controller.text);
-    print(id);
     setState(() {
       isLoading = true;
     });
@@ -211,13 +208,13 @@ class _CreationState extends State<CreationScreen> {
                                       const Icon(
                                         Icons.star_border_purple500_rounded,
                                         size: 30,
-                                        color: const Color.fromARGB(
-                                            255, 147, 139, 174),
+                                        color:
+                                            Color.fromARGB(255, 147, 139, 174),
                                       ),
                                       const SizedBox(width: 10),
                                       Flexible(
                                         child: Text(
-                                          "${activities[index].description}",
+                                          activities[index].description,
                                           style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.black,
@@ -330,7 +327,7 @@ class _CreationState extends State<CreationScreen> {
                     const SizedBox(height: 20),
                   ],
                 ),
-                Container(
+                SizedBox(
                     height: 320,
                     child: ListView.builder(
                       scrollDirection: Axis.vertical,
@@ -440,21 +437,21 @@ final List<Activity> activities = [
 
 List<Color> myCardColors = [
   maincolors.color2,
-  Color(0x6d7988).withOpacity(0.8),
-  Color(0xa698ae).withOpacity(0.8),
+  const Color(0x006d7988).withOpacity(0.8),
+  const Color(0x00a698ae).withOpacity(0.8),
 ];
 List<Color> dividerColors = [
   maincolors.color2Dark,
-  Color(0x6d7988),
-  Color(0xa698ae),
+  const Color(0x006d7988),
+  const Color(0x00a698ae),
 ];
 
 const List<Color> iconColors = [
-  Color(0x00f5d4),
-  Color(0x00bbf9),
-  Color(0xfee440),
-  Color(0xf15bb5),
-  Color(0x9b5de5),
-  Color(0xff0054),
-  Color(0x8ac926),
+  Color(0x0000f5d4),
+  Color(0x0000bbf9),
+  Color(0x00fee440),
+  Color(0x00f15bb5),
+  Color(0x009b5de5),
+  Color(0x00ff0054),
+  Color(0x008ac926),
 ];
