@@ -81,6 +81,7 @@ class FriendsManager(models.Manager):
             models.Q(user=user1, friend=user2) | models.Q(user=user2, friend=user1),
             status=True
         ).exists()
+        
     def are_send_request(self, user1, user2):
         """Check if user1 send friend request to user2."""
         return self.filter(
@@ -99,26 +100,9 @@ class FriendsManager(models.Manager):
         """Retrieve all pending friend requests for a user."""
         return self.filter(friend=user, status=False)
 
-    def send_request(self, user, friend):
-        """Send a friend request."""
-        if not self.are_friends(user, friend):
-            return self.get_or_create(user=user, friend=friend, defaults={'status': False})
-
-    def accept_request(self, user, friend):
-        """Accept a friend request."""
-        try:
-            request = self.get(user=friend, friend=user, status=False)
-            request.status = True
-            request.save()
-            return request
-        except self.model.DoesNotExist:
-            return None
-
-    def remove_friend(self, user, friend):
-        """Remove a friend connection."""
-        self.filter(
-            models.Q(user=user, friend=friend) | models.Q(user=friend, friend=user)
-        ).delete()
+    def get_sent_requests(self, user):
+        """Retrieve all sent friend requests by a user."""
+        return self.filter(user=user, status=False)
 
     def mutual_friends_count(self, user1, user2):
         """Get the count of mutual friends between two users."""

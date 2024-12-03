@@ -16,6 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from datetime import datetime
 from django.db.models import Q
+import random
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -35,6 +36,7 @@ class CustomAuthToken(ObtainAuthToken):
             'username': user.username,  # Optional: return additional user info
         }, status=status.HTTP_200_OK)
 
+
 class UserRecordView(APIView):
     """
     API View to create or get a list of all the registered
@@ -42,6 +44,7 @@ class UserRecordView(APIView):
     a POST request allows to create a new user.
     """
     # permission_classes = [IsAdminUser]
+    
     def get(self, request, user_id=None, format=None):
         if user_id is not None:
             # Fetch a single user if user_id is provided
@@ -54,6 +57,9 @@ class UserRecordView(APIView):
                     {"error": "User not found"},
                     status=status.HTTP_404_NOT_FOUND
                 )
+        elif 'random' in request.query_params:
+            # Fetch a random user ordered by mutual friends if 'random' query param is provided
+            return self.get_random_user_by_mutual_friends(request)
         else:
             # Fetch all users if no user_id is provided
             users = User.objects.all()
@@ -76,6 +82,49 @@ class UserRecordView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+        
+    def get_random_user_by_mutual_friends(self, request):
+        """Helper function to get the top 10 users ordered by mutual friends, excluding friends."""
+        logged_in_user = request.user
+        
+        # Fetch users and annotate them with the count of mutual friends with the logged-in user
+        users = User.objects.exclude(id=logged_in_user.id)  # Exclude the logged-in user
+        users_with_mutual_friends = []
+        
+        for user in users:
+            # Ensure the user is not already friends with the logged-in user
+            if not Friend.objects.get_friendship_id(logged_in_user, user):
+                # Count the number of mutual friends between the logged-in user and each user
+                mutual_count = Friend.objects.mutual_friends_count(logged_in_user, user)
+                users_with_mutual_friends.append((user, mutual_count))
+        
+        # Sort users by mutual friend count in descending order
+        users_with_mutual_friends.sort(key=lambda x: x[1], reverse=True)
+
+        # Select the top 10 users with the most mutual friends
+        top_users = users_with_mutual_friends[:10]
+
+        # If there are users, prepare the response
+        if top_users:
+            response_data = []
+            
+            for user, mutual_count in top_users:
+                # Serialize user data and add mutual friends count to the response
+                serializer = UserSerializer(user)
+                user_data = serializer.data
+                user_data['mutual_friends'] = mutual_count
+                response_data.append(user_data)
+            
+            return Response(response_data)
+        else:
+            return Response(
+                {"error": "No users with mutual friends found"},
+                status=status.HTTP_404_NOT_FOUND
+            ) 
+
+
+            
+
 class ActivityViewSet(viewsets.ModelViewSet):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all()
@@ -342,7 +391,7 @@ class FriendViewSet(viewsets.ModelViewSet):
     serializer_class = FriendSerializer
     
     def list(self, request):
-        friends = Friend.objects.get_friends(request.user)
+        friends = Friend.objects.filter(Q(user=request.user) | Q(friend=request.user))
         serializer = self.get_serializer(friends, many=True)
         return Response(serializer.data)
     
@@ -396,3 +445,21 @@ class FriendViewSet(viewsets.ModelViewSet):
             {"mutual_friends": [{"id": mf.id, "username": mf.username} for mf in mutual_friends]},
             status=status.HTTP_200_OK
         )
+        
+    @action(detail=False, methods=['get'])
+    def get_receive(self, request):
+        """
+        Custom action to get all pending friend requests for the current user.
+        """
+        pending_requests = Friend.objects.get_pending_requests(request.user)
+        serializer = self.get_serializer(pending_requests, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def get_sent(self, request):
+        """
+        Custom action to get all sent friend requests by the current user.
+        """
+        sent_requests = Friend.objects.get_sent_requests(request.user)
+        serializer = self.get_serializer(sent_requests, many=True)
+        return Response(serializer.data)

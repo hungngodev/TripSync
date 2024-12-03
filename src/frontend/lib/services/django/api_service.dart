@@ -9,6 +9,7 @@ class ApiService {
   final userDao = UserDao();
   final String baseUrl =
       dotenv.env['BACKEND_URL'] ?? 'http://localhost:8000/api/';
+  final String userUrl = dotenv.env['AUTH_URL'] ?? 'http://localhost:8000/api/';
 
   // GET request with endpoint path
   Future<dynamic> getData({Map<String, String>? queryParameters}) async {
@@ -451,4 +452,96 @@ class ApiService {
       print("Failed to remove friend: ${response.statusCode}");
     }
   }
+
+  Future<List<dynamic>> getFriends() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'friends';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Friends fetched successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to fetch friends: ${response.statusCode}");
+    }
+
+    return [];
+  }
+
+  Future<List<dynamic>> getSuggestedFriends() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'user/?random=true';
+    final url = Uri.parse('$userUrl$endpoint');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Suggested friends fetched successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to fetch suggested friends: ${response.statusCode}");
+    }
+
+    return [];
+  }
+
+  // Future<List<dynamic>> getRequests() async {
+  //   final user = await userDao.getUser();
+  //   final token = user.token;
+  //   String endpoint = 'friends/get_sent';
+  //   final url = Uri.parse('$baseUrl$endpoint/');
+  //   final response = await http.get(
+  //     url,
+  //     headers: {
+  //       'Authorization': 'Token $token',
+  //       'Content-Type': 'application/json',
+  //     },
+  //   );
+
+  //   if (response.statusCode == 201 || response.statusCode == 200) {
+  //     print("Requests fetched successfully");
+  //     return json.decode(response.body);
+  //   } else {
+  //     print("Failed to fetch requests: ${response.statusCode}");
+  //   }
+
+  //   return [];
+  // }
+
+  // Future<List<dynamic>> getReceives() async {
+  //   final user = await userDao.getUser();
+  //   final token = user.token;
+  //   String endpoint = 'friends/get_receive';
+  //   final url = Uri.parse('$baseUrl$endpoint/');
+  //   final response = await http.get(
+  //     url,
+  //     headers: {
+  //       'Authorization': 'Token $token',
+  //       'Content-Type': 'application/json',
+  //     },
+  //   );
+
+  //   if (response.statusCode == 201 || response.statusCode == 200) {
+  //     print("Receives fetched successfully");
+  //     return json.decode(response.body);
+  //   } else {
+  //     print("Failed to fetch receives: ${response.statusCode}");
+  //   }
+
+  //   return [];
+  // }
 }

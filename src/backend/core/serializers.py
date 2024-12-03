@@ -99,4 +99,6 @@ class FriendSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['user'] = UserSerializer(instance.user).data
         representation['friend'] = UserSerializer(instance.friend).data
+        representation['mutual_friends'] = Friend.objects.mutual_friends_count(instance.user, instance.friend)
+        representation['others'] = self.context.get('request').user.id == instance.user.id
         return representation
