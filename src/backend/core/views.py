@@ -265,7 +265,6 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
     def today(self, request):
         activities = ChosenActivity.objects.get_activities_of_calendar_today(request.user.id)
         serializer = self.get_serializer(activities, many=True)
-        print("Today page",serializer.data)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
@@ -280,7 +279,7 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     
     def list(self, request):
-        posts = Post.objects.all()
+        posts = Post.objects.all().order_by('-created_at')
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data)
 
@@ -341,33 +340,37 @@ class FriendViewSet(viewsets.ModelViewSet):
     """
     queryset = Friend.objects.all()
     serializer_class = FriendSerializer
-
-    def perform_create(self, serializer):
-        """
-        Automatically assign the current user as the 'user' field when creating a friend.
-        """
-        serializer.save(user=self.request.user)
-
-    @action(detail=True, methods=['post'])
-    def accept_friend(self, request, pk=None):
-        """
-        Custom action to accept a friend request.
-        """
+    
+    def list(self, request):
+        friends = Friend.objects.get_friends(request.user)
+        serializer = self.get_serializer(friends, many=True)
+        return Response(serializer.data)
+    
+    def create(self, request):
+        adding = {
+            'user': request.user.id,
+            'friend' : request.data.get('friend'),
+            'status': False
+        }
+        print('adding',adding)
+        serializer = self.get_serializer(data=adding)
+        if serializer.is_valid():
+            friend = serializer.save()
+            return Response(self.get_serializer(friend).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def destroy(self, request, pk=None):
+        friend = self.get_object()
+        friend.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def update(self, request, pk = None):
         friend_instance = self.get_object()
         if friend_instance.status:
             return Response({"detail": "Friend request already accepted."}, status=status.HTTP_400_BAD_REQUEST)
         friend_instance.status = True
         friend_instance.save()
         return Response({"detail": "Friend request accepted."}, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=['post'])
-    def remove_friend(self, request, pk=None):
-        """
-        Custom action to remove a friend.
-        """
-        friend_instance = self.get_object()
-        friend_instance.delete()
-        return Response({"detail": "Friend removed successfully."}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
     def mutual_friends(self, request):

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from datetime import datetime
+from django.core.exceptions import ObjectDoesNotExist
 
 class Activity(models.Model):
     CATEGORY_CHOICES = [
@@ -80,7 +81,20 @@ class FriendsManager(models.Manager):
             models.Q(user=user1, friend=user2) | models.Q(user=user2, friend=user1),
             status=True
         ).exists()
-
+    def are_send_request(self, user1, user2):
+        """Check if user1 send friend request to user2."""
+        return self.filter(
+            models.Q(user=user1, friend=user2),
+            status=False
+        ).exists()
+    
+    def are_receive_request(self, user1, user2):
+        """Check if user1 receive friend request from user2."""
+        return self.filter(
+            models.Q(user=user2, friend=user1),
+            status=False
+        ).exists()
+    
     def get_pending_requests(self, user):
         """Retrieve all pending friend requests for a user."""
         return self.filter(friend=user, status=False)
@@ -113,6 +127,20 @@ class FriendsManager(models.Manager):
         mutual_friends = friends_user1.intersection(friends_user2)
         return len(mutual_friends)
 
+    
+    def get_friendship_id(self, user1, user2):
+        """
+        Retrieve the friendship ID between two users if it exists.
+        """
+        try:
+            friendship = self.filter(
+                user=user1, friend=user2
+            ).union(
+                self.filter(user=user2, friend=user1)
+            ).first()
+            return friendship.id if friendship else None
+        except ObjectDoesNotExist:
+            return None
 class Friend(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='user')
     friend = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='friend')

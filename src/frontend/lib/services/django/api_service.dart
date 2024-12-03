@@ -379,4 +379,76 @@ class ApiService {
       print("Failed to like post: ${response.statusCode}");
     }
   }
+
+  Future<int> addFriend(friend) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'friends';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'friend': friend,
+      }),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Friend added successfully");
+      return json.decode(response.body)['id'];
+    } else {
+      print("Failed to add friend: ${response.statusCode}");
+      return 0;
+    }
+  }
+
+  Future<void> acceptFriend(
+    id,
+  ) async {
+    print('Accepting friend request');
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'friends/$id';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    print('Accepting friend request');
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'status': true,
+      }),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Friend accepted successfully");
+    } else {
+      print("Failed to accept friend: ${response.statusCode}");
+    }
+  }
+
+  Future<void> removeFriend(id) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'friends/$id';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Friend removed successfully");
+    } else {
+      print("Failed to remove friend: ${response.statusCode}");
+    }
+  }
 }

@@ -230,7 +230,7 @@ class _PostPageState extends State<PostPage> {
   Widget _getSeparator(double height) {
     return Container(
       decoration:
-          BoxDecoration(color: const Color.fromARGB(255, 186, 187, 190)),
+          const BoxDecoration(color: Color.fromARGB(255, 186, 187, 190)),
       constraints: BoxConstraints(maxHeight: height),
     );
   }
@@ -262,7 +262,10 @@ class _PostPageState extends State<PostPage> {
     final belong = post.belong;
     final isEditing = post.isEditing;
     final calendarId = post.calendarId;
-
+    final isFriend = post.isFriend;
+    final receiveRequest = post.receiveRequest;
+    final sendRequest = post.sendRequest;
+    final friendshipId = post.friendshipId;
     return [
       Container(
         padding: const EdgeInsets.all(10),
@@ -279,12 +282,101 @@ class _PostPageState extends State<PostPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(postUserName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                          fontSize: 20,
-                        )),
+                    Row(
+                      children: [
+                        Text(postUserName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
+                              fontSize: 20,
+                            )),
+                        (!isFriend &&
+                                !receiveRequest &&
+                                !sendRequest &&
+                                !belong)
+                            ? Center(
+                                child: Center(
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    // Add your onPressed logic here
+                                    print('Follow button clicked!');
+                                    Provider.of<PostProvider>(context,
+                                            listen: false)
+                                        .addFriend(id);
+                                  },
+                                  icon: const Icon(Icons.person_add,
+                                      color:
+                                          Colors.blue), // Icon for the button
+                                  label: const Text('Follow',
+                                      style: TextStyle(
+                                          color: Colors.blue)), // Text label
+                                ),
+                              ))
+                            : const SizedBox.shrink(),
+                        (isFriend && !receiveRequest && !sendRequest)
+                            ? Center(
+                                child: Center(
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    // // Add your onPressed logic here
+                                    // print('Unfollow button clicked!');
+                                    // Provider.of<PostProvider>(context,
+                                    //         listen: false)
+                                    //     .removeFriend(id, friendshipId);
+                                  },
+                                  icon: const Icon(
+                                    Icons.people,
+                                    color: const Color.fromARGB(
+                                        255, 147, 139, 174),
+                                  ), // Icon for the button
+                                  label: const Text('Friend',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(255, 147,
+                                              139, 174))), // Text label
+                                ),
+                              ))
+                            : const SizedBox.shrink(),
+                        (receiveRequest && !isFriend && !sendRequest)
+                            ? Center(
+                                child: Center(
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    // Add your onPressed logic here
+                                    print('Accept button clicked!');
+                                    Provider.of<PostProvider>(context,
+                                            listen: false)
+                                        .acceptFriend(id, friendshipId);
+                                  },
+                                  icon: const Icon(Icons.person_add,
+                                      color:
+                                          Colors.green), // Icon for the button
+                                  label: const Text('Accept',
+                                      style: TextStyle(
+                                          color: Colors.green)), // Text label
+                                ),
+                              ))
+                            : const SizedBox.shrink(),
+                        (sendRequest && !isFriend && !receiveRequest)
+                            ? Center(
+                                child: Center(
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    // Add your onPressed logic here
+                                    print('Cancel button clicked!');
+                                    Provider.of<PostProvider>(context,
+                                            listen: false)
+                                        .removeFriend(id, friendshipId);
+                                  },
+                                  icon: const Icon(Icons.person_remove,
+                                      color: Colors.red), // Icon for the button
+                                  label: const Text('Cancel',
+                                      style: TextStyle(
+                                          color: Colors.red)), // Text label
+                                ),
+                              ))
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
                     Row(
                       children: <Widget>[
                         Text(timeAgo(postTime),
@@ -314,7 +406,7 @@ class _PostPageState extends State<PostPage> {
                       controller: postTitleEditController,
                       decoration: InputDecoration(
                         hintText: postTitle,
-                        hintStyle: TextStyle(color: Colors.black87),
+                        hintStyle: const TextStyle(color: Colors.black87),
                       ),
                     ),
               leading: const Icon(Icons.album,
@@ -342,7 +434,7 @@ class _PostPageState extends State<PostPage> {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1), // Shadow color
-                    offset: Offset(4.0, 4.0), // Shadow position (x, y)
+                    offset: const Offset(4.0, 4.0), // Shadow position (x, y)
                     blurRadius: 10.0, // Blur effect
                     spreadRadius: 2.0, // Spread the shadow outwards
                   ),
@@ -382,8 +474,8 @@ class _PostPageState extends State<PostPage> {
                               });
                             },
                           ),
-                    leading: Icon(Icons.calendar_today,
-                        color: const Color.fromARGB(255, 147, 139, 174)),
+                    leading: const Icon(Icons.calendar_today,
+                        color: Color.fromARGB(255, 147, 139, 174)),
                   ),
                   SizedBox(
                     height: 300,
@@ -442,7 +534,7 @@ class _PostPageState extends State<PostPage> {
             children: [
               belong
                   ? IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () {
                         Provider.of<PostProvider>(context, listen: false)
                             .deletePost(id);
@@ -454,7 +546,7 @@ class _PostPageState extends State<PostPage> {
               belong
                   ? !isEditing
                       ? IconButton(
-                          icon: Icon(Icons.edit),
+                          icon: const Icon(Icons.edit),
                           onPressed: () {
                             postTitleEditController.text = postTitle;
                             postSubEditController.text = postSubtitle;
@@ -468,7 +560,7 @@ class _PostPageState extends State<PostPage> {
                           color: Colors.orange,
                         )
                       : IconButton(
-                          icon: Icon(Icons.check),
+                          icon: const Icon(Icons.check),
                           onPressed: () async {
                             await Provider.of<PostProvider>(context,
                                     listen: false)

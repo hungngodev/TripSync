@@ -83,6 +83,9 @@ class PostSerializer(serializers.ModelSerializer):
         representation['is_belong_to_user'] = self.is_belong_to_user(instance)
         representation['events'] = ChosenActivitySerializer(ChosenActivity.objects.get_activities_of_calendar(instance.author.id, instance.calendar.id), many=True).data
         representation['is_friend'] = Friend.objects.are_friends(self.context.get('request').user, instance.author)
+        representation['is_send_request'] = Friend.objects.are_send_request(self.context.get('request').user, instance.author)
+        representation['is_receive_request'] = Friend.objects.are_receive_request(self.context.get('request').user, instance.author)
+        representation['friendship_id'] = Friend.objects.get_friendship_id(self.context.get('request').user, instance.author)
         return representation
     
 class FriendSerializer(serializers.ModelSerializer):

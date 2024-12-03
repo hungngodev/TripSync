@@ -4,21 +4,27 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../../services/django/api_service.dart';
 
 class Post {
-  Post(
-      {required this.postImage,
-      required this.postText,
-      required this.postTime,
-      required this.postUserImage,
-      required this.postUserName,
-      required this.postTitle,
-      required this.postSubtitle,
-      required this.events,
-      required this.likes,
-      required this.id,
-      required this.isLiked,
-      required this.belong,
-      required this.calendarName,
-      required this.calendarId});
+  Post({
+    required this.postImage,
+    required this.postText,
+    required this.postTime,
+    required this.postUserImage,
+    required this.postUserName,
+    required this.postTitle,
+    required this.postSubtitle,
+    required this.events,
+    required this.likes,
+    required this.id,
+    required this.isLiked,
+    required this.belong,
+    required this.calendarName,
+    required this.calendarId,
+    required this.isFriend,
+    required this.receiveRequest,
+    required this.sendRequest,
+    required this.friendshipId,
+    required this.authorId,
+  });
 
   String postImage;
   String postText;
@@ -35,6 +41,11 @@ class Post {
   String calendarName;
   int calendarId;
   bool isEditing = false;
+  bool isFriend;
+  bool sendRequest;
+  bool receiveRequest;
+  int friendshipId;
+  int authorId;
 }
 
 class PostProvider with ChangeNotifier {
@@ -90,7 +101,6 @@ class PostProvider with ChangeNotifier {
     if (index != -1) {
       // Optimistically update the UI
       await apiService.editPost(postId, newContent);
-      final oldPost = _posts[index];
       _posts[index].postTitle = newContent['title'];
       _posts[index].postSubtitle = newContent['content'];
       _posts[index].calendarName = newCalendarName;
@@ -115,9 +125,13 @@ class PostProvider with ChangeNotifier {
             isLiked: false,
             belong: false,
             calendarName: '',
-            calendarId: 0));
+            calendarId: 0,
+            sendRequest: false,
+            receiveRequest: false,
+            friendshipId: 0,
+            authorId: 0,
+            isFriend: false));
     if (post.id != -1) {
-      print('Deleting post with id: $postId');
       await apiService.deletePost(postId);
       _posts.remove(post);
       notifyListeners();
@@ -144,7 +158,70 @@ class PostProvider with ChangeNotifier {
           isLiked: like ? true : false,
           belong: oldPost.belong,
           calendarName: oldPost.calendarName,
-          calendarId: oldPost.calendarId);
+          receiveRequest: oldPost.receiveRequest,
+          sendRequest: oldPost.sendRequest,
+          calendarId: oldPost.calendarId,
+          friendshipId: oldPost.friendshipId,
+          authorId: oldPost.authorId,
+          isFriend: oldPost.isFriend);
+      notifyListeners();
+    }
+  }
+
+  Future<void> addFriend(postId) async {
+    final index = _posts.indexWhere((p) => p.id == postId);
+    if (index != -1) {
+      final oldPost = _posts[index];
+      if (oldPost.friendshipId != -1) {
+        return;
+      }
+
+      // Optimistically update the UI
+      int friendshipId = await apiService.addFriend(oldPost.authorId);
+      for (var post in _posts.where((p) => p.authorId == oldPost.authorId)) {
+        post.isFriend = false;
+        post.sendRequest = true;
+        post.receiveRequest = false;
+        post.friendshipId = friendshipId;
+      }
+      notifyListeners();
+    }
+  }
+
+  Future<void> acceptFriend(postId, friendshipId) async {
+    print(friendshipId);
+    final index = _posts.indexWhere((p) => p.id == postId);
+    if (index != -1) {
+      final oldPost = _posts[index];
+
+      // Optimistically update the UI
+      await apiService.acceptFriend(friendshipId);
+      for (var post in _posts.where((p) => p.authorId == oldPost.authorId)) {
+        post.isFriend = true;
+        post.sendRequest = false;
+        post.receiveRequest = false;
+        post.friendshipId = oldPost.friendshipId;
+      }
+      notifyListeners();
+    }
+  }
+
+  Future<void> removeFriend(postId, friendshipId) async {
+    final index = _posts.indexWhere((p) => p.id == postId);
+    if (index != -1) {
+      final oldPost = _posts[index];
+      if (oldPost.friendshipId == -1) {
+        return;
+      }
+      // Optimistically update the UI
+      await apiService.removeFriend(friendshipId);
+
+      for (var post in _posts.where((p) => p.authorId == oldPost.authorId)) {
+        post.isFriend = false;
+        post.sendRequest = false;
+        post.receiveRequest = false;
+        post.friendshipId = -1;
+      }
       notifyListeners();
     }
   }
@@ -173,6 +250,7 @@ class DataSource extends CalendarDataSource {
   @override
   Color getColor(int index) => appointments![index].background;
 
+  @override
   DateTime getStartTime(int index) => appointments![index].from;
 
   @override
@@ -229,6 +307,10 @@ List<Meeting> transform(List<dynamic> backendCalendar) {
 }
 
 Post processData(Map<String, dynamic> data) {
+  print(data['is_friend']);
+  print(data['is_send_request']);
+  print(data['is_receive_request']);
+  print(data['friendship_id']);
   return Post(
       postImage:
           'https://img.freepik.com/free-photo/beautiful-view-sunset-sea_23-2148019892.jpg?t=st=1733194360~exp=1733197960~hmac=ebbb218f09d5846d04de98d27d0b3f62f69103b3d16e3542f81190b86ad05d6e&w=1060',
@@ -245,5 +327,10 @@ Post processData(Map<String, dynamic> data) {
       isLiked: data['is_liked_by_user'],
       belong: data['is_belong_to_user'],
       calendarName: data['calendar']['name'],
-      calendarId: data['calendar']['id']);
+      calendarId: data['calendar']['id'],
+      sendRequest: data['is_send_request'],
+      receiveRequest: data['is_receive_request'],
+      friendshipId: data['friendship_id'] ?? -1,
+      authorId: data['author']['id'],
+      isFriend: data['is_friend']);
 }
