@@ -4,35 +4,36 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../../services/django/api_service.dart';
 
 class Post {
-  Post({
-    required this.postImage,
-    required this.postText,
-    required this.postTime,
-    required this.postUserImage,
-    required this.postUserName,
-    required this.postTitle,
-    required this.postSubtitle,
-    required this.events,
-    required this.likes,
-    required this.id,
-    required this.isLiked,
-    required this.belong,
-    required this.calendarName,
-  });
+  Post(
+      {required this.postImage,
+      required this.postText,
+      required this.postTime,
+      required this.postUserImage,
+      required this.postUserName,
+      required this.postTitle,
+      required this.postSubtitle,
+      required this.events,
+      required this.likes,
+      required this.id,
+      required this.isLiked,
+      required this.belong,
+      required this.calendarName,
+      required this.calendarId});
 
-  final String postImage;
-  final String postText;
-  final DateTime postTime;
-  final String postUserImage;
-  final String postUserName;
-  final String postTitle;
-  final String postSubtitle;
-  final DataSource events;
-  final int likes;
-  final int id;
-  final bool isLiked;
-  final bool belong;
-  final String calendarName;
+  String postImage;
+  String postText;
+  DateTime postTime;
+  String postUserImage;
+  String postUserName;
+  String postTitle;
+  String postSubtitle;
+  DataSource events;
+  int likes;
+  int id;
+  bool isLiked;
+  bool belong;
+  String calendarName;
+  int calendarId;
   bool isEditing = false;
 }
 
@@ -75,40 +76,46 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<void> editPost(dynamic updatedPost) async {
-    final index = _posts.indexWhere((p) => p.id == updatedPost.id);
+  Future<void> changeCalendarEdit(postId, calendarId) async {
+    final index = _posts.indexWhere((p) => p.id == postId);
+    if (index != -1) {
+      final newEvent = await apiService.getCalendar(calendarId);
+      _posts[index].events = DataSource(transform(newEvent));
+      notifyListeners();
+    }
+  }
+
+  Future<void> editPost(postId, newContent, newCalendarName) async {
+    final index = _posts.indexWhere((p) => p.id == postId);
     if (index != -1) {
       // Optimistically update the UI
+      await apiService.editPost(postId, newContent);
       final oldPost = _posts[index];
-      _posts[index] = updatedPost;
+      _posts[index].postTitle = newContent['title'];
+      _posts[index].postSubtitle = newContent['content'];
+      _posts[index].calendarName = newCalendarName;
+      _posts[index].calendarId = int.parse(newContent['calendar']);
       notifyListeners();
-
-      // Call API to sync with backend
-      apiService.updatePost(updatedPost).catchError((error) {
-        // Rollback to old state if the API call fails
-        _posts[index] = oldPost;
-        notifyListeners();
-      });
     }
   }
 
   Future<void> deletePost(int postId) async {
     final post = _posts.firstWhere((p) => p.id == postId,
         orElse: () => Post(
-              postImage: '',
-              postText: '',
-              postTime: DateTime.now(),
-              postUserImage: '',
-              postUserName: '',
-              postTitle: '',
-              postSubtitle: '',
-              events: DataSource([]),
-              likes: 0,
-              id: -1,
-              isLiked: false,
-              belong: false,
-              calendarName: '',
-            ));
+            postImage: '',
+            postText: '',
+            postTime: DateTime.now(),
+            postUserImage: '',
+            postUserName: '',
+            postTitle: '',
+            postSubtitle: '',
+            events: DataSource([]),
+            likes: 0,
+            id: -1,
+            isLiked: false,
+            belong: false,
+            calendarName: '',
+            calendarId: 0));
     if (post.id != -1) {
       print('Deleting post with id: $postId');
       await apiService.deletePost(postId);
@@ -136,7 +143,8 @@ class PostProvider with ChangeNotifier {
           id: oldPost.id,
           isLiked: like ? true : false,
           belong: oldPost.belong,
-          calendarName: oldPost.calendarName);
+          calendarName: oldPost.calendarName,
+          calendarId: oldPost.calendarId);
       notifyListeners();
     }
   }
@@ -165,7 +173,6 @@ class DataSource extends CalendarDataSource {
   @override
   Color getColor(int index) => appointments![index].background;
 
-  @override
   DateTime getStartTime(int index) => appointments![index].from;
 
   @override
@@ -237,5 +244,6 @@ Post processData(Map<String, dynamic> data) {
       id: data['id'],
       isLiked: data['is_liked_by_user'],
       belong: data['is_belong_to_user'],
-      calendarName: data['calendar']['name']);
+      calendarName: data['calendar']['name'],
+      calendarId: data['calendar']['id']);
 }

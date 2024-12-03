@@ -117,7 +117,7 @@ class _PostPageState extends State<PostPage> {
                                       orElse: () => _items[
                                           0], // Optionally, handle the case where no item is found
                                     ),
-                                    onChanged: (value) {
+                                    onChanged: (value) async {
                                       setState(() {
                                         chosenCalendar = value!.id;
                                       });
@@ -236,6 +236,7 @@ class _PostPageState extends State<PostPage> {
     final id = post.id;
     final belong = post.belong;
     final isEditing = post.isEditing;
+    final calendarId = post.calendarId;
 
     return [
       Container(
@@ -268,21 +269,7 @@ class _PostPageState extends State<PostPage> {
                 ),
               ],
             ),
-            !isEditing
-                ? const Icon(Icons.more_horiz, color: Colors.grey)
-                : IconButton(
-                    icon: Icon(Icons.check),
-                    onPressed: () async {
-                      postSubEditController.clear();
-                      postTitleEditController.clear();
-                      await Provider.of<PostProvider>(context, listen: false)
-                          .editPost(id);
-                      Provider.of<PostProvider>(context, listen: false)
-                          .stopEdit(id);
-                    },
-                    iconSize: 40.0,
-                    color: Colors.orange,
-                  ),
+            const Icon(Icons.more_horiz, color: Colors.grey)
           ],
         ),
       ),
@@ -311,9 +298,8 @@ class _PostPageState extends State<PostPage> {
                 : TextField(
                     controller: postSubEditController,
                     decoration: InputDecoration(
-                      hintText: postSubtitle,
-                      hintStyle: TextStyle(color: Colors.black87),
-                    ),
+                        hintText: postSubtitle, border: InputBorder.none),
+                    autofocus: true,
                   ),
           ),
         ],
@@ -336,18 +322,40 @@ class _PostPageState extends State<PostPage> {
               child: Column(
                 children: [
                   ListTile(
-                    title: Text(calendarName,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        )),
+                    title: !isEditing
+                        ? Text(calendarName,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ))
+                        : CustomDropdown<Item>(
+                            hintText: _items
+                                .firstWhere(
+                                  (item) => item.id == editChosenCalendar,
+                                  orElse: () => _items[
+                                      0], // Optionally, handle the case where no item is found
+                                )
+                                .name,
+                            items: _items,
+                            initialItem: _items.firstWhere(
+                              (item) => item.id == editChosenCalendar,
+                              orElse: () => _items[
+                                  0], // Optionally, handle the case where no item is found
+                            ),
+                            onChanged: (value) async {
+                              await Provider.of<PostProvider>(context,
+                                      listen: false)
+                                  .changeCalendarEdit(id, value!.id);
+                              setState(() {
+                                editChosenCalendar = value!.id;
+                              });
+                            },
+                          ),
                     leading: Icon(Icons.calendar_today),
                   ),
                   SizedBox(
-                    height:
-                        min(300, (events.appointments?.length ?? 0) * 100.0) +
-                            40,
+                    height: 300,
                     child: SfCalendar(
                       allowAppointmentResize: true,
                       allowDragAndDrop: true,
@@ -413,17 +421,49 @@ class _PostPageState extends State<PostPage> {
                     )
                   : const SizedBox.shrink(),
               belong
-                  ? IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () {
-                        postTitleEditController.text = postTitle;
-                        postSubEditController.text = postSubtitle;
-                        Provider.of<PostProvider>(context, listen: false)
-                            .beginEdit(id);
-                      },
-                      iconSize: 40.0,
-                      color: Colors.orange,
-                    )
+                  ? !isEditing
+                      ? IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            postTitleEditController.text = postTitle;
+                            postSubEditController.text = postSubtitle;
+                            setState(() {
+                              editChosenCalendar = calendarId.toString();
+                            });
+                            Provider.of<PostProvider>(context, listen: false)
+                                .beginEdit(id);
+                          },
+                          iconSize: 40.0,
+                          color: Colors.orange,
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.check),
+                          onPressed: () async {
+                            await Provider.of<PostProvider>(context,
+                                    listen: false)
+                                .editPost(
+                                    id,
+                                    {
+                                      'title': postTitleEditController.text,
+                                      'content': postSubEditController.text,
+                                      'calendar': editChosenCalendar
+                                    },
+                                    _items
+                                        .firstWhere(
+                                          (item) =>
+                                              item.id == editChosenCalendar,
+                                          orElse: () => _items[
+                                              0], // Optionally, handle the case where no item is found
+                                        )
+                                        .name);
+                            postSubEditController.clear();
+                            postTitleEditController.clear();
+                            Provider.of<PostProvider>(context, listen: false)
+                                .stopEdit(id);
+                          },
+                          iconSize: 40.0,
+                          color: Colors.green,
+                        )
                   : const SizedBox.shrink(),
             ],
           )

@@ -310,26 +310,28 @@ class ApiService {
     return;
   }
 
-  Future<void> toggleLike(id, like) async {
+  Future<dynamic> editPost(id, post) async {
     final user = await userDao.getUser();
     final token = user.token;
-    String endpoint = 'posts/$id/like';
-    final url = Uri.parse('$baseUrl$endpoint/');
-    print('id: $id, like: $like');
-    final response = await http.post(
+    String endpoints = 'posts/$id';
+    final url = Uri.parse('$baseUrl$endpoints/');
+    final response = await http.put(
       url,
       headers: {
         'Authorization': 'Token $token',
         'Content-Type': 'application/json',
       },
-      body: json.encode({'like': like}),
+      body: json.encode(post),
     );
-
     if (response.statusCode == 201 || response.statusCode == 200) {
-      print("Post liked successfully");
+      print("Post edited successfully");
+      print(json.decode(response.body));
+      return json.decode(response.body);
     } else {
-      print("Failed to like post: ${response.statusCode}");
+      print("Failed to edit post: ${response.statusCode}");
     }
+
+    return;
   }
 
   Future<void> deletePost(id) async {
@@ -356,7 +358,25 @@ class ApiService {
     return;
   }
 
-  Future<void> updatePost(id) async {
-    return;
+  Future<void> toggleLike(id, like) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'posts/$id/like';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    print('id: $id, like: $like');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'like': like}),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Post liked successfully");
+    } else {
+      print("Failed to like post: ${response.statusCode}");
+    }
   }
 }

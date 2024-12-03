@@ -302,7 +302,11 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def update(self, request, pk=None):
         post = self.get_object()
-        serializer = self.get_serializer(post, data=request.data)
+        changing = {
+            'author': request.user.id,
+            **request.data
+        }
+        serializer = self.get_serializer(post, data=changing)
         if serializer.is_valid():
             updated_post = serializer.save()
             return Response(self.get_serializer(updated_post).data)
