@@ -51,7 +51,6 @@ class _CreationState extends State<CreationScreen> {
     setState(() {
       calendars = calendarList;
     });
-    print(calendars);
     DateTime dayOnly = DateTime.now()
         .toLocal()
         .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);

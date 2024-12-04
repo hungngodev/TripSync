@@ -1,14 +1,13 @@
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 import '../../bloc/authentication_bloc.dart';
 import '../../bloc/authentication_state.dart';
 import '../../services/django/api_service.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../util/calendar-popup.dart';
 
 class SearchPage extends StatefulWidget {
@@ -53,10 +52,10 @@ class _Home extends State<SearchPage> {
   void initState() {
     super.initState();
     // Fetch selected activities
-    _fetchSelectedActivities();
+    fetchInfo();
   }
 
-  Future<void> _fetchSelectedActivities() async {
+  Future<void> fetchInfo() async {
     final List<dynamic> calendarNames = await apiService.getCalendars();
     setState(() {
       _items = calendarNames
@@ -64,6 +63,10 @@ class _Home extends State<SearchPage> {
           .toList();
       currentCalendar = _items.first.id;
     });
+    await fetchSelectedActivities();
+  }
+
+  Future<void> fetchSelectedActivities() async {
     try {
       // Fetch the list of chosen activities from the API
       List<Map<String, dynamic>> activities =
@@ -243,7 +246,6 @@ class _Home extends State<SearchPage> {
               ),
             ),
             ...selectedActivities.map((activity) {
-              print(activity['address']);
               return Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
@@ -501,7 +503,7 @@ class _Home extends State<SearchPage> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -526,6 +528,7 @@ class _Home extends State<SearchPage> {
                       setState(() {
                         currentCalendar = value!.id;
                       });
+                      fetchSelectedActivities();
                     },
                   ),
                   SearchAnchor(
