@@ -254,6 +254,7 @@ class ApiService {
           return {
             'id': calendar['id'].toString(),
             'name': calendar['name'],
+            'created_at': calendar['created_at'],
           };
         }),
       );
@@ -261,6 +262,42 @@ class ApiService {
       return calendarList;
     } else {
       print("Failed to retrieve calendars: ${response.statusCode}");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getDetailedCalendars() async {
+    print('Getting detailed calendars');
+    final user = await userDao.getUser();
+    final token = user.token;
+    const endpoint = 'calendars';
+    final url = Uri.parse('$baseUrl$endpoint/?detail=true');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Detailed Calendars retrieved successfully");
+      final calendars = json.decode(response.body);
+
+      // Ensure that selected is a List of Maps and handle nested data properly
+      List<Map<String, dynamic>> calendarList = List<Map<String, dynamic>>.from(
+        calendars.map((calendar) {
+          return {
+            'id': calendar['id'].toString(),
+            'name': calendar['name'],
+            'created_at': calendar['created_at'],
+            'events': calendar['events'],
+          };
+        }),
+      );
+      return calendarList;
+    } else {
+      print("Failed to retrieve detailed calendars: ${response.statusCode}");
       return [];
     }
   }

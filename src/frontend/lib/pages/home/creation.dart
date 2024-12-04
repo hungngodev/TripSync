@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'dart:math';
 
 import '../../services/django/api_service.dart';
 import '../../util/day_card.dart';
 import '../../util/mainColors.dart';
+import '../../util/view_all.dart';
 
 class CreationScreen extends StatefulWidget {
   const CreationScreen({super.key});
@@ -48,88 +51,9 @@ class _CreationState extends State<CreationScreen> {
   Future<void> getEvents() async {
     await fakeAsync(null);
     final calendarList = await apiService.getCalendars();
-    setState(() {
-      calendars = calendarList;
-    });
-    DateTime dayOnly = DateTime.now()
-        .toLocal()
-        .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
-    DateTime nextDay = DateTime.now()
-        .toLocal()
-        .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0)
-        .add(const Duration(days: 1));
 
     setState(() {
-      events = {
-        DateFormat('yyyy-MM-dd').format(dayOnly): {
-          '09:00': {
-            'icons': [Icons.flight_takeoff],
-            'hasEvent': true,
-          },
-          '10:00': {
-            'icons': [Icons.hotel],
-            'hasEvent': true,
-          },
-          '12:00': {
-            'icons': [Icons.restaurant],
-            'hasEvent': true,
-          },
-          '14:00': {
-            'icons': [Icons.local_taxi],
-            'hasEvent': true,
-          },
-          '16:00': {
-            'icons': [Icons.flight_takeoff],
-            'hasEvent': true,
-          },
-          '18:00': {
-            'icons': [Icons.hotel],
-            'hasEvent': true,
-          },
-          '20:00': {
-            'icons': [Icons.restaurant],
-            'hasEvent': true,
-          },
-          '22:00': {
-            'icons': [Icons.local_taxi],
-            'hasEvent': true,
-          },
-        },
-        DateFormat('yyyy-MM-dd').format(nextDay): {
-          '09:00': {
-            'icons': [Icons.flight_takeoff],
-            'hasEvent': true,
-          },
-          '10:00': {
-            'icons': [Icons.hotel],
-            'hasEvent': true,
-          },
-          '12:00': {
-            'icons': [Icons.restaurant],
-            'hasEvent': true,
-          },
-          '14:00': {
-            'icons': [Icons.local_taxi],
-            'hasEvent': true,
-          },
-          '16:00': {
-            'icons': [Icons.flight_takeoff],
-            'hasEvent': true,
-          },
-          '18:00': {
-            'icons': [Icons.hotel],
-            'hasEvent': true,
-          },
-          '20:00': {
-            'icons': [Icons.restaurant],
-            'hasEvent': true,
-          },
-          '22:00': {
-            'icons': [Icons.local_taxi],
-            'hasEvent': true,
-          },
-        },
-      };
+      calendars = calendarList;
     });
   }
 
@@ -138,6 +62,21 @@ class _CreationState extends State<CreationScreen> {
     setState(() {
       isLoading = true;
     });
+    const snackBar = SnackBar(
+      /// need to set following properties for best effect of awesome_snackbar_content
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: 'Let Go!',
+        message: 'Your trip has been created successfully!',
+        contentType: ContentType.success,
+      ),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
   }
 
   @override
@@ -145,10 +84,6 @@ class _CreationState extends State<CreationScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 147, 139, 174),
-        // title: Text(
-        //   currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
-        //   style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
-        // ),
         title: Text(
           'Home',
           style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
@@ -329,12 +264,14 @@ class _CreationState extends State<CreationScreen> {
                         ),
                         TextButton(
                           onPressed: () => {
-                            //   Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => const QuickFoodsScreen(),
-                            //   ),
-                            // )
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ViewAllPage(onBack: () {
+                                  Navigator.pop(context);
+                                }),
+                              ),
+                            )
                           },
                           child: const Text("View all",
                               style: TextStyle(
@@ -348,26 +285,27 @@ class _CreationState extends State<CreationScreen> {
                 ),
                 SizedBox(
                     height: 320,
-                    child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      itemCount: 10,
-                      itemBuilder: (context, index) {
-                        return DayCard(
-                          name: "Boston Trip",
-                          selectedDate:
-                              DateTime.now().subtract(Duration(days: index)),
-                          cardColor: myCardColors[index % myCardColors.length]
-                              .withOpacity(1),
-                          dividerColor:
-                              dividerColors[index % dividerColors.length]
-                                  .withOpacity(0.2),
-                          listOfEvent: events[DateFormat('yyyy-MM-dd').format(
-                                  DateTime.now()
-                                      .subtract(Duration(days: index)))] ??
-                              {},
-                        );
-                      },
-                    ))
+                    child: calendars.isNotEmpty
+                        ? ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            itemCount: calendars.length,
+                            itemBuilder: (context, index) {
+                              final calendar = calendars[index];
+                              return DayCard(
+                                name: calendar['name'],
+                                selectedDate:
+                                    DateTime.parse(calendar['created_at']),
+                                cardColor:
+                                    myCardColors[index % myCardColors.length]
+                                        .withOpacity(1),
+                                dividerColor:
+                                    dividerColors[index % dividerColors.length]
+                                        .withOpacity(0.2),
+                                listOfEvent: generateRandomSchedule(),
+                              );
+                            },
+                          )
+                        : const Center(child: CircularProgressIndicator()))
               ],
             ),
           ),
@@ -474,3 +412,42 @@ const List<Color> iconColors = [
   Color(0x00ff0054),
   Color(0x008ac926),
 ];
+Map<String, Map<String, dynamic>> generateRandomSchedule() {
+  // Define all available icons
+  final icons = [
+    Icons.flight_takeoff,
+    Icons.hotel,
+    Icons.restaurant,
+    Icons.local_taxi,
+    Icons.coffee,
+    Icons.shopping_cart,
+    Icons.beach_access,
+    Icons.fitness_center,
+    Icons.music_note,
+    Icons.local_movies,
+    Icons.work,
+    Icons.school,
+    Icons.home,
+  ];
+
+  // Define time slots (24 hours with intervals of 1 hour)
+  final timeSlots =
+      List.generate(24, (index) => '${index.toString().padLeft(2, '0')}:00');
+
+  final random = Random();
+  final schedule = <String, Map<String, dynamic>>{};
+
+  for (var time in timeSlots) {
+    // Randomly choose one or more icons for this slot
+    final iconCount = random.nextInt(3) + 1; // 1 to 3 icons
+    final randomIcons =
+        List.generate(iconCount, (_) => icons[random.nextInt(icons.length)]);
+
+    schedule[time] = {
+      'icons': randomIcons,
+      'hasEvent': random.nextBool(), // Randomly decide if an event exists
+    };
+  }
+
+  return schedule;
+}

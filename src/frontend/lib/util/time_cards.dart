@@ -52,6 +52,7 @@ class _TimeCardState extends State<TimeCard> {
           Clip.none, // Allows the task list to overflow the Stack bounds
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             VerticalDivider(
                 width: 20,
@@ -70,15 +71,19 @@ class _TimeCardState extends State<TimeCard> {
                 // Placeholder for where the task list will be
                 if (widget.hasEvent)
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: widget.icons
-                        .map((icon) => Icon(
-                              icon,
-                              color: widget.color,
+                        .map((icon) => Column(
+                              children: [
+                                Icon(
+                                  icon,
+                                  color: widget.color,
+                                ),
+                                const SizedBox(height: 5),
+                              ],
                             ))
                         .toList(),
                   ),
-
-                const SizedBox(height: 100, width: 20),
               ],
             ),
           ],

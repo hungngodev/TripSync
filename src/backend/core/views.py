@@ -194,7 +194,16 @@ class CalendarViewSet(viewsets.ModelViewSet):
     def list(self, request):
         calendars =Calendar.objects.filter(user=request.user)
         serializer = self.get_serializer(calendars, many=True)
-        print(serializer.data)
+        if request.GET.get('detail', False):
+            name = request.GET.get('name')
+            data = serializer.data
+            new_data = []
+            for calendar in data:
+                new_data.append({
+                    **calendar,
+                    'events': ChosenActivitySerializer(ChosenActivity.objects.get_activities_of_calendar(request.user.id, calendar['id']), many=True).data
+                })
+            return Response(new_data)
         return Response(serializer.data)
 
     def create(self, request):
@@ -241,7 +250,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
     
     
     def list(self, request):
-        self.queryset = ChosenActivity.objects.all()
+        self.queryset = ChosenActivity.objects.filter(user=request.user)
         chosen_activities = self.queryset
         serializer = self.get_serializer(chosen_activities, many=True)
         return Response(serializer.data)

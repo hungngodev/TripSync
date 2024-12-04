@@ -26,7 +26,7 @@ class _DayCardState extends State<DayCard> {
   TextEditingController addTaskbtn = TextEditingController();
 
   List<String> tasksList6am = [];
-  List<String> timeList = multiplyList(time, 3);
+  List<String> timeList = multiplyList(time, 1);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -41,38 +41,39 @@ class _DayCardState extends State<DayCard> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List<Widget>.generate(
-                      widget.name.split(' ').length,
-                      (index) => Text(
-                        widget.name.split(' ')[index],
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        widget.name,
                         style: GoogleFonts.poppins(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
+                        textAlign: TextAlign.start, // Optional: Align text
                       ),
                     ),
-                  ),
-                  Text(
-                    "${DateTime.now().difference(widget.selectedDate).inDays} days ago",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      color: Colors.white,
+                    Text(
+                      "${DateTime.now().difference(widget.selectedDate).inDays} days ago",
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(
                 width: 5,
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height,
+                height: MediaQuery.of(context).size.height * 1.2,
                 width: MediaQuery.of(context).size.width * 0.5,
                 child: Stack(
                     clipBehavior: Clip
