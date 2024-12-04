@@ -12,6 +12,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../../services/django/api_service.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../provider/calender_time_provider.dart';
 import '../../util/mainColors.dart';
@@ -164,59 +165,42 @@ class _CalenderPageState extends State<CalenderPage> {
                           )
                         : Column(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: Colors
-                                        .orangeAccent, // Background color for emphasis
-                                    borderRadius: BorderRadius.circular(15),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Color(
-                                            0x33000000), // 20% opacity black
-                                        spreadRadius: 2,
-                                        blurRadius: 4,
-                                        offset: Offset(
-                                            0, 2), // Slight shadow offset
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(
-                                        10), // Extra padding for inner spacing
-                                    child: Text(
-                                      'No calendar found or you have not chosen any activities',
-                                      style: TextStyle(
-                                        color: Colors
-                                            .white, // White text color for contrast
-                                        fontSize:
-                                            28, // Slightly smaller font size
-                                        fontWeight: FontWeight
-                                            .bold, // Bold text for emphasis
-                                        letterSpacing:
-                                            1.2, // Space out the letters for a modern look
-                                        height:
-                                            1.5, // Line height for better readability
-                                      ),
-                                      textAlign: TextAlign
-                                          .center, // Center the text for better positioning
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: double.infinity,
+                              SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.45,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  image: const DecorationImage(
-                                    image: AssetImage('assets/images/8.jpg'),
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),
+                                    MediaQuery.of(context).size.height * 0.04,
                               ),
+                              Column(
+                                children: [
+                                  Text(
+                                    valid
+                                        ? 'No calendar found'
+                                        : 'No events found',
+                                    style: GoogleFonts.getFont('Nunito',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 30,
+                                        color: Colors.black),
+                                  ),
+                                  const SizedBox(
+                                    height: 4,
+                                  ),
+                                  Text(
+                                    valid
+                                        ? 'Please create a calendar to continue'
+                                        : 'Please add events to continue',
+                                    style: GoogleFonts.getFont('Nunito',
+                                        fontSize: 20, color: Colors.black),
+                                  )
+                                ],
+                              ),
+                              Lottie.asset(
+                                valid
+                                    ? 'assets/animations/invalid_calendar.json'
+                                    : 'assets/animations/invalid_activity.json',
+                                width: MediaQuery.of(context).size.height * 0.5,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                fit: BoxFit.fill,
+                              )
                             ],
                           ),
                     _items.isNotEmpty && valid
@@ -479,7 +463,7 @@ class _CalenderPageState extends State<CalenderPage> {
     });
     await getMeetingDetails();
     await Future.delayed(
-        Duration(milliseconds: 300), () => 'Fake async result');
+        const Duration(milliseconds: 300), () => 'Fake async result');
     setState(() {
       isLoading = false;
     });

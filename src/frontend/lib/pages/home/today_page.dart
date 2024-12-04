@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../provider/time_provider.dart';
 import '../../services/django/api_service.dart';
@@ -86,28 +87,52 @@ class _TodayPageState extends State<TodayPage> {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  children: meeting.map((task) {
-                    DateTime start = DateTime.parse(task['start_date']);
-                    DateTime end = DateTime.parse(task['end_date']);
-                    Duration duration = end.difference(start);
-                    DateTime current = DateTime.now().toLocal();
-                    int diff = start.day - current.day;
-                    String date = diff == 0
-                        ? 'Today'
-                        : diff == 1
-                            ? 'Tomorrow'
-                            : DateFormat('EEEE').format(start);
-                    return TaskCard(
-                        date: date,
-                        clr: Color(int.parse('0x${task['color']}')),
-                        title: task['title'], // Pass title
-                        start: DateFormat('h:mm a').format(start),
-                        end: DateFormat('h:mm a').format(end),
-                        duration: '${duration.inHours} hours', // Pass duration
-                        description: task['description'],
-                        source: 'From ' + task['calendar']['name']);
-                  }).toList(),
-                ),
+                    children: meeting.isNotEmpty
+                        ? meeting.map((task) {
+                            DateTime start = DateTime.parse(task['start_date']);
+                            DateTime end = DateTime.parse(task['end_date']);
+                            Duration duration = end.difference(start);
+                            DateTime current = DateTime.now().toLocal();
+                            int diff = start.day - current.day;
+                            String date = diff == 0
+                                ? 'Today'
+                                : diff == 1
+                                    ? 'Tomorrow'
+                                    : DateFormat('EEEE').format(start);
+                            return TaskCard(
+                                date: date,
+                                clr: Color(int.parse('0x${task['color']}')),
+                                title: task['title'], // Pass title
+                                start: DateFormat('h:mm a').format(start),
+                                end: DateFormat('h:mm a').format(end),
+                                duration:
+                                    '${duration.inHours} hours', // Pass duration
+                                description: task['description'],
+                                source: 'From ' + task['calendar']['name']);
+                          }).toList()
+                        : [
+                            Text(
+                              'You have no upcoming events',
+                              style: GoogleFonts.getFont('Nunito',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30,
+                                  color: Colors.black),
+                            ),
+                            const SizedBox(
+                              height: 4,
+                            ),
+                            Text(
+                              'Let\'s add some events',
+                              style: GoogleFonts.getFont('Nunito',
+                                  fontSize: 20, color: Colors.black),
+                            ),
+                            Lottie.asset(
+                              'assets/animations/today.json',
+                              width: MediaQuery.of(context).size.height * 0.5,
+                              height: MediaQuery.of(context).size.height * 0.5,
+                              fit: BoxFit.fill,
+                            )
+                          ]),
               ),
             ),
           ],
