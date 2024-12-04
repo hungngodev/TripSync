@@ -26,13 +26,6 @@ class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         print("Custom auth token", request.data)
         
-        hashed_password = '!!SMmFZVMVjG25Cr56LEnEspytr8qJCpe47qMlniaD'
-        input_password = 'Bibo'
-
-        if check_password(input_password, hashed_password):
-            print("Password is correct")
-        else:
-            print("Password is incorrect")
 
         try:
             serializer = self.serializer_class(data=request.data)
@@ -283,7 +276,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             print("Serializer is valid")
             chosen_activity = serializer.save()
-            print(self.get_serializer(chosen_activity).data)
+            # print(self.get_serializer(chosen_activity).data)
             return Response(self.get_serializer(chosen_activity).data, status=status.HTTP_201_CREATED)
         print("Serializer is invalid")
         print("Errors:", serializer.errors)  

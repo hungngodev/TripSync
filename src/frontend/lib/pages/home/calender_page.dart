@@ -40,6 +40,7 @@ late List<dynamic> chosenList;
 final ApiService apiService = ApiService();
 int _selectedMeeting = -1;
 String currentCalendar = '';
+String userId = '1';
 
 class Item {
   Item(this.name, this.id);
@@ -497,6 +498,7 @@ class _CalenderPageState extends State<CalenderPage> {
       _items = calendarNames
           .map((event) => Item(event['name'], event['id']))
           .toList();
+      userId = calendarNames.first['user'];
     });
     setState(() {
       currentCalendar = widget.current != ''
@@ -528,41 +530,48 @@ class _CalenderPageState extends State<CalenderPage> {
     final backendCalendar = await apiService.getCalendar(currentCalendar);
     final List<Meeting> meetingCollection = transform(backendCalendar);
 
-    print(friendResources);
-    dynamic currentUser = friendsData.first['others']
-        ? friendsData.first['friend']
-        : friendsData.first['user'];
+    dynamic currentUser = friendsData.isNotEmpty
+        ? friendsData.first['others']
+            ? friendsData.first['friend']
+            : friendsData.first['user']
+        : null;
 
     setState(() {
-      friendResources = friendsData
-          .map((friend) => CalendarResource(
-              id: (friend['others']
-                      ? friend['friend']['id']
-                      : friend['user']['id'])
-                  .toString(),
-              displayName: friend['others']
-                  ? friend['friend']['username']
-                  : friend['user']['username'],
-              color: _colorCollection[friend['id'] % _colorCollection.length]))
-          .toList();
-      friendResources.add(CalendarResource(
-        id: currentUser['id'].toString(),
-        displayName: currentUser['username'],
-        color:
-            _colorCollection[friendResources.length % _colorCollection.length],
-      ));
-      friends = friendsData
-          .map((friend) => Friend(
-              friendId: friend['others']
-                  ? friend['friend']['id']
-                  : friend['user']['id'],
-              friendName: friend['others']
-                  ? friend['friend']['username']
-                  : friend['user']['username'],
-              friendImage: '',
-              friendStatus: friend['status'] ? 'Friend' : 'Pending',
-              friendShipId: friend['id']))
-          .toList();
+      if (currentUser != null) {
+        friendResources = friendsData
+            .map((friend) => CalendarResource(
+                id: (friend['others']
+                        ? friend['friend']['id']
+                        : friend['user']['id'])
+                    .toString(),
+                displayName: friend['others']
+                    ? friend['friend']['username']
+                    : friend['user']['username'],
+                color:
+                    _colorCollection[friend['id'] % _colorCollection.length]))
+            .toList();
+        friendResources.insert(
+            0,
+            CalendarResource(
+              id: currentUser['id'].toString(),
+              displayName: currentUser['username'],
+              color: _colorCollection[
+                  friendResources.length % _colorCollection.length],
+            ));
+        friends = friendsData
+            .map((friend) => Friend(
+                friendId: friend['others']
+                    ? friend['friend']['id']
+                    : friend['user']['id'],
+                friendName: friend['others']
+                    ? friend['friend']['username']
+                    : friend['user']['username'],
+                friendImage: '',
+                friendStatus: friend['status'] ? 'Friend' : 'Pending',
+                friendShipId: friend['id']))
+            .toList();
+      }
+
       appointments = meetingCollection;
       _events = DataSource(appointments, friendResources);
       valid = true;

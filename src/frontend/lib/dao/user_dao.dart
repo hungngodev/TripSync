@@ -6,7 +6,8 @@ class UserDao {
 
   Future<int> createUser(User user) async {
     final db = await dbProvider.database;
-
+    print("Adding user to database");
+    print("User: ${user.toDatabaseJson()}");
     var result = db.insert(userTable, user.toDatabaseJson());
     return result;
   }

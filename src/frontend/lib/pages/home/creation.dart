@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'dart:math';
+import 'package:lottie/lottie.dart';
 
 import '../../services/django/api_service.dart';
 import '../../util/day_card.dart';
@@ -178,7 +179,10 @@ class _CreationState extends State<CreationScreen> {
                                             Color.fromARGB(255, 147, 139, 174),
                                       ),
                                       const SizedBox(width: 10),
-                                      Flexible(
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
                                         child: Text(
                                           activities[index].description,
                                           style: const TextStyle(
@@ -325,7 +329,27 @@ class _CreationState extends State<CreationScreen> {
                               );
                             },
                           )
-                        : const Center(child: CircularProgressIndicator()))
+                        : Center(
+                            child: Column(
+                            children: [
+                              const Text(
+                                "No trips yet",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Lottie.asset(
+                                'assets/animations/plane.json',
+                                width:
+                                    MediaQuery.of(context).size.height * 0.32,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.32,
+                                fit: BoxFit.fill,
+                              )
+                            ],
+                          )))
               ],
             ),
           ),

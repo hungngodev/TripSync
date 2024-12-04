@@ -33,9 +33,11 @@ class ActivitySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CalendarSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Calendar
         fields = '__all__'
+    
 
 class ChosenActivitySerializer(serializers.ModelSerializer):
     activity = serializers.PrimaryKeyRelatedField(queryset=Activity.objects.all())  

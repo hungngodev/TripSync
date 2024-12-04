@@ -340,7 +340,12 @@ class _Home extends State<SearchPage> {
                                                   const Icon(Icons.title,
                                                       color: Colors.blue),
                                                   const SizedBox(width: 8),
-                                                  Flexible(
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
                                                     child: Text(
                                                       activity['title']!,
                                                       style:
@@ -364,7 +369,12 @@ class _Home extends State<SearchPage> {
                                                   const Icon(Icons.location_on,
                                                       color: Colors.red),
                                                   const SizedBox(width: 8),
-                                                  Flexible(
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
                                                     child: Text(
                                                       "${activity['location']}",
                                                       style:
@@ -386,7 +396,12 @@ class _Home extends State<SearchPage> {
                                                   const Icon(Icons.home,
                                                       color: Colors.green),
                                                   const SizedBox(width: 8),
-                                                  Flexible(
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
                                                     child: Text(
                                                       "${activity['address']}",
                                                       style:
@@ -436,7 +451,12 @@ class _Home extends State<SearchPage> {
                                                   const Icon(Icons.link,
                                                       color: Colors.blue),
                                                   const SizedBox(width: 8),
-                                                  Flexible(
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
                                                     child: GestureDetector(
                                                       onTap: () => _launchURL(
                                                           activity[
@@ -469,7 +489,12 @@ class _Home extends State<SearchPage> {
                                                   const Icon(Icons.description,
                                                       color: Colors.amber),
                                                   const SizedBox(width: 8),
-                                                  Flexible(
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
                                                     child: Text(
                                                       "${activity['description']}",
                                                       style: GoogleFonts.nunito(

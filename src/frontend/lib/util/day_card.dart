@@ -50,7 +50,8 @@ class _DayCardState extends State<DayCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Flexible(
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
                       child: Text(
                         widget.name,
                         style: GoogleFonts.poppins(

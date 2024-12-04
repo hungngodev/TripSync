@@ -27,7 +27,6 @@ class TaskCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Container(
-        height: 220,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
             // rgba(173,155,140,255)
@@ -39,40 +38,44 @@ class TaskCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        width: MediaQuery.of(context).size.width *
+                            0.8, // or any desired width
+                        child: Text(
+                          title,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          softWrap: true,
+                          // overflow: TextOverflow.ellipsis, // Prevent overflow
                         ),
                       ),
                       const SizedBox(
                         height: 2,
                       ),
-                      Text(
-                        source,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                      Flexible(
+                        child: Text(
+                          source,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis, // Prevent overflow
+                          maxLines: 2, // Allow wrapping
                         ),
                       ),
                     ],
                   ),
-                  Text(
-                    date,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  // Wrap the Text widget in Flexible to allow it to take up remaining space
                 ],
               ),
               const SizedBox(
@@ -96,21 +99,34 @@ class TaskCard extends StatelessWidget {
                       )
                     ],
                   ),
-                  Container(
-                    height: 40,
-                    width: 75,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(22)),
-                    child: Center(
-                      child: Text(
-                        duration,
-                        style: GoogleFonts.poppins(
-                          color: clr,
-                          fontSize: 16,
+                  Column(
+                    children: [
+                      Text(date,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis, // Prevent overflow
+                          maxLines: 2 // Allow wrapping
+                          ),
+                      Container(
+                        height: 40,
+                        width: 75,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(22)),
+                        child: Center(
+                          child: Text(
+                            duration,
+                            style: GoogleFonts.poppins(
+                              color: clr,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,12 +148,18 @@ class TaskCard extends StatelessWidget {
               const SizedBox(
                 height: 12,
               ),
-              Text(
-                description,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+              Container(
+                width: MediaQuery.of(context).size.width *
+                    0.8, // or any desired width
+                child: Text(
+                  description,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  softWrap: true,
+                  // overflow: TextOverflow.ellipsis, // Prevent overflow
                 ),
               ),
             ],

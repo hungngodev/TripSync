@@ -503,6 +503,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         description: _notes,
                         isAllDay: _isAllDay,
                         eventName: _subject == '' ? '(No title)' : _subject,
+                        resourceIds: <String>[userId],
                         activity: _selectedActivity,
                         id: int.parse(chosenId),
                       ));

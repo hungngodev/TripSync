@@ -66,7 +66,7 @@ class ApiService {
     );
 
     if (response.statusCode == 201 || response.statusCode == 200) {
-      print("Activity added successfully: ${response.body}");
+      // print("Activity added successfully: ${response.body}");
       return json.decode(response.body)['id'].toString();
     } else {
       print("Failed to add activity: ${response.statusCode}");
@@ -232,6 +232,7 @@ class ApiService {
 
   Future<List<Map<String, dynamic>>> getCalendars() async {
     final user = await userDao.getUser();
+    print(user.token);
     final token = user.token;
     const endpoint = 'calendars';
     final url = Uri.parse('$baseUrl$endpoint/');
@@ -255,6 +256,7 @@ class ApiService {
             'id': calendar['id'].toString(),
             'name': calendar['name'],
             'created_at': calendar['created_at'],
+            'user': calendar['user'],
           };
         }),
       );

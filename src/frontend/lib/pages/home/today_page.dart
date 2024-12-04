@@ -111,12 +111,14 @@ class _TodayPageState extends State<TodayPage> {
                                 source: 'From ' + task['calendar']['name']);
                           }).toList()
                         : [
-                            Text(
-                              'You have no upcoming events',
-                              style: GoogleFonts.getFont('Nunito',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 30,
-                                  color: Colors.black),
+                            Center(
+                              child: Text(
+                                'No upcoming events',
+                                style: GoogleFonts.getFont('Nunito',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 30,
+                                    color: Colors.black),
+                              ),
                             ),
                             const SizedBox(
                               height: 4,
@@ -127,7 +129,7 @@ class _TodayPageState extends State<TodayPage> {
                                   fontSize: 20, color: Colors.black),
                             ),
                             Lottie.asset(
-                              'assets/animations/invalid_calendar.json',
+                              'assets/animations/bus.json',
                               width: MediaQuery.of(context).size.height * 1,
                               height: MediaQuery.of(context).size.height * 0.4,
                               repeat: true,
