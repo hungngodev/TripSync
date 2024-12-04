@@ -1,9 +1,9 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application/bloc/authentication_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../login/bloc/login_bloc.dart';
-import '../pages/home/home.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -31,6 +31,22 @@ class _LoginPageState extends State<LoginPage> {
         if (state is LoginInitial) {
           print('Authenticated at login page');
         } else if (state is LoginFailure) {
+          const snackBar = const SnackBar(
+            /// need to set following properties for best effect of awesome_snackbar_content
+            elevation: 0,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.transparent,
+            content: AwesomeSnackbarContent(
+              title: 'On Snap!',
+              message: 'Please check your username and password and try again!',
+
+              /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+              contentType: ContentType.failure,
+            ),
+          );
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(snackBar);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error)),
           );

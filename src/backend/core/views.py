@@ -2,8 +2,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
-from .models import  Activity, Calendar, ChosenActivity, Post, Friend
-from .serializers import  ActivitySerializer, CalendarSerializer, ChosenActivitySerializer, PostSerializer, FriendSerializer
+from .models import  Activity, Calendar, ChosenActivity, Post, Friend, InviteCalendar
+from .serializers import  ActivitySerializer, CalendarSerializer, ChosenActivitySerializer, PostSerializer, FriendSerializer, InviteCalendarSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
@@ -15,15 +15,32 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from datetime import datetime
+from rest_framework.exceptions import ValidationError
+from django.contrib.auth.hashers import check_password
+
 from django.db.models import Q
 import random
 
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        print("Custom auth token", request.data)
+        
+        hashed_password = '!!SMmFZVMVjG25Cr56LEnEspytr8qJCpe47qMlniaD'
+        input_password = 'Bibo'
+
+        if check_password(input_password, hashed_password):
+            print("Password is correct")
+        else:
+            print("Password is incorrect")
+
+        try:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+        except ValidationError as e:
+            print("Validation Error:", e.detail)
+            return Response({"error": str(e.detail)}, status=status.HTTP_400_BAD_REQUEST)
         print("Getting the user serializable in custom auth token")
         
         # Create or get the token for the user
@@ -473,3 +490,48 @@ class FriendViewSet(viewsets.ModelViewSet):
         sent_requests = Friend.objects.get_sent_requests(request.user)
         serializer = self.get_serializer(sent_requests, many=True)
         return Response(serializer.data)
+    
+class InviteCalendarViewSet(viewsets.ModelViewSet):
+    queryset = InviteCalendar.objects.all()
+    serializer_class = InviteCalendarSerializer
+    
+    def list(self, request):
+        invite_calendars = InviteCalendar.objects.filter(calendar_id=request.GET.get('calendarId')).exclude(user=request.user)
+
+        serializer = self.get_serializer(invite_calendars, many=True)
+        return Response(serializer.data)
+    
+    def create(self, request):
+        adding = {
+            'friend': request.data.get('friend'),
+            'owner': request.user.id,
+            'calendar' : request.data.get('calendar'),
+            'status': False
+        }
+        serializer = self.get_serializer(data=adding)
+        if serializer.is_valid():
+            invite_calendar = serializer.save()
+            return Response(self.get_serializer(invite_calendar).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def destroy(self, request, pk=None):
+        invite_calendar = self.get_object()
+        invite_calendar.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def update(self, request, pk = None):
+        invite_calendar_instance = self.get_object()
+        if invite_calendar_instance.status:
+            return Response({"detail": "Friend request already accepted."}, status=status.HTTP_400_BAD_REQUEST)
+        invite_calendar_instance.status = True
+        invite_calendar_instance.save()
+        return Response({"detail": "Friend request accepted."}, status=status.HTTP_200_OK)
+    
+    # @action(detail=False, methods=['get'])
+    # def get_receive(self, request):
+    #     """
+    #     Custom action to get all pending friend requests for the current user.
+    #     """
+    #     pending_requests = InviteCalendar.objects.filter(user=request.user, status=False)
+    #     serializer = self.get_serializer(pending_requests, many=True)
+    #     return Response(serializer.data)

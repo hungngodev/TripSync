@@ -135,3 +135,12 @@ class Friend(models.Model):
     objects = FriendsManager()
     def __str__(self):
         return self.user.username + ' - ' + self.friend.username
+    
+class InviteCalendar(models.Model):
+    invite = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='invite')
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='owner')
+    calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE)
+    status = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.invite.username + ' - ' + self.calendar.name

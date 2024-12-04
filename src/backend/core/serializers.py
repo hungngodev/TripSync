@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Activity, Calendar, ChosenActivity, Post, Friend
+from .models import Activity, Calendar, ChosenActivity, Post, Friend, InviteCalendar
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework import serializers
@@ -21,6 +21,11 @@ class UserSerializer(serializers.ModelSerializer):
                 fields=['username', 'email']
             )
         ]
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop('password')
+        representation['image'] = instance.profile.image.url if hasattr(instance, 'profile') and instance.profile.image else None
+        return representation
 
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,6 +53,7 @@ class ChosenActivitySerializer(serializers.ModelSerializer):
         # Serialize the related activity using ActivitySerializer
         representation['activity'] = ActivitySerializer(instance.activity).data
         representation['calendar'] = CalendarSerializer(instance.calendar).data if instance.calendar else None
+        representation['user'] = UserSerializer(instance.user).data
         return representation
     
 class PostSerializer(serializers.ModelSerializer):
@@ -101,4 +107,22 @@ class FriendSerializer(serializers.ModelSerializer):
         representation['friend'] = UserSerializer(instance.friend).data
         representation['mutual_friends'] = Friend.objects.mutual_friends_count(instance.user, instance.friend)
         representation['others'] = self.context.get('request').user.id == instance.user.id
+        representation['invite_calendar'] = InviteCalendarSerializer(InviteCalendar.objects.filter(
+                invite = instance.user, owner = instance.friend
+            ), many=True).data
+        return representation
+    
+class InviteCalendarSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    calendar = serializers.PrimaryKeyRelatedField(queryset=Calendar.objects.all())
+    invite = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    class Meta:
+        model = InviteCalendar
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['owner'] = UserSerializer(instance.owner).data
+        representation['invite'] = UserSerializer(instance.invite).data
+        representation['calendar'] = CalendarSerializer(instance.calendar).data
         return representation

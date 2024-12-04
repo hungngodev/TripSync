@@ -25,7 +25,7 @@ class _LoginFormState extends State<LoginForm> {
       listener: (context, state) {
         if (state is LoginFailure) {
           // Update to LoginFailure
-          final snackBar = const SnackBar(
+          const snackBar = const SnackBar(
             /// need to set following properties for best effect of awesome_snackbar_content
             elevation: 0,
             behavior: SnackBarBehavior.floating,

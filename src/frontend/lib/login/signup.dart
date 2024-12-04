@@ -83,7 +83,7 @@ class _SignUpPageState extends State<SignUpPage> {
           height: MediaQuery.of(context).size.height - 50,
           width: double.infinity,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Column(
                 children: <Widget>[

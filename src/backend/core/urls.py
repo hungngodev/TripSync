@@ -7,7 +7,8 @@ from .views import (
     UserRecordView,
     CustomAuthToken,
     PostViewSet,
-    FriendViewSet
+    FriendViewSet,
+    InviteCalendarViewSet
 )
 
 # Create a router and register our viewsets with it.
@@ -17,6 +18,7 @@ router.register(r'calendars', CalendarViewSet)
 router.register(r'chosen-activities', ChosenActivityViewSet)
 router.register(r'posts', PostViewSet)
 router.register(r'friends', FriendViewSet)
+router.register(r'invite-calendars', InviteCalendarViewSet)
 
 # The API URLs are now determined automatically by the router.
 app_name = 'api'

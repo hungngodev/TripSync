@@ -123,7 +123,7 @@ Friend processData(Map<String, dynamic> data, index) {
           : data['user']['username'],
       friendImage: 'https://via.placeholder.com/150',
       friendStatus: data['status'] ? 'Friend' : 'Not Friend',
-      friendId: data['friend']['id'],
+      friendId: data['others'] ? data['friend']['id'] : data['user']['id'],
       mutuals: data['mutual_friends'],
       isFriend: data['status'],
       isRequested: data['others'] && !data['status'],

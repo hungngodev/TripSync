@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-import '../../model/calendar_model.dart';
 import '../../provider/calender_time_provider.dart';
 import '../../services/django/api_service.dart';
 import '../../util/mainColors.dart';
@@ -50,6 +49,21 @@ class Item {
   String toString() => name;
 }
 
+class Friend {
+  String friendName;
+  String friendImage;
+  String friendStatus;
+  int friendId;
+  int friendShipId;
+
+  Friend(
+      {required this.friendName,
+      required this.friendImage,
+      required this.friendStatus,
+      required this.friendShipId,
+      required this.friendId});
+}
+
 class CalenderPage extends StatefulWidget {
   String current = '';
   CalenderPage({Key? key, this.current = ''}) : super(key: key);
@@ -62,6 +76,8 @@ class _CalenderPageState extends State<CalenderPage> {
   late List<String> eventNameCollection;
   late List<Item> _items = <Item>[];
   List<Meeting> appointments = <Meeting>[];
+  List<CalendarResource> friendResources = <CalendarResource>[];
+  List<Friend> friends = <Friend>[];
   CalendarController calendarController = CalendarController();
   bool valid = false;
   bool isLoading = true;
@@ -245,14 +261,23 @@ class _CalenderPageState extends State<CalenderPage> {
                             child: Consumer<SelectedTimeChangeProvider>(
                               builder: (context, value, child) {
                                 return SfCalendar(
-                                  view: CalendarView.day,
+                                  view: friendResources.isNotEmpty
+                                      ? CalendarView.timelineDay
+                                      : CalendarView.day,
                                   controller: calendarController,
-                                  allowedViews: const [
-                                    CalendarView.day,
-                                    CalendarView.week,
-                                    CalendarView.timelineWeek,
-                                    CalendarView.month
-                                  ],
+                                  allowedViews: friendResources.isNotEmpty
+                                      ? const <CalendarView>[
+                                          CalendarView.timelineDay,
+                                          CalendarView.timelineWeek,
+                                          CalendarView.timelineWorkWeek,
+                                          CalendarView.timelineMonth
+                                        ]
+                                      : const [
+                                          CalendarView.day,
+                                          CalendarView.week,
+                                          CalendarView.timelineWeek,
+                                          CalendarView.month
+                                        ],
                                   allowAppointmentResize: true,
                                   allowDragAndDrop: true,
                                   timeSlotViewSettings:
@@ -268,6 +293,8 @@ class _CalenderPageState extends State<CalenderPage> {
                                   onTap: onCalendarTapped,
                                   appointmentBuilder: (BuildContext context,
                                       CalendarAppointmentDetails details) {
+                                    print(
+                                        details.appointments.first.resourceIds);
                                     final Meeting meeting =
                                         details.appointments.first;
                                     if (meeting.isAllDay) {
@@ -479,6 +506,7 @@ class _CalenderPageState extends State<CalenderPage> {
               : '';
     });
     await getMeetingDetails();
+
     await Future.delayed(
         const Duration(milliseconds: 300), () => 'Fake async result');
     setState(() {
@@ -495,57 +523,53 @@ class _CalenderPageState extends State<CalenderPage> {
       return;
     }
     _selectedActivity = chosenList.isNotEmpty ? chosenList[0]['id'] : 1;
+    List<dynamic> friendsData = await apiService.getFriends();
+    friendsData = friendsData.where((element) => element['status']).toList();
     final backendCalendar = await apiService.getCalendar(currentCalendar);
-    final List<Meeting> meetingCollection = backendCalendar
-        .map((event) => Meeting(
-              from: DateTime.parse(event['start_date']),
-              to: DateTime.parse(event['end_date']),
-              background: Color(int.parse('0x${event['color']}')),
-              startTimeZone: event['startTimeZone'],
-              endTimeZone: event['endTimeZone'],
-              description: event['description'],
-              eventName: event['title'],
-              subject: '',
-              url: 'assets/images/1.jpg',
-              activity: (event['activity']['id']),
-              id: event['id'],
-              isAllDay: event['isAllDay'],
-            ))
-        .toList();
+    final List<Meeting> meetingCollection = transform(backendCalendar);
+
+    print(friendResources);
+    dynamic currentUser = friendsData.first['others']
+        ? friendsData.first['friend']
+        : friendsData.first['user'];
+
     setState(() {
+      friendResources = friendsData
+          .map((friend) => CalendarResource(
+              id: (friend['others']
+                      ? friend['friend']['id']
+                      : friend['user']['id'])
+                  .toString(),
+              displayName: friend['others']
+                  ? friend['friend']['username']
+                  : friend['user']['username'],
+              color: _colorCollection[friend['id'] % _colorCollection.length]))
+          .toList();
+      friendResources.add(CalendarResource(
+        id: currentUser['id'].toString(),
+        displayName: currentUser['username'],
+        color:
+            _colorCollection[friendResources.length % _colorCollection.length],
+      ));
+      friends = friendsData
+          .map((friend) => Friend(
+              friendId: friend['others']
+                  ? friend['friend']['id']
+                  : friend['user']['id'],
+              friendName: friend['others']
+                  ? friend['friend']['username']
+                  : friend['user']['username'],
+              friendImage: '',
+              friendStatus: friend['status'] ? 'Friend' : 'Pending',
+              friendShipId: friend['id']))
+          .toList();
       appointments = meetingCollection;
-      _events = DataSource(appointments);
+      _events = DataSource(appointments, friendResources);
       valid = true;
     });
   }
 }
 
-List<String> months = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC"
-];
-List<Color> cardColors = [
-  maincolors.color1,
-  maincolors.color2,
-  maincolors.color3,
-  maincolors.color4
-];
-List<Color> dividerColors = [
-  maincolors.color1Dark,
-  maincolors.color2Dark,
-  maincolors.color3Dark,
-  maincolors.color4Dark
-];
 final List<String> timeZoneCollection = [
   'Default Time',
   'AUS Central Standard Time',
@@ -663,15 +687,88 @@ final List<Color> colorCollection = [
   const Color(0xFF1f7a8c),
   const Color(0xFF2a9d8f),
 ];
-final List<String> eventNameCollection = [
-  'General Meeting',
-  'Plan Execution',
-  'Project Plan',
-  'Consulting',
-  'Support',
-  'Development Meeting',
-  'Scrum',
-  'Project Completion',
-  'Release updates',
-  'Performance Check',
-];
+
+class DataSource extends CalendarDataSource {
+  DataSource(List<Meeting> source, List<CalendarResource> resource) {
+    appointments = source;
+    resources = resource;
+  }
+
+  @override
+  bool isAllDay(int index) => appointments![index].isAllDay;
+
+  @override
+  String getSubject(int index) => appointments![index].eventName;
+
+  @override
+  String getStartTimeZone(int index) => appointments![index].startTimeZone;
+
+  @override
+  String getNotes(int index) => appointments![index].description;
+
+  @override
+  String getEndTimeZone(int index) => appointments![index].endTimeZone;
+
+  @override
+  Color getColor(int index) => appointments![index].background;
+
+  @override
+  DateTime getStartTime(int index) => appointments![index].from;
+
+  @override
+  DateTime getEndTime(int index) => appointments![index].to;
+
+  @override
+  List<Object> getResourceIds(int index) => appointments![index].resourceIds!;
+}
+
+class Meeting {
+  Meeting(
+      {required this.from,
+      required this.to,
+      this.background = Colors.green,
+      this.isAllDay = false,
+      this.eventName = '',
+      this.startTimeZone = '',
+      this.endTimeZone = '',
+      this.description = '',
+      this.subject = '',
+      this.url = '',
+      this.activity,
+      this.resourceIds,
+      required this.id});
+
+  final String eventName;
+  final DateTime from;
+  final DateTime to;
+  final Color background;
+  final bool isAllDay;
+  final String startTimeZone;
+  final String endTimeZone;
+  final String description;
+  final String subject;
+  final String url;
+  final dynamic activity;
+  List<String>? resourceIds = <String>[];
+  final int id;
+}
+
+List<Meeting> transform(List<dynamic> backendCalendar) {
+  final List<Meeting> meetingCollection = backendCalendar
+      .map((event) => Meeting(
+          from: DateTime.parse(event['start_date']),
+          to: DateTime.parse(event['end_date']),
+          background: Color(int.parse('0x${event['color']}')),
+          startTimeZone: event['startTimeZone'],
+          endTimeZone: event['endTimeZone'],
+          description: event['description'],
+          eventName: event['title'],
+          subject: '',
+          url: 'assets/images/1.jpg',
+          activity: (event['activity']['id']),
+          id: event['id'],
+          isAllDay: event['isAllDay'],
+          resourceIds: [event['user']['id'].toString(), '11']))
+      .toList();
+  return meetingCollection;
+}

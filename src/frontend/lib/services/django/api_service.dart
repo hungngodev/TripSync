@@ -558,6 +558,52 @@ class ApiService {
     }
   }
 
+  Future<void> inviteCalendar(calendarId, friendId) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'invite-calendars/';
+    final url = Uri.parse('$baseUrl$endpoint');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'calendar': calendarId,
+        'friend': friendId,
+      }),
+    );
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Calendar invited successfully");
+    } else {
+      print("Failed to invite calendar: ${response.statusCode}");
+    }
+  }
+
+  Future<void> acceptCalendarInvite(id) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'invite-calendars/$id';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'status': true,
+      }),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Calendar invite accepted successfully");
+    } else {
+      print("Failed to accept calendar invite: ${response.statusCode}");
+    }
+  }
+
   // Future<List<dynamic>> getRequests() async {
   //   final user = await userDao.getUser();
   //   final token = user.token;
