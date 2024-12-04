@@ -131,7 +131,7 @@ class ApiService {
     if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity retrieved successfully");
       final selected = json.decode(response.body);
-      print("Selected activities: $selected");
+      // print("Selected activities: $selected");
 
       // Ensure that selected is a List of Maps and handle nested data properly
       List<Map<String, dynamic>> selectedActivities =
@@ -151,7 +151,7 @@ class ApiService {
           };
         }),
       );
-      print("Mapped selected activities: $selectedActivities");
+      // print("Mapped selected activities: $selectedActivities");
       return selectedActivities;
     } else {
       print("Failed to retrieve activity: ${response.statusCode}");
@@ -175,7 +175,7 @@ class ApiService {
     if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity retrieved successfully");
       final selected = json.decode(response.body);
-      print("Selected activities: $selected");
+      // print("Selected activities: $selected");
       return selected;
     } else {
       print("Failed to retrieve activity: ${response.statusCode}");
@@ -199,7 +199,7 @@ class ApiService {
     if (response.statusCode == 201 || response.statusCode == 200) {
       print("Activity retrieved successfully");
       final selected = json.decode(response.body);
-      print("Selected Calendar activities $id: $selected");
+      // print("Selected Calendar activities $id: $selected");
 
       // Ensure that selected is a List of Maps and handle nested data properly
       return selected;
@@ -246,7 +246,7 @@ class ApiService {
     if (response.statusCode == 201 || response.statusCode == 200) {
       print("Calendars retrieved successfully");
       final calendars = json.decode(response.body);
-      print("Calendars: $calendars");
+      // print("Calendars: $calendars");
 
       // Ensure that selected is a List of Maps and handle nested data properly
       List<Map<String, dynamic>> calendarList = List<Map<String, dynamic>>.from(
@@ -258,7 +258,7 @@ class ApiService {
           };
         }),
       );
-      print("Mapped calendars: $calendarList");
+      // print("Mapped calendars: $calendarList");
       return calendarList;
     } else {
       print("Failed to retrieve calendars: ${response.statusCode}");
@@ -534,6 +534,28 @@ class ApiService {
     }
 
     return [];
+  }
+
+  Future<bool> deleteCalendar(calendarId) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'calendars/$calendarId';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 204) {
+      print("Calendar deleted successfully");
+      return true;
+    } else {
+      print("Failed to delete calendar: ${response.statusCode}");
+      return false;
+    }
   }
 
   // Future<List<dynamic>> getRequests() async {

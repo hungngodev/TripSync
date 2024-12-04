@@ -148,7 +148,7 @@ class _CalenderPageState extends State<CalenderPage> {
                         ],
                       ),
                     ),
-                    _items.isNotEmpty && valid
+                    _items.isNotEmpty
                         ? CustomDropdown<Item>(
                             hintText: 'Select job role',
                             items: _items,
@@ -164,7 +164,9 @@ class _CalenderPageState extends State<CalenderPage> {
                               getMeetingDetails();
                             },
                           )
-                        : Column(
+                        : const SizedBox.shrink(),
+                    !_items.isNotEmpty || !valid
+                        ? Column(
                             children: [
                               SizedBox(
                                 height:
@@ -175,11 +177,19 @@ class _CalenderPageState extends State<CalenderPage> {
                                   Text(
                                     valid
                                         ? 'No calendar found'
-                                        : 'No events found',
+                                        : 'No events found ',
                                     style: GoogleFonts.getFont('Nunito',
                                         fontWeight: FontWeight.bold,
                                         fontSize: 30,
                                         color: Colors.black),
+                                  ),
+                                  Text(
+                                    '${_items.firstWhere((element) => element.id == currentCalendar).name} ',
+                                    style: GoogleFonts.getFont('Nunito',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 30,
+                                        color: const Color.fromARGB(
+                                            255, 147, 139, 174)),
                                   ),
                                   const SizedBox(
                                     height: 4,
@@ -197,13 +207,15 @@ class _CalenderPageState extends State<CalenderPage> {
                                 valid
                                     ? 'assets/animations/invalid_calendar.json'
                                     : 'assets/animations/invalid_activity.json',
-                                width: MediaQuery.of(context).size.height * 0.5,
+                                width:
+                                    MediaQuery.of(context).size.height * 0.45,
                                 height:
-                                    MediaQuery.of(context).size.height * 0.5,
+                                    MediaQuery.of(context).size.height * 0.45,
                                 fit: BoxFit.fill,
                               )
                             ],
-                          ),
+                          )
+                        : const SizedBox.shrink(),
                     _items.isNotEmpty && valid
                         ? Container(
                             padding: const EdgeInsets.symmetric(
@@ -460,7 +472,11 @@ class _CalenderPageState extends State<CalenderPage> {
           .toList();
     });
     setState(() {
-      currentCalendar = _items.isNotEmpty ? _items[0].id : '';
+      currentCalendar = widget.current != ''
+          ? widget.current
+          : _items.isNotEmpty
+              ? _items[0].id
+              : '';
     });
     await getMeetingDetails();
     await Future.delayed(

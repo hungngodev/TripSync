@@ -8,6 +8,7 @@ class DayCard extends StatefulWidget {
   final Color cardColor;
   final Color dividerColor;
   final String name;
+  final navigate;
   Map<String, Map<String, dynamic>> listOfEvent = {};
   DayCard({
     Key? key,
@@ -16,6 +17,7 @@ class DayCard extends StatefulWidget {
     required this.dividerColor,
     required this.name,
     required this.listOfEvent,
+    required this.navigate,
   }) : super(key: key);
 
   @override
@@ -63,6 +65,16 @@ class _DayCardState extends State<DayCard> {
                       "${DateTime.now().difference(widget.selectedDate).inDays} days ago",
                       style: GoogleFonts.poppins(
                         fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        widget.navigate();
+                      },
+                      icon: const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 20,
                         color: Colors.white,
                       ),
                     ),

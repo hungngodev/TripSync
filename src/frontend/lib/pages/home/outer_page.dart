@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/pages/home/calender_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../provider/calender_time_provider.dart';
 import '../../provider/time_provider.dart';
 import './today_page.dart';
+import 'outer_page.dart';
 
 MaterialColor white = const MaterialColor(
   0xFFFFFFFF,
@@ -23,8 +25,11 @@ MaterialColor white = const MaterialColor(
   },
 );
 
-class CalendarPage extends StatelessWidget {
-  const CalendarPage({super.key});
+class OuterPage extends StatelessWidget {
+  bool showToday = true;
+  String calendarId = '';
+  OuterPage({this.showToday = true, this.calendarId = '', Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +60,9 @@ class CalendarPage extends StatelessWidget {
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 theme: ThemeData(primarySwatch: Colors.grey),
-                home: const TodayPage(),
+                home: showToday
+                    ? const TodayPage()
+                    : CalenderPage(current: calendarId),
               );
             }),
       ),

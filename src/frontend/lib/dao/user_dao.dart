@@ -12,10 +12,8 @@ class UserDao {
   }
 
   Future<User> getUser() async {
-    print('Getting user');
     final db = await dbProvider.database;
     var result = await db.query(userTable);
-    print('Result: $result');
     if (result.length > 0) {
       return User.fromDatabaseJson({
         'id': result.first['id'].toString(),

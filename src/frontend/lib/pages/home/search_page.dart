@@ -12,8 +12,8 @@ import '../../services/django/api_service.dart';
 import '../../util/calendar-popup.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
-
+  final String calendarId;
+  SearchPage({this.calendarId = '', Key? key}) : super(key: key);
   @override
   State<SearchPage> createState() => _Home();
 }
@@ -40,7 +40,6 @@ class _Home extends State<SearchPage> {
   final Set<String> original = {'hotel', 'restaurant', 'entertainments'};
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 5));
-  String currentTrip = '';
   late List<Item> _items = <Item>[
     Item(
       '1',
@@ -62,7 +61,8 @@ class _Home extends State<SearchPage> {
       _items = calendarNames
           .map((event) => Item(event['name'], event['id']))
           .toList();
-      currentCalendar = _items.first.id;
+      currentCalendar =
+          widget.calendarId != '' ? widget.calendarId : _items.first.id;
     });
     await fetchSelectedActivities();
   }

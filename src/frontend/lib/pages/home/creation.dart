@@ -10,8 +10,8 @@ import '../../util/mainColors.dart';
 import '../../util/view_all.dart';
 
 class CreationScreen extends StatefulWidget {
-  const CreationScreen({super.key});
-
+  final calendarNav;
+  CreationScreen({this.calendarNav, Key? key}) : super(key: key);
   @override
   State<CreationScreen> createState() => _CreationState();
 }
@@ -58,10 +58,11 @@ class _CreationState extends State<CreationScreen> {
   }
 
   Future<void> create() async {
-    String id = await apiService.createCalendar(_controller.text);
     setState(() {
       isLoading = true;
     });
+    String id = await apiService.createCalendar(_controller.text);
+
     const snackBar = SnackBar(
       /// need to set following properties for best effect of awesome_snackbar_content
       elevation: 0,
@@ -77,6 +78,17 @@ class _CreationState extends State<CreationScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(snackBar);
+
+    setState(() {
+      isLoading = false;
+      calendars.insert(0, {
+        'name': _controller.text,
+        'created_at': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        'id': id,
+      });
+      _controller.clear();
+    });
+    this.widget.calendarNav(id, 1);
   }
 
   @override
@@ -267,9 +279,14 @@ class _CreationState extends State<CreationScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ViewAllPage(onBack: () {
-                                  Navigator.pop(context);
-                                }),
+                                builder: (context) => ViewAllPage(
+                                  onBack: () {
+                                    Navigator.pop(context);
+                                  },
+                                  navigateToCalendar: (id, index) {
+                                    this.widget.calendarNav(id, index);
+                                  },
+                                ),
                               ),
                             )
                           },
@@ -302,6 +319,9 @@ class _CreationState extends State<CreationScreen> {
                                     dividerColors[index % dividerColors.length]
                                         .withOpacity(0.2),
                                 listOfEvent: generateRandomSchedule(),
+                                navigate: () {
+                                  this.widget.calendarNav(calendar['id'], 2);
+                                },
                               );
                             },
                           )

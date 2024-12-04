@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-import './search_page.dart';
-import './profile_page.dart';
-import './posts.dart';
-import './setting_page.dart';
-import './calendar_page.dart';
-import './friends.dart';
-import './creation.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/material.dart';
+
+import './creation.dart';
+import './friends.dart';
+import './posts.dart';
+import './search_page.dart';
+import './setting_page.dart';
+import 'outer_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,9 +18,15 @@ class HomePage extends StatefulWidget {
 class _HomeState extends State<HomePage> {
   int _page = 0;
   GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
+  String calendarToNavigate = '';
+
+  void navigateToCalendar(calendarId, page) {
+    _bottomNavigationKey.currentState?.setPage(page);
+    calendarToNavigate = calendarId;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
         buttonBackgroundColor: const Color.fromARGB(255, 147, 139, 174),
@@ -50,9 +56,13 @@ class _HomeState extends State<HomePage> {
       body: <Widget>[
         /// Home page
         ///
-        const CreationScreen(),
-        const SearchPage(),
-        const CalendarPage(),
+        CreationScreen(
+          calendarNav: navigateToCalendar,
+        ),
+        SearchPage(calendarId: calendarToNavigate),
+        calendarToNavigate == ''
+            ? OuterPage()
+            : OuterPage(showToday: false, calendarId: calendarToNavigate),
 
         /// Messages page
         const PostPage(),
