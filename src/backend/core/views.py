@@ -253,7 +253,6 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
             **request.data  
 
         }
-        print(adding)
         serializer = self.get_serializer(data=adding)
         if serializer.is_valid():
             print("Serializer is valid")

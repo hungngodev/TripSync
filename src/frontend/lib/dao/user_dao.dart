@@ -15,6 +15,7 @@ class UserDao {
     print('Getting user');
     final db = await dbProvider.database;
     var result = await db.query(userTable);
+    print('Result: $result');
     if (result.length > 0) {
       return User.fromDatabaseJson({
         'id': result.first['id'].toString(),
@@ -27,7 +28,8 @@ class UserDao {
 
   Future<int> deleteUser(String id) async {
     final db = await dbProvider.database;
-    var result = await db.delete(userTable, where: "id = ?", whereArgs: [id]);
+
+    var result = await db.delete(userTable);
     return result;
   }
 
