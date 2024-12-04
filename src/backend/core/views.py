@@ -192,7 +192,7 @@ class CalendarViewSet(viewsets.ModelViewSet):
     serializer_class = CalendarSerializer
     
     def list(self, request):
-        calendars =Calendar.objects.all()
+        calendars =Calendar.objects.filter(user=request.user)
         serializer = self.get_serializer(calendars, many=True)
         print(serializer.data)
         return Response(serializer.data)
@@ -314,7 +314,6 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def today(self, request):
-        print(request.user.id)
         activities = ChosenActivity.objects.get_activities_of_calendar_today(request.user.id)
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
