@@ -34,7 +34,7 @@ class _DayCardState extends State<DayCard> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Container(
-        height: 185,
+        height: MediaQuery.of(context).size.height * 0.23,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
             // rgb()
@@ -69,7 +69,7 @@ class _DayCardState extends State<DayCard> {
                         color: Colors.white,
                       ),
                     ),
-                    IconButton(
+                    TextButton.icon(
                       onPressed: () {
                         widget.navigate();
                       },
@@ -77,6 +77,13 @@ class _DayCardState extends State<DayCard> {
                         Icons.arrow_forward_ios,
                         size: 20,
                         color: Colors.white,
+                      ),
+                      label: Text(
+                        'View',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],

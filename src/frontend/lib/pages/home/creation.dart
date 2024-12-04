@@ -179,10 +179,7 @@ class _CreationState extends State<CreationScreen> {
                                             Color.fromARGB(255, 147, 139, 174),
                                       ),
                                       const SizedBox(width: 10),
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.8,
+                                      Flexible(
                                         child: Text(
                                           activities[index].description,
                                           style: const TextStyle(
@@ -343,9 +340,9 @@ class _CreationState extends State<CreationScreen> {
                               Lottie.asset(
                                 'assets/animations/plane.json',
                                 width:
-                                    MediaQuery.of(context).size.height * 0.32,
+                                    MediaQuery.of(context).size.height * 0.25,
                                 height:
-                                    MediaQuery.of(context).size.height * 0.32,
+                                    MediaQuery.of(context).size.height * 0.25,
                                 fit: BoxFit.fill,
                               )
                             ],

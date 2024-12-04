@@ -47,9 +47,6 @@ class _LoginPageState extends State<LoginPage> {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(snackBar);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error)),
-          );
         }
       },
       child: BlocBuilder<LoginBloc, LoginState>(

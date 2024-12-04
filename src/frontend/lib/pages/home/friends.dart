@@ -49,7 +49,7 @@ class _FriendsPageState extends State<FriendsPage> {
                           friendProvider.friends.isEmpty
                               ? const Center(
                                   child: Text(
-                                    'No friends',
+                                    'Let make some friends',
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 18,
@@ -68,7 +68,7 @@ class _FriendsPageState extends State<FriendsPage> {
                           friendProvider.requests.isEmpty
                               ? const Center(
                                   child: Text(
-                                    'No friend requests',
+                                    'No pending requests',
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 18,
@@ -87,7 +87,8 @@ class _FriendsPageState extends State<FriendsPage> {
                           friendProvider.receives.isEmpty
                               ? const Center(
                                   child: Text(
-                                    'No friend suggestions',
+                                    'No request! Let others know you want to be friends',
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 18,

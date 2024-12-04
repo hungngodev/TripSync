@@ -498,7 +498,7 @@ class _CalenderPageState extends State<CalenderPage> {
       _items = calendarNames
           .map((event) => Item(event['name'], event['id']))
           .toList();
-      userId = calendarNames.first['user'];
+      userId = calendarNames.first['user'].toString();
     });
     setState(() {
       currentCalendar = widget.current != ''
