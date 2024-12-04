@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 import '../../bloc/authentication_bloc.dart';
 import '../../bloc/authentication_state.dart';
@@ -15,6 +16,14 @@ class SearchPage extends StatefulWidget {
 
   @override
   State<SearchPage> createState() => _Home();
+}
+
+class Item {
+  Item(this.name, this.id);
+  String name;
+  String id;
+  @override
+  String toString() => name;
 }
 
 class _Home extends State<SearchPage> {
@@ -32,6 +41,13 @@ class _Home extends State<SearchPage> {
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 5));
   String currentTrip = '';
+  late List<Item> _items = <Item>[
+    Item(
+      '1',
+      '1',
+    )
+  ];
+  String currentCalendar = '1';
 
   @override
   void initState() {
@@ -41,9 +57,17 @@ class _Home extends State<SearchPage> {
   }
 
   Future<void> _fetchSelectedActivities() async {
+    final List<dynamic> calendarNames = await apiService.getCalendars();
+    setState(() {
+      _items = calendarNames
+          .map((event) => Item(event['name'], event['id']))
+          .toList();
+      currentCalendar = _items.first.id;
+    });
     try {
       // Fetch the list of chosen activities from the API
-      List<Map<String, dynamic>> activities = await apiService.getChosenList();
+      List<Map<String, dynamic>> activities =
+          await apiService.getChosenList(currentCalendar);
 
       setState(() {
         selectedActivities = activities;
@@ -82,6 +106,7 @@ class _Home extends State<SearchPage> {
         .any((selected) => selected['id'] == activity['id'])) {
       final chosenId = await apiService.addChosenActivity({
         'activity': activity['id'],
+        'calendar': int.parse(currentCalendar),
       });
       if (chosenId == '') {
         return;
@@ -102,8 +127,7 @@ class _Home extends State<SearchPage> {
       // Optionally show a message that the activity is already added
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                'Activity "${activity['description']}" is already added!')),
+            content: Text('Activity "${activity['title']}" is already added!')),
       );
     }
   }
@@ -219,7 +243,7 @@ class _Home extends State<SearchPage> {
               ),
             ),
             ...selectedActivities.map((activity) {
-              print(activity);
+              print(activity['address']);
               return Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
@@ -316,7 +340,7 @@ class _Home extends State<SearchPage> {
                                                   const SizedBox(width: 8),
                                                   Flexible(
                                                     child: Text(
-                                                      "${activity['address'] ?? 'N/A'}",
+                                                      "${activity['address']}",
                                                       style:
                                                           GoogleFonts.getFont(
                                                         'Lora',
@@ -490,6 +514,20 @@ class _Home extends State<SearchPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 10),
+                  CustomDropdown<Item>(
+                    hintText: 'Select job role',
+                    items: _items,
+                    initialItem: _items.firstWhere(
+                      (item) => item.id == currentCalendar,
+                      orElse: () => _items[
+                          0], // Optionally, handle the case where no item is found
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        currentCalendar = value!.id;
+                      });
+                    },
+                  ),
                   SearchAnchor(
                     searchController: _searchController,
                     builder:
@@ -548,6 +586,7 @@ class _Home extends State<SearchPage> {
                       search();
                     },
                   ),
+
                   const SizedBox(height: 10),
                   Material(
                     color: Colors.transparent,

@@ -208,7 +208,7 @@ class _CalenderPageState extends State<CalenderPage> {
                               Container(
                                 width: double.infinity,
                                 height:
-                                    MediaQuery.of(context).size.height * 0.6,
+                                    MediaQuery.of(context).size.height * 0.45,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15),
                                   image: const DecorationImage(
@@ -486,7 +486,7 @@ class _CalenderPageState extends State<CalenderPage> {
   }
 
   Future<void> getMeetingDetails() async {
-    chosenList = await apiService.getChosenList();
+    chosenList = await apiService.getChosenList(currentCalendar);
     if (chosenList.isEmpty) {
       setState(() {
         valid = false;

@@ -47,7 +47,7 @@ class ChosenActivitySerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         # Serialize the related activity using ActivitySerializer
         representation['activity'] = ActivitySerializer(instance.activity).data
-        representation['calendar'] = CalendarSerializer(instance.calendar).data
+        representation['calendar'] = CalendarSerializer(instance.calendar).data if instance.calendar else None
         return representation
     
 class PostSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class PostSerializer(serializers.ModelSerializer):
         """
         representation = super().to_representation(instance)
         # Serialize the related activity using ActivitySerializer
-        representation['calendar'] = CalendarSerializer(instance.calendar).data
+        representation['calendar'] = CalendarSerializer(instance.calendar).data 
         representation['author'] = UserSerializer(instance.author).data
         representation['likes_count'] = self.get_likes_count(instance)
         representation['is_liked_by_user'] = self.get_is_liked_by_user(instance)

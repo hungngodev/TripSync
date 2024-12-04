@@ -115,11 +115,11 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getChosenList() async {
+  Future<List<Map<String, dynamic>>> getChosenList(calendarId) async {
     final user = await userDao.getUser();
     final token = user.token;
     const endpoint = 'chosen-activities/chosen_list';
-    final url = Uri.parse('$baseUrl$endpoint/');
+    final url = Uri.parse('$baseUrl$endpoint/?calendar=$calendarId');
     final response = await http.get(
       url,
       headers: {

@@ -258,6 +258,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             print("Serializer is valid")
             chosen_activity = serializer.save()
+            print(self.get_serializer(chosen_activity).data)
             return Response(self.get_serializer(chosen_activity).data, status=status.HTTP_201_CREATED)
         print("Serializer is invalid")
         print("Errors:", serializer.errors)  
@@ -300,7 +301,8 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def chosen_list(self, request):
-        activities = ChosenActivity.objects.get_activities_of_traveller(request.user.id)
+        name = request.GET.get('calendar', None)
+        activities = ChosenActivity.objects.get_activities_of_traveller(request.user.id, name)
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
 
@@ -312,6 +314,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def today(self, request):
+        print(request.user.id)
         activities = ChosenActivity.objects.get_activities_of_calendar_today(request.user.id)
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
