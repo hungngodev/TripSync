@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../login/bloc/login_bloc.dart';
 
@@ -24,10 +25,22 @@ class _LoginFormState extends State<LoginForm> {
       listener: (context, state) {
         if (state is LoginFailure) {
           // Update to LoginFailure
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(state.error),
-            backgroundColor: Colors.red,
-          ));
+          final snackBar = const SnackBar(
+            /// need to set following properties for best effect of awesome_snackbar_content
+            elevation: 0,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.transparent,
+            content: AwesomeSnackbarContent(
+              title: 'On Snap!',
+              message: 'Please check your username and password and try again!',
+
+              /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+              contentType: ContentType.failure,
+            ),
+          );
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(snackBar);
         }
       },
       child: BlocBuilder<LoginBloc, LoginState>(

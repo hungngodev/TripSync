@@ -127,9 +127,10 @@ class _TodayPageState extends State<TodayPage> {
                                   fontSize: 20, color: Colors.black),
                             ),
                             Lottie.asset(
-                              'assets/animations/today.json',
-                              width: MediaQuery.of(context).size.height * 0.5,
-                              height: MediaQuery.of(context).size.height * 0.5,
+                              'assets/animations/invalid_calendar.json',
+                              width: MediaQuery.of(context).size.height * 1,
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              repeat: true,
                               fit: BoxFit.fill,
                             )
                           ]),

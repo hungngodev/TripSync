@@ -1,4 +1,5 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import '../api_connection/api_connection.dart';
 import '../model/api_model.dart';
@@ -32,9 +33,25 @@ class _SignUpPageState extends State<SignUpPage> {
       if (_emailController.text.isEmpty ||
           _passwordController.text.isEmpty ||
           _usernameController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please fill all fields')),
+        const materialBanner = MaterialBanner(
+          /// need to set following properties for best effect of awesome_snackbar_content
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          forceActionsBelow: true,
+          content: AwesomeSnackbarContent(
+            title: 'Oh Hey!!',
+            message: 'Please fill in all the fields to sign up for an account!',
+
+            /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+            contentType: ContentType.success,
+            // to configure for material banner
+            inMaterialBanner: true,
+          ),
+          actions: [SizedBox.shrink()],
         );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentMaterialBanner()
+          ..showMaterialBanner(materialBanner);
         return;
       }
       await signUp(UserSignUp(

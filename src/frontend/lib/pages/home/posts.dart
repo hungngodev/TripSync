@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 import '../../model/global.dart';
 import '../../provider/post_provider.dart';
@@ -187,6 +188,24 @@ class _PostPageState extends State<PostPage> {
                                           setState(() {
                                             isSubmitting = false;
                                           });
+                                          const snackBar = SnackBar(
+                                            /// need to set following properties for best effect of awesome_snackbar_content
+                                            elevation: 0,
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Colors.transparent,
+                                            content: AwesomeSnackbarContent(
+                                              title: 'Great!',
+                                              message:
+                                                  'Your post has been successfully posted!',
+
+                                              /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+                                              contentType: ContentType.success,
+                                            ),
+                                          );
+
+                                          ScaffoldMessenger.of(context)
+                                            ..hideCurrentSnackBar()
+                                            ..showSnackBar(snackBar);
                                         }
                                       : null,
                                   color:
