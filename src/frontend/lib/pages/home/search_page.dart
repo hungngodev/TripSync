@@ -230,10 +230,6 @@ class _Home extends State<SearchPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 147, 139, 174),
-        // title: Text(
-        //   currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
-        //   style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
-        // ),
         title: Text(
           'Search Page',
           style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
@@ -660,7 +656,6 @@ class _Home extends State<SearchPage> {
                       search();
                     },
                   ),
-
                   const SizedBox(height: 10),
                   Material(
                     color: Colors.transparent,
@@ -708,58 +703,6 @@ class _Home extends State<SearchPage> {
                       ),
                     ),
                   ),
-                  // Expanded(
-                  //   child: Row(
-                  //     children: <Widget>[
-                  //       Material(
-                  //         color: Colors.transparent,
-                  //         child: InkWell(
-                  //           focusColor: Colors.transparent,
-                  //           highlightColor: Colors.transparent,
-                  //           hoverColor: Colors.transparent,
-                  //           splashColor: Colors.grey.withOpacity(0.2),
-                  //           borderRadius: const BorderRadius.all(
-                  //             Radius.circular(4.0),
-                  //           ),
-                  //           onTap: () {
-                  //             FocusScope.of(context).requestFocus(FocusNode());
-                  //             // setState(() {
-                  //             //   isDatePopupOpen = true;
-                  //             // });
-                  //             showDemoDialog(context: context);
-                  //           },
-                  //           child: Padding(
-                  //             padding: const EdgeInsets.only(
-                  //                 left: 8, right: 8, top: 4, bottom: 4),
-                  //             child: Column(
-                  //               mainAxisAlignment: MainAxisAlignment.center,
-                  //               crossAxisAlignment: CrossAxisAlignment.start,
-                  //               children: <Widget>[
-                  //                 Text(
-                  //                   'Choose date',
-                  //                   style: TextStyle(
-                  //                       fontWeight: FontWeight.w100,
-                  //                       fontSize: 16,
-                  //                       color: Colors.grey.withOpacity(0.8)),
-                  //                 ),
-                  //                 const SizedBox(
-                  //                   height: 8,
-                  //                 ),
-                  //                 Text(
-                  //                   '${DateFormat("dd, MMM").format(startDate)} - ${DateFormat("dd, MMM").format(endDate)}',
-                  //                   style: const TextStyle(
-                  //                     fontWeight: FontWeight.w100,
-                  //                     fontSize: 16,
-                  //                   ),
-                  //                 ),
-                  //               ],
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 5.0,

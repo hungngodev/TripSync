@@ -55,7 +55,7 @@ class _DayCardState extends State<DayCard> {
                       child: Text(
                         widget.name,
                         style: GoogleFonts.poppins(
-                          fontSize: 30,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),

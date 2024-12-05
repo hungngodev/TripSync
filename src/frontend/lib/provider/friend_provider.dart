@@ -5,6 +5,20 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import '../../services/django/api_service.dart';
 
+class InviteCalendar {
+  final String eventName;
+  final String friend;
+  final DateTime since;
+  int id;
+
+  InviteCalendar({
+    required this.eventName,
+    required this.since,
+    required this.id,
+    required this.friend,
+  });
+}
+
 class Friend {
   int id;
   String friendName;
@@ -37,6 +51,7 @@ class Friend {
 class FriendProvider with ChangeNotifier {
   List<Friend> _friends = [];
   List<Friend> _suggestions = [];
+  List<InviteCalendar> _invites = [];
   final apiService = ApiService();
 
   List<Friend> get friends =>
@@ -46,6 +61,7 @@ class FriendProvider with ChangeNotifier {
   List<Friend> get receives =>
       _friends.where((element) => element.isRequested).toList();
   List<Friend> get suggestions => _suggestions;
+  List<InviteCalendar> get invites => _invites;
 
   Future<void> fetchFriends() async {
     final friends = await apiService.getFriends();
@@ -62,7 +78,30 @@ class FriendProvider with ChangeNotifier {
       return processSuggestions(friend,
           index); // Assuming processDataWithIndex takes both friend and index.
     }).toList();
+    final invitesData = await apiService.getInvites();
+    _invites = invitesData.map<InviteCalendar>((invite) {
+      return processInvite(invite);
+    }).toList();
+
     notifyListeners();
+  }
+
+  Future<void> acceptInvite(id) async {
+    final index = _invites.indexWhere((element) => element.id == id);
+    if (index != -1) {
+      await apiService.acceptCalendarInvite(id);
+      _invites.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteInvite(id) async {
+    final index = _invites.indexWhere((element) => element.id == id);
+    if (index != -1) {
+      await apiService.deleteCalendarInvite(id);
+      _invites.removeAt(index);
+      notifyListeners();
+    }
   }
 
   Future<void> addFriend(id, int friendId) async {
@@ -148,4 +187,12 @@ Friend processSuggestions(Map<String, dynamic> data, index) {
       friendSince: DateTime.now(),
       friendshipId: -1,
       id: -index);
+}
+
+InviteCalendar processInvite(Map<String, dynamic> data) {
+  return InviteCalendar(
+      eventName: data['calendar']['name'],
+      since: DateTime.parse(data['calendar']['created_at']),
+      friend: data['owner']['username'],
+      id: data['id']);
 }

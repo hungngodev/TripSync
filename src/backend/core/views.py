@@ -253,6 +253,15 @@ class CalendarViewSet(viewsets.ModelViewSet):
         calendar.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    @action(detail=False, methods=['get'])
+    def invite(self, request):
+        invites = InviteCalendar.objects.filter(invite=request.user
+                                                        )
+        calendar_ids = [invite.calendar.id for invite in invites]    
+        calendars = Calendar.objects.filter(id__in=calendar_ids)
+        serializer = self.get_serializer(calendars, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
 class ChosenActivityViewSet(viewsets.ModelViewSet):
     queryset = ChosenActivity.objects.all()
     serializer_class = ChosenActivitySerializer
@@ -336,13 +345,7 @@ class ChosenActivityViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(activities, many=True)
         return Response(serializer.data)
     
-    @action(detail=False, methods=['get'])
-    def peek(self, request):
-        activities = self.get_all_chosen_activities_of_calendar(request.user.id, 1)
-        serializer = self.get_serializer(activities, many=True)
-        return Response(serializer.data)
-    
-    
+
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -489,22 +492,25 @@ class InviteCalendarViewSet(viewsets.ModelViewSet):
     serializer_class = InviteCalendarSerializer
     
     def list(self, request):
-        invite_calendars = InviteCalendar.objects.filter(calendar_id=request.GET.get('calendarId')).exclude(user=request.user)
-
+        invite_calendars = InviteCalendar.objects.filter(invite = request.user)
         serializer = self.get_serializer(invite_calendars, many=True)
         return Response(serializer.data)
     
     def create(self, request):
+        
         adding = {
-            'friend': request.data.get('friend'),
+            'invite': request.data.get('invite'),
             'owner': request.user.id,
             'calendar' : request.data.get('calendar'),
             'status': False
         }
         serializer = self.get_serializer(data=adding)
         if serializer.is_valid():
+            print("Serializer is valid")
             invite_calendar = serializer.save()
             return Response(self.get_serializer(invite_calendar).data, status=status.HTTP_201_CREATED)
+        print("Serializer is invalid")
+        print("Errors:", serializer.errors)  
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def destroy(self, request, pk=None):
@@ -520,11 +526,11 @@ class InviteCalendarViewSet(viewsets.ModelViewSet):
         invite_calendar_instance.save()
         return Response({"detail": "Friend request accepted."}, status=status.HTTP_200_OK)
     
-    # @action(detail=False, methods=['get'])
-    # def get_receive(self, request):
-    #     """
-    #     Custom action to get all pending friend requests for the current user.
-    #     """
-    #     pending_requests = InviteCalendar.objects.filter(user=request.user, status=False)
-    #     serializer = self.get_serializer(pending_requests, many=True)
-    #     return Response(serializer.data)
+    @action(detail=False, methods=['get'])
+    def calendar(self, request):
+        """
+        Custom action to get all friends invited by the current user.
+        """
+        invited_friends = InviteCalendar.objects.filter(calendar_id=request.GET.get('calendar'))
+        serializer = self.get_serializer(invited_friends, many=True)
+        return Response(serializer.data)

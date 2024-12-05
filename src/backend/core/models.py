@@ -32,7 +32,7 @@ class ChosenActivityManager(models.Manager):
 
     def get_activities_of_calendar(self, user_id, calendar_id):
         return self.filter(
-            user_id=user_id, start_date__isnull=False, calendar_id=calendar_id
+            start_date__isnull=False, calendar_id=calendar_id
         ).select_related('activity')
 
     def get_activities_of_calendar_today(self, user_id):

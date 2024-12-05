@@ -15,7 +15,6 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import '../../provider/calender_time_provider.dart';
 import '../../services/django/api_service.dart';
-import '../../util/mainColors.dart';
 
 part '../../util/appointment-editor.dart';
 part '../../util/color-picker.dart';
@@ -81,6 +80,7 @@ class _CalenderPageState extends State<CalenderPage> {
   List<Friend> friends = <Friend>[];
   CalendarController calendarController = CalendarController();
   bool valid = false;
+  String currentFriend = '';
   bool isLoading = true;
 
   @override
@@ -111,55 +111,130 @@ class _CalenderPageState extends State<CalenderPage> {
               ? Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.all(0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              GestureDetector(
-                                onTap: (() => Navigator.pop(context)),
-                                child: Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(),
-                                      borderRadius: BorderRadius.circular(24)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Center(
-                                      child: Text(
-                                        "Today",
-                                        style: GoogleFonts.poppins(
-                                            color: Colors.black, fontSize: 16),
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: (() => Navigator.pop(context)),
+                                    child: Container(
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border.all(),
+                                          borderRadius:
+                                              BorderRadius.circular(24)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        child: Center(
+                                          child: Text(
+                                            "Today",
+                                            style: GoogleFonts.poppins(
+                                                color: Colors.black,
+                                                fontSize: 16),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color:
-                                      const Color.fromARGB(255, 147, 139, 174),
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20),
-                                  child: Center(
-                                    child: Text(
-                                      "Calendar",
-                                      style: GoogleFonts.poppins(
-                                          color: Colors.white, fontSize: 16),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Container(
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                          255, 147, 139, 174),
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Center(
+                                        child: Text(
+                                          "Calendar",
+                                          style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: 16),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
+                              TextButton.icon(
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title:
+                                                const Text('Invite a friend'),
+                                            content: Container(
+                                              height: 150,
+                                              child: Column(
+                                                children: [
+                                                  CustomDropdown(
+                                                      items: friends
+                                                          .map((friend) => Item(
+                                                              friend.friendName,
+                                                              friend.friendId
+                                                                  .toString()))
+                                                          .toList(),
+                                                      hintText: 'Select friend',
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          currentFriend =
+                                                              value!.id;
+                                                        });
+                                                      }),
+                                                  const SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () async {
+                                                      await apiService
+                                                          .inviteCalendar(
+                                                              currentCalendar,
+                                                              currentFriend);
+                                                    },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              147,
+                                                              139,
+                                                              174),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
+                                                    ),
+                                                    child: const Text('Invite',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white)),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                  },
+                                  icon: const Icon(Icons.person_add,
+                                      color:
+                                          Colors.blue), // Icon for the button
+                                  label: const Text('Invite',
+                                      style: TextStyle(color: Colors.blue)))
                             ],
                           ),
                         ],
@@ -167,7 +242,7 @@ class _CalenderPageState extends State<CalenderPage> {
                     ),
                     _items.isNotEmpty
                         ? CustomDropdown<Item>(
-                            hintText: 'Select job role',
+                            hintText: 'Select a calendar',
                             items: _items,
                             initialItem: _items.firstWhere(
                               (item) => item.id == currentCalendar,
@@ -178,6 +253,10 @@ class _CalenderPageState extends State<CalenderPage> {
                               setState(() {
                                 currentCalendar = value!.id;
                               });
+                              calendarController.view =
+                                  !friendResources.isNotEmpty
+                                      ? CalendarView.timelineDay
+                                      : CalendarView.day;
                               getMeetingDetails();
                             },
                           )
@@ -276,14 +355,20 @@ class _CalenderPageState extends State<CalenderPage> {
                                       : const [
                                           CalendarView.day,
                                           CalendarView.week,
-                                          CalendarView.timelineWeek,
-                                          CalendarView.month
+                                          CalendarView.month,
                                         ],
-                                  allowAppointmentResize: true,
-                                  allowDragAndDrop: true,
-                                  timeSlotViewSettings:
-                                      const TimeSlotViewSettings(
-                                    timeIntervalHeight: 80,
+                                  resourceViewSettings: ResourceViewSettings(
+                                      visibleResourceCount:
+                                          min(3, friendResources.length)),
+                                  timeSlotViewSettings: TimeSlotViewSettings(
+                                    timelineAppointmentHeight:
+                                        MediaQuery.of(context).size.height /
+                                            min(
+                                                1,
+                                                friendResources.length
+                                                    .toDouble()),
+                                    timeIntervalWidth: 100,
+                                    timeIntervalHeight: 100,
                                   ),
                                   allowViewNavigation: true,
                                   todayHighlightColor: Colors.blue,
@@ -294,12 +379,11 @@ class _CalenderPageState extends State<CalenderPage> {
                                   onTap: onCalendarTapped,
                                   appointmentBuilder: (BuildContext context,
                                       CalendarAppointmentDetails details) {
-                                    print(
-                                        details.appointments.first.resourceIds);
                                     final Meeting meeting =
                                         details.appointments.first;
                                     if (meeting.isAllDay) {
                                       return Container(
+                                        // height: details.bounds.height,
                                         // color: meeting.background.withOpacity(0.7),
                                         decoration: BoxDecoration(
                                           shape: BoxShape.rectangle,
@@ -318,12 +402,12 @@ class _CalenderPageState extends State<CalenderPage> {
                                         ),
                                       );
                                     }
-
                                     return Column(
                                       children: [
                                         Container(
+                                          height: details.bounds.height * 0.6,
+                                          // height: details.bounds.height * 2,
                                           padding: const EdgeInsets.all(3),
-                                          height: details.bounds.height * 0.35,
                                           alignment: Alignment.topLeft,
                                           decoration: BoxDecoration(
                                             shape: BoxShape.rectangle,
@@ -335,8 +419,7 @@ class _CalenderPageState extends State<CalenderPage> {
                                             color: meeting.background
                                                 .withOpacity(1),
                                           ),
-                                          child: SingleChildScrollView(
-                                              child: Column(
+                                          child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             crossAxisAlignment:
@@ -346,28 +429,36 @@ class _CalenderPageState extends State<CalenderPage> {
                                                 meeting.eventName,
                                                 style: GoogleFonts.poppins(
                                                     color: Colors.white,
-                                                    fontSize: 16,
+                                                    fontSize: friendResources
+                                                            .isNotEmpty
+                                                        ? details.bounds
+                                                                    .height /
+                                                                400 *
+                                                                20 +
+                                                            5
+                                                        : 16,
                                                     fontWeight:
                                                         FontWeight.bold),
-                                                maxLines: 3,
-                                                softWrap: false,
-                                                overflow: TextOverflow.ellipsis,
+                                                softWrap: true,
                                               ),
-                                              Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: details
-                                                              .bounds.height *
-                                                          0.008)),
                                               Text(
                                                 'Time: ${DateFormat('hh:mm a').format(meeting.from)} - ${DateFormat('hh:mm a').format(meeting.to)}',
                                                 style: GoogleFonts.poppins(
+                                                    fontSize: friendResources
+                                                            .isNotEmpty
+                                                        ? details.bounds
+                                                                    .height /
+                                                                500 *
+                                                                20 +
+                                                            5
+                                                        : 11,
                                                     color: Colors.white),
                                               )
                                             ],
-                                          )),
+                                          ),
                                         ),
                                         Container(
-                                          height: details.bounds.height * 0.55,
+                                          height: details.bounds.height * 0.3,
                                           padding: const EdgeInsets.fromLTRB(
                                               3, 5, 3, 2),
                                           color: meeting.background
@@ -384,7 +475,14 @@ class _CalenderPageState extends State<CalenderPage> {
                                                 meeting.description!,
                                                 style: GoogleFonts.nunito(
                                                     color: Colors.white,
-                                                    fontSize: 15),
+                                                    fontSize: friendResources
+                                                            .isNotEmpty
+                                                        ? details.bounds
+                                                                    .height /
+                                                                400 *
+                                                                20 +
+                                                            5
+                                                        : 13),
                                               )
                                             ],
                                           )),
@@ -498,7 +596,7 @@ class _CalenderPageState extends State<CalenderPage> {
       _items = calendarNames
           .map((event) => Item(event['name'], event['id']))
           .toList();
-      userId = calendarNames.first['user'].toString();
+      userId = calendarNames.first['user']['id'].toString();
     });
     setState(() {
       currentCalendar = widget.current != ''
@@ -527,37 +625,37 @@ class _CalenderPageState extends State<CalenderPage> {
     _selectedActivity = chosenList.isNotEmpty ? chosenList[0]['id'] : 1;
     List<dynamic> friendsData = await apiService.getFriends();
     friendsData = friendsData.where((element) => element['status']).toList();
+    List<dynamic> invitesData =
+        await apiService.getInviteOfCalendar(currentCalendar);
+
     final backendCalendar = await apiService.getCalendar(currentCalendar);
+
     final List<Meeting> meetingCollection = transform(backendCalendar);
 
-    dynamic currentUser = friendsData.isNotEmpty
-        ? friendsData.first['others']
-            ? friendsData.first['friend']
-            : friendsData.first['user']
-        : null;
-
     setState(() {
-      if (currentUser != null) {
-        friendResources = friendsData
+      if (userId != '') {
+        final thisUserInvite = invitesData
+            .where((element) =>
+                element['invite']['id'] == int.parse(userId) ||
+                element['owner']['id'] == int.parse(userId))
+            .first;
+        bool share = thisUserInvite['invite']['id'] == int.parse(userId);
+        final firstInvite = CalendarResource(
+            id: thisUserInvite['invite']['id'].toString(),
+            displayName: thisUserInvite['invite']['username'],
+            color: avatar[(invitesData.length + 1) % avatar.length]);
+        final owner = CalendarResource(
+            id: thisUserInvite['owner']['id'].toString(),
+            displayName: thisUserInvite['owner']['username'],
+            color: avatar[invitesData.length % avatar.length]);
+        friendResources = share ? [firstInvite, owner] : [owner, firstInvite];
+        invitesData.remove(thisUserInvite);
+        friendResources.addAll(invitesData
             .map((friend) => CalendarResource(
-                id: (friend['others']
-                        ? friend['friend']['id']
-                        : friend['user']['id'])
-                    .toString(),
-                displayName: friend['others']
-                    ? friend['friend']['username']
-                    : friend['user']['username'],
-                color:
-                    _colorCollection[friend['id'] % _colorCollection.length]))
-            .toList();
-        friendResources.insert(
-            0,
-            CalendarResource(
-              id: currentUser['id'].toString(),
-              displayName: currentUser['username'],
-              color: _colorCollection[
-                  friendResources.length % _colorCollection.length],
-            ));
+                id: friend['invite']['id'].toString(),
+                displayName: friend['invite']['username'],
+                color: avatar[friend['id'] % avatar.length]))
+            .toList());
         friends = friendsData
             .map((friend) => Friend(
                 friendId: friend['others']
@@ -570,8 +668,12 @@ class _CalenderPageState extends State<CalenderPage> {
                 friendStatus: friend['status'] ? 'Friend' : 'Pending',
                 friendShipId: friend['id']))
             .toList();
+        currentFriend = friendsData.isNotEmpty
+            ? friendsData.first['others']
+                ? friendsData.first['friend']['username']
+                : friendsData.first['user']['username']
+            : '';
       }
-
       appointments = meetingCollection;
       _events = DataSource(appointments, friendResources);
       valid = true;
@@ -781,3 +883,12 @@ List<Meeting> transform(List<dynamic> backendCalendar) {
       .toList();
   return meetingCollection;
 }
+
+const List<Color> avatar = [
+  Color(0xFFfb5607),
+  Color(0xFF05668d),
+  Color(0xFF00a896),
+  Color(0xFF9B5DE5), // Lavender Purple
+  Color(0xFF06D6A0), // Green
+  Color(0xFFFF0054), // Bright Pink
+];

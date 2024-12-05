@@ -243,23 +243,44 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     );
+    String invitedEndpoint = 'calendars/invite/';
+    final invitedUrl = Uri.parse('$baseUrl$invitedEndpoint');
+    final invitedResponse = await http.get(
+      invitedUrl,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-    if (response.statusCode == 201 || response.statusCode == 200) {
+    if ((response.statusCode == 201 || response.statusCode == 200) &&
+        (invitedResponse.statusCode == 201 ||
+            invitedResponse.statusCode == 200)) {
       print("Calendars retrieved successfully");
       final calendars = json.decode(response.body);
+      calendars.addAll(json.decode(invitedResponse.body));
       // print("Calendars: $calendars");
 
       // Ensure that selected is a List of Maps and handle nested data properly
       List<Map<String, dynamic>> calendarList = List<Map<String, dynamic>>.from(
         calendars.map((calendar) {
+          bool share = int.parse(calendar['user']['id'].toString()) !=
+              int.parse(user.id.toString());
           return {
             'id': calendar['id'].toString(),
-            'name': calendar['name'],
+            'name': share
+                ? calendar['name'] +
+                    ' - ' +
+                    calendar['user']['username'] +
+                    ' (shared)'
+                : calendar['name'],
             'created_at': calendar['created_at'],
             'user': calendar['user'],
+            'share': share,
           };
         }),
       );
+
       // print("Mapped calendars: $calendarList");
       return calendarList;
     } else {
@@ -561,6 +582,7 @@ class ApiService {
   }
 
   Future<void> inviteCalendar(calendarId, friendId) async {
+    print('Inviting calendar');
     final user = await userDao.getUser();
     final token = user.token;
     String endpoint = 'invite-calendars/';
@@ -573,7 +595,7 @@ class ApiService {
       },
       body: json.encode({
         'calendar': calendarId,
-        'friend': friendId,
+        'invite': friendId,
       }),
     );
     if (response.statusCode == 201 || response.statusCode == 200) {
@@ -604,6 +626,70 @@ class ApiService {
     } else {
       print("Failed to accept calendar invite: ${response.statusCode}");
     }
+  }
+
+  Future<void> deleteCalendarInvite(id) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'invite-calendars/$id';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 204) {
+      print("Calendar invite deleted successfully");
+    } else {
+      print("Failed to delete calendar invite: ${response.statusCode}");
+    }
+  }
+
+  Future<List<dynamic>> getInvites() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'invite-calendars';
+    final url = Uri.parse('$baseUrl$endpoint/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Invites fetched successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to fetch invites: ${response.statusCode}");
+    }
+    return [];
+  }
+
+  Future<List<dynamic>> getInviteOfCalendar(calendarId) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    String endpoint = 'invite-calendars/calendar/?calendar=$calendarId';
+    final url = Uri.parse('$baseUrl$endpoint');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Invites fetched successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to fetch invites: ${response.statusCode}");
+    }
+    return [];
   }
 
   // Future<List<dynamic>> getRequests() async {

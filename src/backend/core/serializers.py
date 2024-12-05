@@ -33,10 +33,15 @@ class ActivitySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CalendarSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     
     class Meta:
         model = Calendar
         fields = '__all__'
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = UserSerializer(instance.user).data
+        return representation
     
 
 class ChosenActivitySerializer(serializers.ModelSerializer):

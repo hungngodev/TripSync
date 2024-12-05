@@ -18,10 +18,6 @@ class _FriendsPageState extends State<FriendsPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 147, 139, 174),
-        // title: Text(
-        //   currentTrip != '' ? 'Search for $currentTrip' : 'Your First Trip',
-        //   style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
-        // ),
         title: Text(
           'Your Travel Buddies',
           style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
@@ -33,6 +29,7 @@ class _FriendsPageState extends State<FriendsPage> {
         create: (context) => FriendProvider()..fetchFriends(),
         child: Consumer<FriendProvider>(
           builder: (context, friendProvider, child) {
+            print("invite ${friendProvider.invites}");
             return CustomScrollView(
               slivers: <Widget>[
                 SliverList(
@@ -44,6 +41,101 @@ class _FriendsPageState extends State<FriendsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
+                          _getSectionHeader('Calendar Invites'),
+                          friendProvider.invites.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'Let connect with others',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 130,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    children: friendProvider.invites
+                                        .map<Widget>((invite) {
+                                      return Card(
+                                          child: Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              invite.eventName,
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              'From ${invite.friend}',
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              timePassedSince(invite.since),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Provider.of<FriendProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .deleteInvite(
+                                                            invite.id);
+                                                  },
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor:
+                                                        Colors.black,
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            255, 186, 187, 190),
+                                                  ),
+                                                  child: const Text("Deny"),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color
+                                                        .fromARGB(255, 147, 139,
+                                                        174), // Set the background color
+                                                  ),
+                                                  onPressed: () => {
+                                                    Provider.of<FriendProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .acceptInvite(invite.id)
+                                                  },
+                                                  child: const Text("Accept",
+                                                      style: TextStyle(
+                                                          color: Colors.white)),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ));
+                                    }).toList(),
+                                  ),
+                                ),
                           _getSectionHeader('Friends'),
                           const SizedBox(height: 5),
                           friendProvider.friends.isEmpty
@@ -157,6 +249,155 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
+  Widget _getFriendRequest(context, friend) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _getFriendAvatar(),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      friend.friendName,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                      ),
+                    ),
+                    !friend.isFriend
+                        ? Text(
+                            '${friend.mutuals} mutual friends',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          )
+                        : Text(
+                            'Since ${friend.friendSince.year}-${friend.friendSince.month}-${friend.friendSince.day}',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                    friend.isSuggested
+                        ? ElevatedButton(
+                            onPressed: () {
+                              Provider.of<FriendProvider>(context,
+                                      listen: false)
+                                  .addFriend(friend.id, friend.friendId);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 147, 139, 174),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text('Add Friend',
+                                style: TextStyle(color: Colors.white)),
+                          )
+                        : !friend.isFriend
+                            ? friend.isReceiving
+                                ? Row(
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            await Provider.of<FriendProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .acceptFriend(friend.id,
+                                                    friend.friendshipId);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 147, 139, 174),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          child: const Text('Confirm',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            await Provider.of<FriendProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .removeFriendOrRequest(
+                                                    friend.id,
+                                                    friend.friendshipId);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 186, 187, 190),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          child: const Text('Delete',
+                                              style: TextStyle(
+                                                  color: Colors.black)),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : ElevatedButton(
+                                    onPressed: () {
+                                      Provider.of<FriendProvider>(context,
+                                              listen: false)
+                                          .removeFriendOrRequest(
+                                              friend.id, friend.friendshipId);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 186, 187, 190),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                    ),
+                                    child: const Text('Cancel Request',
+                                        style: TextStyle(color: Colors.black)),
+                                  )
+                            : ElevatedButton(
+                                onPressed: () {
+                                  Provider.of<FriendProvider>(context,
+                                          listen: false)
+                                      .removeFriendOrRequest(
+                                          friend.id, friend.friendshipId);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 186, 187, 190),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                child: const Text('Unfriend',
+                                    style: TextStyle(color: Colors.black)),
+                              )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   // Widget _getFriendsFilter() {
   //   return Container(
   //     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -187,205 +428,25 @@ class _FriendsPageState extends State<FriendsPage> {
   //     ),
   //   );
   // }
+}
 
-  Widget _getFriendRequest(context, friend) {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _getFriendAvatar(),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  friend.friendName,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                  ),
-                ),
-                !friend.isFriend
-                    ? Text(
-                        '${friend.mutuals} mutual friends',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                      )
-                    : Text(
-                        'Since ${friend.friendSince.year}-${friend.friendSince.month}-${friend.friendSince.day}',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                      ),
-                friend.isSuggested
-                    ? ElevatedButton(
-                        onPressed: () {
-                          Provider.of<FriendProvider>(context, listen: false)
-                              .addFriend(friend.id, friend.friendId);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 147, 139, 174),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: const Text('Add Friend',
-                            style: TextStyle(color: Colors.white)),
-                      )
-                    : !friend.isFriend
-                        ? friend.isReceiving
-                            ? Row(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        await Provider.of<FriendProvider>(
-                                                context,
-                                                listen: false)
-                                            .acceptFriend(
-                                                friend.id, friend.friendshipId);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 147, 139, 174),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                      ),
-                                      child: const Text('Confirm',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        await Provider.of<FriendProvider>(
-                                                context,
-                                                listen: false)
-                                            .removeFriendOrRequest(
-                                                friend.id, friend.friendshipId);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 186, 187, 190),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                      ),
-                                      child: const Text('Delete',
-                                          style:
-                                              TextStyle(color: Colors.black)),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : ElevatedButton(
-                                onPressed: () {
-                                  Provider.of<FriendProvider>(context,
-                                          listen: false)
-                                      .removeFriendOrRequest(
-                                          friend.id, friend.friendshipId);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 186, 187, 190),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                ),
-                                child: const Text('Cancel Request',
-                                    style: TextStyle(color: Colors.black)),
-                              )
-                        : ElevatedButton(
-                            onPressed: () {
-                              Provider.of<FriendProvider>(context,
-                                      listen: false)
-                                  .removeFriendOrRequest(
-                                      friend.id, friend.friendshipId);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 186, 187, 190),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                            ),
-                            child: const Text('Unfriend',
-                                style: TextStyle(color: Colors.black)),
-                          )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+String timePassedSince(DateTime date) {
+  final now = DateTime.now();
+  final difference = now.difference(date);
 
-  Widget _getFriendSuggestion() {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _getFriendAvatar(),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text(
-                  'Christian Guzman',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                  ),
-                ),
-                const Text(
-                  '6 mutual friends',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: const Text('Add Friend',
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xffDCDDDF),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: const Text('Remove',
-                            style: TextStyle(color: Colors.black)),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  if (difference.inDays > 365) {
+    final years = (difference.inDays / 365).floor();
+    return '$years year${years > 1 ? 's' : ''} ago';
+  } else if (difference.inDays > 30) {
+    final months = (difference.inDays / 30).floor();
+    return '$months month${months > 1 ? 's' : ''} ago';
+  } else if (difference.inDays > 0) {
+    return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+  } else if (difference.inHours > 0) {
+    return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+  } else if (difference.inMinutes > 0) {
+    return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+  } else {
+    return 'Just now';
   }
 }
