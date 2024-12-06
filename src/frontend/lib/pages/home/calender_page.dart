@@ -103,7 +103,7 @@ class _CalenderPageState extends State<CalenderPage> {
         Provider.of<SelectedTimeChangeProvider>(context, listen: false);
     return Scaffold(
       body: SlidingUpPanel(
-        maxHeight: 720,
+        maxHeight: 800,
         defaultPanelState: PanelState.OPEN,
         isDraggable: false,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
@@ -272,7 +272,7 @@ class _CalenderPageState extends State<CalenderPage> {
                                       });
                                     });
                                     print('refresh');
-                                    getInformations();
+                                    getMeetingDetails();
                                   },
                                   icon: AnimatedRotation(
                                     turns: _isSpinning
