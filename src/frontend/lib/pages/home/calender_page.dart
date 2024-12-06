@@ -253,10 +253,7 @@ class _CalenderPageState extends State<CalenderPage> {
                               setState(() {
                                 currentCalendar = value!.id;
                               });
-                              calendarController.view =
-                                  !friendResources.isNotEmpty
-                                      ? CalendarView.timelineDay
-                                      : CalendarView.day;
+
                               getMeetingDetails();
                             },
                           )
@@ -598,12 +595,31 @@ class _CalenderPageState extends State<CalenderPage> {
           .toList();
       userId = calendarNames.first['user']['id'].toString();
     });
+    List<dynamic> friendsData = await apiService.getFriends();
+    friendsData = friendsData.where((element) => element['status']).toList();
     setState(() {
       currentCalendar = widget.current != ''
           ? widget.current
           : _items.isNotEmpty
               ? _items[0].id
               : '';
+      friends = friendsData
+          .map((friend) => Friend(
+              friendId: friend['others']
+                  ? friend['friend']['id']
+                  : friend['user']['id'],
+              friendName: friend['others']
+                  ? friend['friend']['username']
+                  : friend['user']['username'],
+              friendImage: '',
+              friendStatus: friend['status'] ? 'Friend' : 'Pending',
+              friendShipId: friend['id']))
+          .toList();
+      currentFriend = friendsData.isNotEmpty
+          ? friendsData.first['others']
+              ? friendsData.first['friend']['username']
+              : friendsData.first['user']['username']
+          : '';
     });
     await getMeetingDetails();
 
@@ -615,6 +631,7 @@ class _CalenderPageState extends State<CalenderPage> {
   }
 
   Future<void> getMeetingDetails() async {
+    print("Current calendar: $currentCalendar");
     chosenList = await apiService.getChosenList(currentCalendar);
     if (chosenList.isEmpty) {
       setState(() {
@@ -623,8 +640,7 @@ class _CalenderPageState extends State<CalenderPage> {
       return;
     }
     _selectedActivity = chosenList.isNotEmpty ? chosenList[0]['id'] : 1;
-    List<dynamic> friendsData = await apiService.getFriends();
-    friendsData = friendsData.where((element) => element['status']).toList();
+
     List<dynamic> invitesData =
         await apiService.getInviteOfCalendar(currentCalendar);
 
@@ -633,7 +649,7 @@ class _CalenderPageState extends State<CalenderPage> {
     final List<Meeting> meetingCollection = transform(backendCalendar);
 
     setState(() {
-      if (userId != '') {
+      if (userId != '' && invitesData.isNotEmpty) {
         final thisUserInvite = invitesData
             .where((element) =>
                 element['invite']['id'] == int.parse(userId) ||
@@ -656,28 +672,18 @@ class _CalenderPageState extends State<CalenderPage> {
                 displayName: friend['invite']['username'],
                 color: avatar[friend['id'] % avatar.length]))
             .toList());
-        friends = friendsData
-            .map((friend) => Friend(
-                friendId: friend['others']
-                    ? friend['friend']['id']
-                    : friend['user']['id'],
-                friendName: friend['others']
-                    ? friend['friend']['username']
-                    : friend['user']['username'],
-                friendImage: '',
-                friendStatus: friend['status'] ? 'Friend' : 'Pending',
-                friendShipId: friend['id']))
-            .toList();
-        currentFriend = friendsData.isNotEmpty
-            ? friendsData.first['others']
-                ? friendsData.first['friend']['username']
-                : friendsData.first['user']['username']
-            : '';
+      } else {
+        friendResources = [];
       }
+
       appointments = meetingCollection;
       _events = DataSource(appointments, friendResources);
       valid = true;
     });
+    print(friendResources);
+    calendarController.view = friendResources.isNotEmpty
+        ? CalendarView.timelineDay
+        : CalendarView.day;
   }
 }
 

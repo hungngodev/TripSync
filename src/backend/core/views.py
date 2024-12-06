@@ -531,6 +531,7 @@ class InviteCalendarViewSet(viewsets.ModelViewSet):
         """
         Custom action to get all friends invited by the current user.
         """
-        invited_friends = InviteCalendar.objects.filter(calendar_id=request.GET.get('calendar'))
+        invited_friends = InviteCalendar.objects.filter(calendar=request.GET.get('calendar'))
         serializer = self.get_serializer(invited_friends, many=True)
+        print(request.GET.get('calendar'), serializer.data)
         return Response(serializer.data)
