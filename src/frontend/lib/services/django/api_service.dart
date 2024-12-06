@@ -692,6 +692,46 @@ class ApiService {
     return [];
   }
 
+  Future<dynamic> getCurrentUser() async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    final url = Uri.parse('${userUrl}user/${user.id}/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("User fetched successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to fetch user: ${response.statusCode}");
+    }
+    return {};
+  }
+
+  Future<dynamic> updateCurrentUser(user) async {
+    final currentUser = await getCurrentUser();
+    final token = currentUser['token'];
+    final url = Uri.parse('${userUrl}user/${currentUser['id']}/');
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Token $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(user),
+    );
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("User updated successfully");
+      return json.decode(response.body);
+    } else {
+      print("Failed to update user: ${response.statusCode}");
+    }
+    return {};
+  }
   // Future<List<dynamic>> getRequests() async {
   //   final user = await userDao.getUser();
   //   final token = user.token;

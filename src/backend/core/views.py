@@ -93,6 +93,28 @@ class UserRecordView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
         
+    def put(self, request, user_id=None):
+        print("Got a put request")
+        print("User ID:", user_id)
+        print("Request data:", request.data)
+        if user_id is not None:
+            try:
+                user = User.objects.get(pk=user_id)
+                serializer = UserSerializer(user, data=request.data)
+                if serializer.is_valid(raise_exception=True):
+                    user = serializer.save()
+                    response_data = UserSerializer(user).data
+                    return Response(response_data)
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "User not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        return Response(
+            {"error": "User ID is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
     def get_random_user_by_mutual_friends(self, request):
         """Helper function to get the top 10 users ordered by mutual friends, excluding friends."""
         logged_in_user = request.user
@@ -144,7 +166,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
         queryset = Activity.objects.all()
         category = self.request.query_params.get('category', None)
         location = self.request.query_params.get('location', None)
-        print("Category:", category)
         category = category.lower() if category else None
         limit = 30
         if category:

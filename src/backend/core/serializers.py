@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation.pop('password')
-        representation['image'] = instance.profile.image.url if hasattr(instance, 'profile') and instance.profile.image else None
+        representation['image'] = instance.last_name if hasattr(instance, 'last_name') and instance.last_name != '' else instance.username
         return representation
 
 class ActivitySerializer(serializers.ModelSerializer):
