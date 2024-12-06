@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -83,7 +84,7 @@ class _CalenderPageState extends State<CalenderPage> {
   bool valid = false;
   String currentFriend = '';
   bool isLoading = true;
-
+  bool _isSpinning = false;
   @override
   void initState() {
     getInformations();
@@ -220,10 +221,11 @@ class _CalenderPageState extends State<CalenderPage> {
                                                                       .circular(
                                                                           10)),
                                                     ),
-                                                    child: const Text('Invite',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white)),
+                                                    child: const Text(
+                                                      'Invite',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
                                                   )
                                                 ],
                                               ),
@@ -235,7 +237,58 @@ class _CalenderPageState extends State<CalenderPage> {
                                       color:
                                           Colors.blue), // Icon for the button
                                   label: const Text('Invite',
-                                      style: TextStyle(color: Colors.blue)))
+                                      style: TextStyle(
+                                          fontSize: 13, color: Colors.blue))),
+                              TextButton.icon(
+                                  onPressed: () {
+                                    const snackBar = SnackBar(
+                                      /// need to set following properties for best effect of awesome_snackbar_content
+                                      elevation: 0,
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor: Colors.transparent,
+                                      content: AwesomeSnackbarContent(
+                                        title: 'Reloaded!',
+                                        message: 'You have reloaded!',
+
+                                        /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+                                        contentType: ContentType.success,
+                                      ),
+                                    );
+
+                                    // Show SnackBar
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(snackBar);
+                                    setState(() {
+                                      _isSpinning = true; // Start the spin
+                                    });
+
+                                    // Reset the spin after it completes
+                                    Future.delayed(Duration(milliseconds: 500),
+                                        () {
+                                      setState(() {
+                                        _isSpinning =
+                                            false; // Reset the spin after half a second
+                                      });
+                                    });
+                                    print('refresh');
+                                    getInformations();
+                                  },
+                                  icon: AnimatedRotation(
+                                    turns: _isSpinning
+                                        ? 1
+                                        : 0, // Full rotation (1 full spin)
+                                    duration: Duration(
+                                        milliseconds:
+                                            500), // Duration for a full spin
+                                    child: const Icon(
+                                      Icons.refresh,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                  label: const Text('',
+                                      style: TextStyle(
+                                          fontSize: 13, color: Colors.green)))
                             ],
                           ),
                         ],
@@ -352,30 +405,40 @@ class _CalenderPageState extends State<CalenderPage> {
 
                                     final username = match?.group(1)?.trim();
                                     final image = match?.group(2)?.trim();
-
-                                    print('Username: $username, Image: $image');
-                                    return Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        AvatarPlus(
-                                          image ?? '',
-                                          height: 50,
-                                          width: 50,
+                                    return Container(
+                                        decoration: const BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: const Color.fromARGB(
+                                                  255, 147, 139, 174),
+                                              width: 3,
+                                            ),
+                                          ),
                                         ),
-                                        Center(
-                                            child: Text(
-                                          username ?? '',
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.getFont('Nunito',
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold),
-                                        )),
-                                      ],
-                                    );
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            AvatarPlus(
+                                              image ?? '',
+                                              height: 50,
+                                              width: 50,
+                                            ),
+                                            Center(
+                                                child: Text(
+                                              username ?? '',
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.getFont(
+                                                  'Nunito',
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold),
+                                            )),
+                                          ],
+                                        ));
+                                    ;
                                   },
                                   controller: calendarController,
                                   allowedViews: friendResources.isNotEmpty

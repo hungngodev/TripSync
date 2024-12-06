@@ -460,13 +460,63 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                       color: Colors.white,
                     ),
                     onPressed: () async {
-                      final List<Meeting> meetings = <Meeting>[];
-                      if (_selectedAppointment != null) {
-                        _events.appointments!.removeAt(_events.appointments!
-                            .indexOf(_selectedAppointment));
-                        _events.notifyListeners(CalendarDataSourceAction.remove,
-                            <Meeting>[]..add(_selectedAppointment!));
+                      if (_selectedAppointment != null &&
+                          _selectedAppointment!.resourceIds != null &&
+                          !_selectedAppointment!.resourceIds!
+                              .contains(userId)) {
+                        const snackBar = SnackBar(
+                          /// need to set following properties for best effect of awesome_snackbar_content
+                          elevation: 0,
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Colors.transparent,
+                          content: AwesomeSnackbarContent(
+                            title: '',
+                            message: 'You have modified other activity!',
+
+                            /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+                            contentType: ContentType.success,
+                          ),
+                        );
+
+                        // Show SnackBar
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(snackBar);
+
+                        // Show confirmation dialog
+                        bool? isConfirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Are you sure?'),
+                              content: Text('You will modify other activity.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(false); // User pressed No
+                                  },
+                                  child: Text('No'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(true); // User pressed Yes
+                                  },
+                                  child: Text('Yes'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (isConfirmed == false) {
+                          return;
+                          // Proceed with the operation if user presses Yes
+                          // Add the logic to modify the activity here
+                        }
                       }
+                      final List<Meeting> meetings = <Meeting>[];
 
                       final data = {
                         'activity': _selectedActivity,
@@ -512,6 +562,12 @@ class AppointmentEditorState extends State<AppointmentEditor> {
 
                       _events.notifyListeners(
                           CalendarDataSourceAction.add, meetings);
+                      if (_selectedAppointment != null) {
+                        _events.appointments!.removeAt(_events.appointments!
+                            .indexOf(_selectedAppointment));
+                        _events.notifyListeners(CalendarDataSourceAction.remove,
+                            <Meeting>[]..add(_selectedAppointment!));
+                      }
                       _selectedAppointment = null;
 
                       Navigator.pop(context);
