@@ -12,6 +12,7 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 
 import '../../provider/calender_time_provider.dart';
 import '../../services/django/api_service.dart';
@@ -341,6 +342,41 @@ class _CalenderPageState extends State<CalenderPage> {
                                   view: friendResources.isNotEmpty
                                       ? CalendarView.timelineDay
                                       : CalendarView.day,
+                                  resourceViewHeaderBuilder:
+                                      (BuildContext context,
+                                          ResourceViewHeaderDetails details) {
+                                    final match =
+                                        RegExp(r'^(.*?)\s+images:\s+(.*)$')
+                                            .firstMatch(
+                                                details.resource.displayName);
+
+                                    final username = match?.group(1)?.trim();
+                                    final image = match?.group(2)?.trim();
+
+                                    print('Username: $username, Image: $image');
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        AvatarPlus(
+                                          image ?? '',
+                                          height: 50,
+                                          width: 50,
+                                        ),
+                                        Center(
+                                            child: Text(
+                                          username ?? '',
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.getFont('Nunito',
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold),
+                                        )),
+                                      ],
+                                    );
+                                  },
                                   controller: calendarController,
                                   allowedViews: friendResources.isNotEmpty
                                       ? const <CalendarView>[
@@ -534,6 +570,32 @@ class _CalenderPageState extends State<CalenderPage> {
     );
   }
 
+  Widget resourceBuilder(
+      BuildContext context, ResourceViewHeaderDetails details) {
+    if (details.resource.image != null) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          CircleAvatar(
+              backgroundImage: details.resource.image,
+              backgroundColor: details.resource.color),
+          Center(
+              child: Text(
+            details.resource.displayName,
+            textAlign: TextAlign.center,
+          )),
+        ],
+      );
+    } else {
+      return Container(
+        color: details.resource.color,
+        child: Text(details.resource.displayName),
+      );
+    }
+  }
+
   void onCalendarTapped(CalendarTapDetails calendarTapDetails) {
     if (calendarTapDetails.targetElement != CalendarElement.calendarCell &&
         calendarTapDetails.targetElement != CalendarElement.appointment) {
@@ -658,18 +720,23 @@ class _CalenderPageState extends State<CalenderPage> {
         bool share = thisUserInvite['invite']['id'] == int.parse(userId);
         final firstInvite = CalendarResource(
             id: thisUserInvite['invite']['id'].toString(),
-            displayName: thisUserInvite['invite']['username'],
+            displayName:
+                '${thisUserInvite['invite']['username']} images: ${thisUserInvite['invite']['image']}',
             color: avatar[(invitesData.length + 1) % avatar.length]);
         final owner = CalendarResource(
             id: thisUserInvite['owner']['id'].toString(),
-            displayName: thisUserInvite['owner']['username'],
+            displayName:
+                '${thisUserInvite['owner']['username']} images: ${thisUserInvite['owner']['image']}',
             color: avatar[invitesData.length % avatar.length]);
         friendResources = share ? [firstInvite, owner] : [owner, firstInvite];
         invitesData.remove(thisUserInvite);
         friendResources.addAll(invitesData
             .map((friend) => CalendarResource(
                 id: friend['invite']['id'].toString(),
-                displayName: friend['invite']['username'],
+                displayName:
+                    '${thisUserInvite['invite']['username']} images: ${thisUserInvite['invite']['image']}',
+                image: friend['invite']['image'] +
+                    'images: ${friend['invite']['image']}',
                 color: avatar[friend['id'] % avatar.length]))
             .toList());
       } else {

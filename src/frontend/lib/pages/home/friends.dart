@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/global.dart';
@@ -239,12 +240,13 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  Widget _getFriendAvatar() {
+  Widget _getFriendAvatar(image) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 100, maxHeight: 100),
-      child: CircleAvatar(
-        backgroundImage: NetworkImage(userProfileImage),
-        radius: 60.0,
+      child: AvatarPlus(
+        image,
+        height: MediaQuery.of(context).size.width,
+        width: MediaQuery.of(context).size.width,
       ),
     );
   }
@@ -259,7 +261,7 @@ class _FriendsPageState extends State<FriendsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              _getFriendAvatar(),
+              _getFriendAvatar(friend.friendImage),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

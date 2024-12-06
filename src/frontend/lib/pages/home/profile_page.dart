@@ -18,7 +18,11 @@ class _ProfileState extends State<ProfilePage> {
   List<ProfileInfoItem> _items = [];
   TextEditingController titleController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  dynamic currentUser = {};
+  dynamic currentUser = {
+    'username': '',
+    'email': '',
+    'image': '',
+  };
 
   @override
   void initState() {
@@ -30,7 +34,7 @@ class _ProfileState extends State<ProfilePage> {
     final friendsData = await apiService.getFriends();
     final calendarsData = await apiService.getCalendars();
     final currentUserData = await apiService.getCurrentUser();
-
+    // await Future.delayed(const Duration(seconds: 10));
     setState(() {
       friends = friendsData.where((friend) => friend['status']).toList().length;
       calendars = calendarsData.length;

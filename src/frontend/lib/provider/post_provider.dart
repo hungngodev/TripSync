@@ -229,12 +229,10 @@ class PostProvider with ChangeNotifier {
 
 Post processData(Map<String, dynamic> data) {
   return Post(
-      postImage:
-          'https://img.freepik.com/free-photo/beautiful-view-sunset-sea_23-2148019892.jpg?t=st=1733194360~exp=1733197960~hmac=ebbb218f09d5846d04de98d27d0b3f62f69103b3d16e3542f81190b86ad05d6e&w=1060',
+      postImage: '',
       postText: '',
       postTime: DateTime.parse(data['date_posted']),
-      postUserImage:
-          'https://img.freepik.com/free-photo/beautiful-view-sunset-sea_23-2148019892.jpg?t=st=1733194360~exp=1733197960~hmac=ebbb218f09d5846d04de98d27d0b3f62f69103b3d16e3542f81190b86ad05d6e&w=1060',
+      postUserImage: data['author']['image'],
       postUserName: data['author']['username'],
       postTitle: data['title'],
       postSubtitle: data['content'],

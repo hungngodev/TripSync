@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 import '../../model/global.dart';
@@ -19,7 +20,6 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> {
   bool hasStory = true;
   final apiService = ApiService();
-  final List<dynamic> _events = [];
   late List<Item> _items = <Item>[Item('', '')];
   String chosenCalendar = '';
   String editChosenCalendar = '';
@@ -29,6 +29,10 @@ class _PostPageState extends State<PostPage> {
   TextEditingController postSubEditController = TextEditingController();
 
   bool loading = true;
+  dynamic currentUser = {
+    'username': '',
+    'image': '',
+  };
   bool isSubmitting = false;
 
   @override
@@ -39,16 +43,27 @@ class _PostPageState extends State<PostPage> {
 
   Future<void> getInformations() async {
     final List<dynamic> calendarNames = await apiService.getCalendars();
+    final currentUserData = await apiService.getCurrentUser();
     setState(() {
       _items = calendarNames
           .map((event) => Item(event['name'], event['id']))
           .toList();
+      currentUser = currentUserData;
     });
-    final data = await apiService.getCalendar('5');
     setState(() {
-      _events.addAll(data);
       loading = false;
     });
+  }
+
+  Widget _getFriendAvatar(image, [size = 100.0]) {
+    return Container(
+      constraints: BoxConstraints(maxWidth: size, maxHeight: size),
+      child: AvatarPlus(
+        image,
+        height: MediaQuery.of(context).size.width,
+        width: MediaQuery.of(context).size.width,
+      ),
+    );
   }
 
   @override
@@ -92,10 +107,8 @@ class _PostPageState extends State<PostPage> {
                                     children: [
                                       Row(
                                         children: <Widget>[
-                                          CircleAvatar(
-                                            backgroundImage:
-                                                NetworkImage(userProfileImage),
-                                          ),
+                                          _getFriendAvatar(
+                                              currentUser['image']),
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: TextField(
@@ -269,8 +282,6 @@ class _PostPageState extends State<PostPage> {
     final postUserName = post.postUserName;
     final postTime = post.postTime;
     final postUserImage = post.postUserImage;
-    final postText = post.postText;
-    final postImage = post.postImage;
     final postTitle = post.postTitle;
     final postSubtitle = post.postSubtitle;
     final events = post.events;
@@ -293,10 +304,7 @@ class _PostPageState extends State<PostPage> {
           children: <Widget>[
             Row(
               children: [
-                UserAvatar(
-                  hasStory: hasStory,
-                  imageUrl: postUserImage,
-                ),
+                _getFriendAvatar(postUserImage, 50.0),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

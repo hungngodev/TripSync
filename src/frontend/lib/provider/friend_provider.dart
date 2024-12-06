@@ -160,7 +160,8 @@ Friend processData(Map<String, dynamic> data, index) {
       friendName: data['others']
           ? data['friend']['username']
           : data['user']['username'],
-      friendImage: 'https://via.placeholder.com/150',
+      friendImage:
+          data['others'] ? data['friend']['image'] : data['user']['image'],
       friendStatus: data['status'] ? 'Friend' : 'Not Friend',
       friendId: data['others'] ? data['friend']['id'] : data['user']['id'],
       mutuals: data['mutual_friends'],
@@ -176,7 +177,7 @@ Friend processData(Map<String, dynamic> data, index) {
 Friend processSuggestions(Map<String, dynamic> data, index) {
   return Friend(
       friendName: data['username'],
-      friendImage: 'https://via.placeholder.com/150',
+      friendImage: data['image'],
       friendStatus: 'Suggested',
       friendId: data['id'],
       mutuals: data['mutual_friends'],
