@@ -144,11 +144,11 @@ class _ProfileState extends State<ProfilePage> {
                                                     child: AvatarSelector(
                                                         onSelect: (String
                                                             avatar) async {
-                                                      await updateUser();
                                                       setState(() {
                                                         currentUser['image'] =
                                                             avatar;
                                                       });
+                                                      await updateUser();
                                                     }),
                                                   ),
                                                 ],
@@ -179,6 +179,12 @@ class _ProfileState extends State<ProfilePage> {
                                       emailController.text =
                                           currentUser['email'];
                                     } else {
+                                      setState(() {
+                                        currentUser['username'] =
+                                            titleController.text;
+                                        currentUser['email'] =
+                                            emailController.text;
+                                      });
                                       await updateUser();
                                     }
                                     setState(() {

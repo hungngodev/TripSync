@@ -712,17 +712,17 @@ class ApiService {
     return {};
   }
 
-  Future<dynamic> updateCurrentUser(user) async {
-    final currentUser = await getCurrentUser();
-    final token = currentUser['token'];
-    final url = Uri.parse('${userUrl}user/${currentUser['id']}/');
+  Future<dynamic> updateCurrentUser(currentUser) async {
+    final user = await userDao.getUser();
+    final token = user.token;
+    final url = Uri.parse('${userUrl}user/${user.id}/');
     final response = await http.put(
       url,
       headers: {
         'Authorization': 'Token $token',
         'Content-Type': 'application/json',
       },
-      body: json.encode(user),
+      body: json.encode(currentUser),
     );
     if (response.statusCode == 201 || response.statusCode == 200) {
       print("User updated successfully");

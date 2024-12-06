@@ -94,27 +94,40 @@ class UserRecordView(APIView):
         )
         
     def put(self, request, user_id=None):
-        print("Got a put request")
-        print("User ID:", user_id)
-        print("Request data:", request.data)
-        if user_id is not None:
-            try:
-                user = User.objects.get(pk=user_id)
-                serializer = UserSerializer(user, data=request.data)
-                if serializer.is_valid(raise_exception=True):
-                    user = serializer.save()
-                    response_data = UserSerializer(user).data
-                    return Response(response_data)
-            except User.DoesNotExist:
-                return Response(
-                    {"error": "User not found"},
-                    status=status.HTTP_404_NOT_FOUND
-                )
+        # print("Request data:", request.data)
+        if user_id is None:
+            return Response(
+                {"error": "User ID is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Update user fields from request data
+        user.username = request.data.get('username', user.username)
+        user.email = request.data.get('email', user.email)
+        user.last_name = request.data.get('last_name', user.last_name)
+
+        try:
+            user.save()  # Save the updated fields
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to update user: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Return the updated user data
         return Response(
-            {"error": "User ID is required"},
-            status=status.HTTP_400_BAD_REQUEST
+            UserSerializer(user).data,
+            status=status.HTTP_200_OK
         )
-        
+
     def get_random_user_by_mutual_friends(self, request):
         """Helper function to get the top 10 users ordered by mutual friends, excluding friends."""
         logged_in_user = request.user
