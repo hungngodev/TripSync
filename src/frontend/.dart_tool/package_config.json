@@ -8,10 +8,40 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "animated_custom_dropdown",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/animated_custom_dropdown-3.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "archive",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/archive-3.6.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "args",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/args-2.6.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "async",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/async-2.11.0",
       "packageUri": "lib/",
       "languageVersion": "2.18"
+    },
+    {
+      "name": "avatar_plus",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/avatar_plus-0.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "awesome_snackbar_content",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/awesome_snackbar_content-0.1.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "bloc",
@@ -24,6 +54,24 @@
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/boolean_selector-2.1.1",
       "packageUri": "lib/",
       "languageVersion": "2.17"
+    },
+    {
+      "name": "cached_network_image",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/cached_network_image-3.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "cached_network_image_platform_interface",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/cached_network_image_platform_interface-4.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "cached_network_image_web",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/cached_network_image_web-1.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "characters",
@@ -50,10 +98,22 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "csslib",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/csslib-1.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/cupertino_icons-1.0.8",
       "packageUri": "lib/",
       "languageVersion": "3.1"
+    },
+    {
+      "name": "curved_navigation_bar",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/curved_navigation_bar-1.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "date_picker_timeline",
@@ -80,6 +140,18 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "file",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/file-7.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "fixnum",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/fixnum-1.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "flutter",
       "rootUri": "file:///Users/anne-colombesinkpon/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -92,16 +164,40 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_cache_manager",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_cache_manager-3.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "flutter_colorpicker",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_colorpicker-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "flutter_dotenv",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_dotenv-5.2.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
-      "name": "flutter_lints",
-      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_lints-3.0.2",
+      "name": "flutter_emoji",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_emoji-2.5.1",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_lints",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_lints-5.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "flutter_localizations",
+      "rootUri": "file:///Users/anne-colombesinkpon/flutter/packages/flutter_localizations",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "flutter_screenutil",
@@ -116,6 +212,12 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "flutter_svg",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/flutter_svg-2.0.16",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///Users/anne-colombesinkpon/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -128,10 +230,22 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "font_awesome_flutter",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/font_awesome_flutter-10.8.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "google_fonts",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/google_fonts-6.2.1",
       "packageUri": "lib/",
       "languageVersion": "2.14"
+    },
+    {
+      "name": "html",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/html-0.15.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "http",
@@ -177,9 +291,15 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/lints-3.0.0",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/lints-5.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "lottie",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/lottie-3.1.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "matcher",
@@ -206,10 +326,22 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "octo_image",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/octo_image-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "path",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/path-1.9.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "path_parsing",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/path_parsing-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
     },
     {
       "name": "path_provider",
@@ -219,15 +351,15 @@
     },
     {
       "name": "path_provider_android",
-      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/path_provider_android-2.2.12",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/path_provider_android-2.2.14",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
     {
       "name": "path_provider_foundation",
-      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.0",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.3"
     },
     {
       "name": "path_provider_linux",
@@ -248,6 +380,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "petitparser",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/petitparser-6.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "platform",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/platform-3.1.6",
       "packageUri": "lib/",
@@ -262,6 +400,12 @@
     {
       "name": "provider",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/provider-6.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "rxdart",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/rxdart-0.27.7",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -285,7 +429,7 @@
     },
     {
       "name": "sizer",
-      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/sizer-3.0.0",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/sizer-3.0.5",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -306,6 +450,12 @@
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/source_span-1.10.0",
       "packageUri": "lib/",
       "languageVersion": "2.18"
+    },
+    {
+      "name": "sprintf",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/sprintf-7.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "sqflite",
@@ -344,6 +494,12 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "story_view",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/story_view-0.16.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "stream_channel",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/stream_channel-2.1.2",
       "packageUri": "lib/",
@@ -354,6 +510,24 @@
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/string_scanner-1.2.0",
       "packageUri": "lib/",
       "languageVersion": "2.18"
+    },
+    {
+      "name": "syncfusion_flutter_calendar",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/syncfusion_flutter_calendar-27.2.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "syncfusion_flutter_core",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-27.2.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "syncfusion_flutter_datepicker",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/syncfusion_flutter_datepicker-27.2.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "synchronized",
@@ -372,6 +546,12 @@
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/test_api-0.7.2",
       "packageUri": "lib/",
       "languageVersion": "3.2"
+    },
+    {
+      "name": "timezone",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/timezone-0.9.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "typed_data",
@@ -393,9 +573,9 @@
     },
     {
       "name": "url_launcher_ios",
-      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.2",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.3"
     },
     {
       "name": "url_launcher_linux",
@@ -405,7 +585,7 @@
     },
     {
       "name": "url_launcher_macos",
-      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.1",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.2",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -428,10 +608,64 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "uuid",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/uuid-4.5.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "vector_graphics",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/vector_graphics-1.1.15",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "vector_graphics_codec",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/vector_graphics_codec-1.1.12",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "vector_graphics_compiler",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/vector_graphics_compiler-1.1.16",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "vector_math",
       "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/vector_math-2.1.4",
       "packageUri": "lib/",
       "languageVersion": "2.14"
+    },
+    {
+      "name": "video_player",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/video_player-2.9.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "video_player_android",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/video_player_android-2.7.16",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "video_player_avfoundation",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.6.4",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "video_player_platform_interface",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/video_player_platform_interface-6.2.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "video_player_web",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/video_player_web-2.3.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "vm_service",
@@ -452,13 +686,19 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "xml",
+      "rootUri": "file:///Users/anne-colombesinkpon/.pub-cache/hosted/pub.dev/xml-6.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "flutter_application",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     }
   ],
-  "generated": "2024-12-07T18:04:04.554781Z",
+  "generated": "2024-12-07T18:56:53.232482Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/anne-colombesinkpon/flutter",
