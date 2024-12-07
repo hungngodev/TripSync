@@ -15,11 +15,14 @@ class Command(BaseCommand):
                 activities = json.load(f)
                 for activity in activities:
                     Activity.objects.create(
-                        id=int(activity['id']) + random.randint(100, 1000),
+                        id=int(activity['id']),
                         location=activity['location'],
                         category=activity['category'],
                         description=activity['description'],
-                        source_link=activity['sourceLink']
+                        source_link=activity['source_link'],
+                        address=activity['address'],
+                        title=activity['title'],
+                        
                     )
             self.stdout.write(self.style.SUCCESS('Successfully loaded activities'))
         except FileNotFoundError:

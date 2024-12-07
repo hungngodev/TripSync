@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../bloc/authentication_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import './profile_page.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -9,86 +11,85 @@ class SettingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
-      ),
-      backgroundColor: const Color(0xfff6f6f6),
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: ListView(
+        appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 147, 139, 174),
+          title: Text(
+            'Setting Page',
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+          ),
+          iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 0,
+        ),
+        backgroundColor: const Color(0xfff6f6f6),
+        body: Container(
+          height: MediaQuery.of(context).size.height * 1.2,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
             children: [
-              _SingleSection(
-                title: "General",
-                children: [
-                  _CustomListTile(
-                      title: "Dark Mode",
-                      icon: CupertinoIcons.moon,
-                      trailing:
-                          CupertinoSwitch(value: false, onChanged: (value) {})),
-                ],
-              ),
-              _SingleSection(
-                title: "Network",
-                children: [
-                  _CustomListTile(
-                    title: "Tracking",
-                    icon: CupertinoIcons.location,
-                    trailing: CupertinoSwitch(value: true, onChanged: (val) {}),
-                  ),
-                  _CustomListTile(
-                    title: "Bluetooth",
-                    icon: CupertinoIcons.bluetooth,
-                    trailing:
-                        CupertinoSwitch(value: false, onChanged: (val) {}),
-                  ),
-                ],
-              ),
-              const _SingleSection(
-                title: "Privacy and Security",
-                children: [
-                  _CustomListTile(
-                      title: "Lock Screen", icon: CupertinoIcons.lock),
-                  _CustomListTile(
-                      title: "Display", icon: CupertinoIcons.brightness),
-                  _CustomListTile(
-                      title: "Sound and Vibration",
-                      icon: CupertinoIcons.speaker_2),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 8.0, horizontal: 16.0), // Add horizontal padding
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width *
-                      0.25, // Make the width 25% of the screen
-                  child: ElevatedButton(
-                    onPressed: () {
-                      BlocProvider.of<AuthenticationBloc>(context)
-                          .add(LoggedOut());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(
-                        side: BorderSide(
-                          color: Colors.black,
-                          width: 1,
+              ProfilePage(),
+              Center(
+                child: Container(
+                  constraints:
+                      const BoxConstraints(maxWidth: 400, maxHeight: 320),
+                  child: ListView(
+                    children: [
+                      _SingleSection(
+                        title: "General",
+                        children: [
+                          _CustomListTile(
+                              title: "Dark Mode",
+                              icon: CupertinoIcons.moon,
+                              trailing: CupertinoSwitch(
+                                  value: false, onChanged: (value) {})),
+                        ],
+                      ),
+                      _SingleSection(
+                        title: "Network",
+                        children: [
+                          _CustomListTile(
+                            title: "Tracking",
+                            icon: CupertinoIcons.location,
+                            trailing: CupertinoSwitch(
+                                value: true, onChanged: (val) {}),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 16.0), // Add horizontal padding
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width *
+                              0.25, // Make the width 25% of the screen
+                          child: ElevatedButton(
+                            onPressed: () {
+                              BlocProvider.of<AuthenticationBloc>(context)
+                                  .add(LoggedOut());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: const StadiumBorder(
+                                side: BorderSide(
+                                  color: Colors.black,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: const Text(
+                              'Logout',
+                              style: TextStyle(
+                                fontSize: 24,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    child: const Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontSize: 24,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 

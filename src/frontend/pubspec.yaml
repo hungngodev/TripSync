@@ -53,6 +53,17 @@ dependencies:
   flutter_screenutil: ^5.9.3
   date_picker_timeline: ^1.2.6
   scroll_snap_list: ^0.9.1
+  syncfusion_flutter_calendar: ^27.2.2
+  flutter_colorpicker: ^1.1.0
+  curved_navigation_bar: ^1.0.6
+  animated_custom_dropdown: ^3.1.1
+  font_awesome_flutter: ^10.8.0
+  story_view: ^0.16.5
+  cached_network_image: ^3.4.1
+  flutter_emoji: ^2.5.1
+  awesome_snackbar_content: ^0.1.4
+  lottie: ^3.1.3
+  avatar_plus: ^0.0.5
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +89,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - .env
+    - ./assets/images/
+    - ./assets/animations/
+    - ./assets/screenshots/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

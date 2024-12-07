@@ -1,14 +1,17 @@
 import 'dart:async';
 
-import './calender_page.dart';
-import '../../provider/time_provider.dart';
-import '../../util/task_cards.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
+
+import '../../provider/time_provider.dart';
+import '../../services/django/api_service.dart';
+import '../../util/task_cards.dart';
+import './calender_page.dart';
 
 class TodayPage extends StatefulWidget {
   const TodayPage({super.key});
@@ -18,6 +21,8 @@ class TodayPage extends StatefulWidget {
 }
 
 class _TodayPageState extends State<TodayPage> {
+  List<dynamic> meeting = [];
+  final ApiService apiService = ApiService();
   @override
   void initState() {
     // TODO: implement initState
@@ -26,14 +31,24 @@ class _TodayPageState extends State<TodayPage> {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       timeProvider.setTime();
     });
+    fetchCalendar();
+  }
+
+  Future<void> fetchCalendar() async {
+    final response = await ApiService().getTodayCalendar();
+    if (response != null) {
+      setState(() {
+        meeting = response;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SlidingUpPanel(
-      maxHeight: 440,
-      defaultPanelState: PanelState.OPEN,
+      maxHeight: 800,
+      defaultPanelState: PanelState.CLOSED,
       isDraggable: true,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
       panel: Padding(
@@ -46,7 +61,7 @@ class _TodayPageState extends State<TodayPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Today's Activities",
+                    "Upcoming Activities",
                     style: GoogleFonts.poppins(
                         fontSize: 18, fontWeight: FontWeight.w600),
                   ),
@@ -72,16 +87,55 @@ class _TodayPageState extends State<TodayPage> {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  children: [
-                    TaskCard(
-                      clr: const Color.fromARGB(255, 173, 155, 140),
-                      title: "You have a trip at Amhert Museum",
-                      start: "3:00 PM",
-                      end: "5:00 PM",
-                      duration: "2 hours",
-                    ),
-                  ],
-                ),
+                    children: meeting.isNotEmpty
+                        ? meeting.map((task) {
+                            DateTime start = DateTime.parse(task['start_date']);
+                            DateTime end = DateTime.parse(task['end_date']);
+                            Duration duration = end.difference(start);
+                            DateTime current = DateTime.now().toLocal();
+                            int diff = start.day - current.day;
+                            String date = diff == 0
+                                ? 'Today'
+                                : diff == 1
+                                    ? 'Tomorrow'
+                                    : DateFormat('EEEE').format(start);
+                            return TaskCard(
+                                date: date,
+                                clr: Color(int.parse('0x${task['color']}')),
+                                title: task['title'], // Pass title
+                                start: DateFormat('h:mm a').format(start),
+                                end: DateFormat('h:mm a').format(end),
+                                duration:
+                                    '${duration.inHours} hours', // Pass duration
+                                description: task['description'],
+                                source: 'From ' + task['calendar']['name']);
+                          }).toList()
+                        : [
+                            Center(
+                              child: Text(
+                                'No upcoming events',
+                                style: GoogleFonts.getFont('Nunito',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 30,
+                                    color: Colors.black),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 4,
+                            ),
+                            Text(
+                              'Let\'s add some events',
+                              style: GoogleFonts.getFont('Nunito',
+                                  fontSize: 20, color: Colors.black),
+                            ),
+                            Lottie.asset(
+                              'assets/animations/bus.json',
+                              width: MediaQuery.of(context).size.height * 1,
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              repeat: true,
+                              fit: BoxFit.fill,
+                            )
+                          ]),
               ),
             ),
           ],
@@ -90,9 +144,9 @@ class _TodayPageState extends State<TodayPage> {
       body: SafeArea(
         child: Container(
           height: ScreenUtil().screenHeight,
-          width: ScreenUtil().screenWidth,
+          width: ScreenUtil().screenWidth * 0.9,
           // rgba(153,154,157,255)
-          color: Color.fromARGB(255, 186, 187, 190),
+          color: const Color.fromARGB(255, 186, 187, 190),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
             child: Column(
@@ -110,7 +164,7 @@ class _TodayPageState extends State<TodayPage> {
                           child: Container(
                             height: 50,
                             decoration: BoxDecoration(
-                                color: Colors.black,
+                                color: const Color.fromARGB(255, 147, 139, 174),
                                 borderRadius: BorderRadius.circular(24)),
                             child: Padding(
                               padding:
@@ -130,10 +184,12 @@ class _TodayPageState extends State<TodayPage> {
                         ),
                         GestureDetector(
                           onTap: (() => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: ((context) =>
-                                      const CalenderPage())))),
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: ((context) =>
+                                          CalenderPage()))).then((value) {
+                                fetchCalendar();
+                              })),
                           child: Container(
                             height: 50,
                             decoration: BoxDecoration(
@@ -156,25 +212,13 @@ class _TodayPageState extends State<TodayPage> {
                         )
                       ],
                     ),
-                    // Container(
-                    //   height: 50,
-                    //   width: 50,
-                    //   decoration: BoxDecoration(
-                    //     border: Border.all(),
-                    //     borderRadius: BorderRadius.circular(50),
-                    //     color: const Color.fromARGB(255, 153, 154, 157),
-                    //   ),
-                    //   child: const Center(
-                    //     child: Icon(CupertinoIcons.add),
-                    //   ),
-                    // )
                   ],
                 ),
                 const SizedBox(
                   height: 30,
                 ),
                 Text(
-                  "Tuesday",
+                  DateFormat('EEEE').format(DateTime.now()),
                   style: GoogleFonts.poppins(fontSize: 20),
                 ),
                 const SizedBox(
@@ -237,9 +281,9 @@ class _TodayPageState extends State<TodayPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "1:20 PM ",
+                            DateFormat('h:mm a').format(DateTime.now()),
                             style: GoogleFonts.poppins(
-                              fontSize: 28,
+                              fontSize: 20,
                             ),
                           ),
                           Text(
@@ -249,9 +293,9 @@ class _TodayPageState extends State<TodayPage> {
                             ),
                           ),
                           Text(
-                            "6:20 PM ",
+                            DateFormat('h:mm a').format(DateTime.now().toUtc()),
                             style: GoogleFonts.poppins(
-                              fontSize: 28,
+                              fontSize: 20,
                             ),
                           ),
                           Text(

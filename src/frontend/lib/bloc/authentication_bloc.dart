@@ -68,6 +68,8 @@ class AuthenticationBloc
       LoggedOut event, Emitter<AuthenticationState> emit) async {
     print('Logged out');
     emit(AuthenticationLoading());
+    final userId = await userRepository.getUserId();
+    print('Deleting token for $userId');
     await userRepository.deleteToken(id: 0);
     emit(AuthenticationUnauthenticated());
     print('Emitted unauthenticated');

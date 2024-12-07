@@ -6,13 +6,13 @@ class UserDao {
 
   Future<int> createUser(User user) async {
     final db = await dbProvider.database;
-
+    print("Adding user to database");
+    print("User: ${user.toDatabaseJson()}");
     var result = db.insert(userTable, user.toDatabaseJson());
     return result;
   }
 
   Future<User> getUser() async {
-    print('Getting user');
     final db = await dbProvider.database;
     var result = await db.query(userTable);
     if (result.length > 0) {
@@ -27,7 +27,8 @@ class UserDao {
 
   Future<int> deleteUser(String id) async {
     final db = await dbProvider.database;
-    var result = await db.delete(userTable, where: "id = ?", whereArgs: [id]);
+
+    var result = await db.delete(userTable);
     return result;
   }
 

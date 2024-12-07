@@ -1,17 +1,29 @@
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../services/django/api_service.dart';
-import '../../util/keyword.dart';
-import '../../../util/location.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+
 import '../../bloc/authentication_bloc.dart';
 import '../../bloc/authentication_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../services/django/api_service.dart';
+import '../../util/calendar-popup.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
-
+  final String calendarId;
+  SearchPage({this.calendarId = '', Key? key}) : super(key: key);
   @override
   State<SearchPage> createState() => _Home();
+}
+
+class Item {
+  Item(this.name, this.id);
+  String name;
+  String id;
+  @override
+  String toString() => name;
 }
 
 class _Home extends State<SearchPage> {
@@ -20,22 +32,46 @@ class _Home extends State<SearchPage> {
   TextEditingController keywordController = TextEditingController();
   final ApiService apiService = ApiService();
   List<dynamic> data = [];
-
   List<Map<String, dynamic>> selectedActivities = [];
-  List<String> locations = [];
-  List<String> keywords = [];
+  String _selectedItem = '';
+  final SearchController _searchController = SearchController();
+  final Set<dynamic> _filters = {};
+  Set<String> options = {'hotel', 'restaurant', 'entertainments'};
+  final Set<String> original = {'hotel', 'restaurant', 'entertainments'};
+  DateTime startDate = DateTime.now();
+  DateTime endDate = DateTime.now().add(const Duration(days: 5));
+  late List<Item> _items = <Item>[
+    Item(
+      '1',
+      '1',
+    )
+  ];
+  String currentCalendar = '1';
 
   @override
   void initState() {
     super.initState();
     // Fetch selected activities
-    _fetchSelectedActivities();
+    fetchInfo();
   }
 
-  Future<void> _fetchSelectedActivities() async {
+  Future<void> fetchInfo() async {
+    final List<dynamic> calendarNames = await apiService.getCalendars();
+    setState(() {
+      _items = calendarNames
+          .map((event) => Item(event['name'], event['id']))
+          .toList();
+      currentCalendar =
+          widget.calendarId != '' ? widget.calendarId : _items.first.id;
+    });
+    await fetchSelectedActivities();
+  }
+
+  Future<void> fetchSelectedActivities() async {
     try {
       // Fetch the list of chosen activities from the API
-      List<Map<String, dynamic>> activities = await apiService.getChosenList();
+      List<Map<String, dynamic>> activities =
+          await apiService.getChosenList(currentCalendar);
 
       setState(() {
         selectedActivities = activities;
@@ -45,37 +81,40 @@ class _Home extends State<SearchPage> {
     }
   }
 
-  void addLocation() {
-    String location = locationController.text;
-    String state = stateController.text;
-    if (location.isNotEmpty &&
-        state.isNotEmpty &&
-        !locations.contains(location)) {
-      setState(() {
-        // locations.add("$location, $state");
-        locations = [location];
-      });
-    }
-  }
-
-  void deleteLocation(int index) {
-    setState(() {
-      locations.removeAt(index);
-    });
-  }
-
   void addKeyword() {
+    print("Adding keyword");
     String keyword = keywordController.text;
     if (keyword.isNotEmpty) {
       setState(() {
-        keywords.add(keyword);
+        options.add(keyword);
       });
+    } else {
+      const materialBanner = MaterialBanner(
+        /// need to set following properties for best effect of awesome_snackbar_content
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        forceActionsBelow: true,
+        content: AwesomeSnackbarContent(
+          title: 'Oh No!!',
+          message: 'Please enter a keyword to add to your holiday search!',
+
+          /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+          contentType: ContentType.warning,
+          // to configure for material banner
+          inMaterialBanner: true,
+        ),
+        actions: const [SizedBox.shrink()],
+      );
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentMaterialBanner()
+        ..showMaterialBanner(materialBanner);
     }
   }
 
-  void deleteKeyword(int index) {
+  void deleteKeyword(String val) {
     setState(() {
-      keywords.removeAt(index);
+      options.remove(val);
     });
   }
 
@@ -86,22 +125,59 @@ class _Home extends State<SearchPage> {
         .any((selected) => selected['id'] == activity['id'])) {
       final chosenId = await apiService.addChosenActivity({
         'activity': activity['id'],
+        'calendar': int.parse(currentCalendar),
       });
+      if (chosenId == '') {
+        return;
+      }
+
       setState(() {
         selectedActivities.add({
           'id': activity['id'],
           'location': activity['location'],
           'description': activity['description'],
+          'category': activity['category'],
+          'source_link': activity['source_link'],
+          'title': activity['title'],
           'chosenId': chosenId,
         });
       });
+      const snackBar = SnackBar(
+        /// need to set following properties for best effect of awesome_snackbar_content
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        content: AwesomeSnackbarContent(
+          title: 'Great!',
+          message: 'The activity has been added to your list successfully!',
+
+          /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+          contentType: ContentType.success,
+        ),
+      );
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
     } else {
       // Optionally show a message that the activity is already added
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Activity "${activity['description']}" is already added!')),
+      const snackBar = SnackBar(
+        /// need to set following properties for best effect of awesome_snackbar_content
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        content: AwesomeSnackbarContent(
+          title: 'Snap!',
+          message: 'The activity is already in your list!',
+
+          /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+          contentType: ContentType.help,
+        ),
       );
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
     }
   }
 
@@ -119,30 +195,26 @@ class _Home extends State<SearchPage> {
     });
   }
 
-  // void saveActivities() async {
-  //   // print(selectedActivities);
-  //   final chosenList = selectedActivities.map((activity) {
-  //     return {
-  //       'activity': activity['id'],
-  //     };
-  //   }).toList();
-
-  //   try {
-  //     await apiService.createChosenList(chosenList);
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('Activities saved successfully!'),
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     print(e);
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('Failed to save activities!'),
-  //       ),
-  //     );
-  //   }
-  // }
+  void search() async {
+    print("Searching for $_selectedItem");
+    final String filter =
+        _filters.map((e) => e.toString().split('.').last).join(',');
+    print("Filter by: $filter");
+    try {
+      List<dynamic> fetchData = await apiService.getData(
+        queryParameters: {
+          'location': _selectedItem,
+          'category':
+              _filters.map((e) => e.toString().split('.').last).join(','),
+        },
+      );
+      setState(() {
+        data = fetchData;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<void> _launchURL(String url) async {
     if (await canLaunchUrl(Uri.parse(url))) {
@@ -157,9 +229,11 @@ class _Home extends State<SearchPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text('MA Traveling Suggestion',
-            style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 147, 139, 174),
+        title: Text(
+          'Search Page',
+          style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -167,36 +241,326 @@ class _Home extends State<SearchPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.black,
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 147, 139, 174),
               ),
               child: Text(
-                'Your Selected Activities',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+                "Selected Activity",
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Confirm Clear'),
+                      content: const Text(
+                          'Are you sure you want to clear this list?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Perform delete action
+                            clearActivities();
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text(
+                'Clear',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.red,
+                ),
               ),
             ),
             ...selectedActivities.map((activity) {
               return Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+                    const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          activity['id'].toString() +
-                              ' ' +
-                              activity['location'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                          ),
-                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                activity['title']!.substring(
+                                  0,
+                                  activity['title']!.length > 20
+                                      ? 20
+                                      : activity['title']!.length,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  // Show a dialog before performing the delete action
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                          ' Details',
+                                          style: GoogleFonts.getFont('Roboto',
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
+                                        ),
+                                        content: SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // Title
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.title,
+                                                      color: Colors.blue),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
+                                                    child: Text(
+                                                      activity['title']!,
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Playfair Display',
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black,
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Divider(height: 20),
+
+                                              // Location
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.location_on,
+                                                      color: Colors.red),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
+                                                    child: Text(
+                                                      "${activity['location']}",
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Lora',
+                                                        fontSize: 16,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Address
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.home,
+                                                      color: Colors.green),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
+                                                    child: Text(
+                                                      "${activity['address']}",
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Lora',
+                                                        fontSize: 16,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                      activity['category'] ==
+                                                              'restaurant'
+                                                          ? Icons.restaurant
+                                                          : activity['category'] ==
+                                                                  'hotel'
+                                                              ? Icons.hotel
+                                                              : Icons
+                                                                  .local_activity,
+                                                      color: Colors.black),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                      "${activity['category']}",
+                                                      style:
+                                                          GoogleFonts.getFont(
+                                                        'Lora',
+                                                        fontSize: 16,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                      softWrap: true,
+                                                      overflow: TextOverflow
+                                                          .ellipsis),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+
+                                              // Source Link
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.link,
+                                                      color: Colors.blue),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
+                                                    child: GestureDetector(
+                                                      onTap: () => _launchURL(
+                                                          activity[
+                                                              'source_link']!),
+                                                      child: Text(
+                                                        activity[
+                                                            'source_link']!,
+                                                        style:
+                                                            GoogleFonts.roboto(
+                                                          fontSize: 14,
+                                                          color: Colors.blue,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline,
+                                                        ),
+                                                        softWrap: true,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Divider(height: 20),
+                                              // Description
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Icon(Icons.description,
+                                                      color: Colors.amber),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.8,
+                                                    child: Text(
+                                                      "${activity['description']}",
+                                                      style: GoogleFonts.nunito(
+                                                        fontSize: 14,
+                                                        color: Colors.black87,
+                                                      ),
+                                                      softWrap: true,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context)
+                                                  .pop(); // Close the dialog
+                                            },
+                                            child: Text(
+                                              'Close',
+                                              style: GoogleFonts.roboto(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                icon: const Icon(Icons.info),
+                                color: Colors.blue,
+                              ),
+                            ]),
                         IconButton(
-                          onPressed: () => deleteActivity(
-                              selectedActivities.indexOf(activity)),
+                          onPressed: () {
+                            // Show a dialog before performing the delete action
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Confirm Delete'),
+                                  content: const Text(
+                                      'Are you sure you want to delete this activity?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // Perform delete action
+                                        deleteActivity(selectedActivities
+                                            .indexOf(activity));
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           icon: const Icon(Icons.delete),
                           color: Colors.red,
                         ),
@@ -206,23 +570,7 @@ class _Home extends State<SearchPage> {
                   ],
                 ),
               );
-            }).toList(),
-            // Save Button at the bottom of the drawer
-            // Padding(
-            //   padding: const EdgeInsets.all(16.0),
-            //   child: ElevatedButton(
-            //     onPressed:
-            //         saveActivities, // Call the save function when pressed
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: Colors.blue, // Button color
-            //       padding: EdgeInsets.symmetric(vertical: 14.0),
-            //     ),
-            //     child: const Text(
-            //       'Save',
-            //       style: TextStyle(fontSize: 18, color: Colors.white),
-            //     ),
-            //   ),
-            // ),
+            }),
           ],
         ),
       ),
@@ -232,77 +580,164 @@ class _Home extends State<SearchPage> {
             return SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: locations.length,
-                    itemBuilder: (context, index) {
-                      return Location(
-                        location: locations[index],
-                        deleteFunction: (context) => deleteLocation(index),
-                      );
+                  const SizedBox(height: 10),
+                  CustomDropdown<Item>(
+                    hintText: 'Select job role',
+                    items: _items,
+                    initialItem: _items.firstWhere(
+                      (item) => item.id == currentCalendar,
+                      orElse: () => _items[
+                          0], // Optionally, handle the case where no item is found
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        currentCalendar = value!.id;
+                      });
+                      fetchSelectedActivities();
                     },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: locationController,
-                              maxLines: 1,
-                              decoration: const InputDecoration(
-                                labelText: "Location",
-                                hintText: "Enter your Location here",
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: stateController,
-                              maxLines: 1,
-                              decoration: const InputDecoration(
-                                labelText: "State",
-                                hintText: "Enter your State here",
-                              ),
+                  SearchAnchor(
+                    searchController: _searchController,
+                    builder:
+                        (BuildContext context, SearchController controller) {
+                      return SearchBar(
+                        controller: controller,
+                        padding: const WidgetStatePropertyAll<EdgeInsets>(
+                            EdgeInsets.symmetric(horizontal: 20.0)),
+                        onTap: () {
+                          controller.openView();
+                        },
+                        leading: const Icon(Icons.search),
+                        trailing: <Widget>[
+                          Tooltip(
+                            message: 'Search',
+                            child: IconButton(
+                              icon: const Icon(Icons.send),
+                              onPressed: () {
+                                print('Searching for ');
+                                setState(() {
+                                  _selectedItem = controller
+                                      .text; // Treat the current text as selected
+                                });
+                              },
                             ),
                           )
                         ],
-                      ),
-                    ),
+                      );
+                    },
+                    suggestionsBuilder:
+                        (BuildContext context, SearchController controller) {
+                      return List<Widget>.generate(suggestions.length,
+                          (int index) {
+                        if (suggestions[index].contains(controller.text)) {
+                          return ListTile(
+                            title: Text(suggestions[index]),
+                            onTap: () {
+                              setState(() {
+                                _selectedItem = suggestions[
+                                    index]; // Update state when an item is selected
+                              });
+                              controller.closeView(suggestions[index]);
+                              search();
+                            },
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      });
+                    },
+                    viewOnSubmitted: (value) {
+                      print("Submitted: $value");
+                      setState(() {
+                        _selectedItem = value;
+                      });
+                      _searchController.closeView(value);
+                      search();
+                    },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: ElevatedButton(
-                      onPressed: addLocation,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                  const SizedBox(height: 10),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      focusColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.grey.withOpacity(0.2),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(4.0),
                       ),
-                      child: const Text(
-                        'Set Location',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 110,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemCount: keywords.length,
-                      itemBuilder: (context, index) {
-                        return Keyword(
-                          keyword: keywords[index],
-                          deleteFunction: () => deleteKeyword(index),
-                        );
+                      onTap: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        showDemoDialog(context: context);
                       },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8, right: 8, top: 4, bottom: 4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              'Choose date',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.grey.withOpacity(0.8)),
+                            ),
+                            const SizedBox(
+                              height: 8,
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Text(
+                              '${DateFormat("dd, MMM").format(startDate)} - ${DateFormat("dd, MMM").format(endDate)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 5.0,
+                    children: options.map((String exercise) {
+                      return FilterChip(
+                        label: Text(exercise),
+                        selected: _filters.contains(exercise),
+                        onSelected: (bool selected) {
+                          setState(() {
+                            if (selected) {
+                              _filters.add(exercise);
+                            } else {
+                              _filters.remove(exercise);
+                            }
+                          });
+                          search();
+                        },
+                        deleteIcon: original.contains(exercise)
+                            ? null
+                            : const Icon(Icons
+                                .close), // Show delete icon only if the condition is met
+                        onDeleted: original.contains(exercise)
+                            ? null
+                            : () {
+                                setState(() {
+                                  options.remove(
+                                      exercise); // Perform the delete action
+                                });
+                                search();
+                              }, //
+                      );
+                    }).toList(),
+                  ),
                   Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(0.0),
                     child: Container(
                       padding: const EdgeInsets.all(24),
                       child: Row(
@@ -311,52 +746,22 @@ class _Home extends State<SearchPage> {
                             child: TextFormField(
                               controller: keywordController,
                               maxLines: 1,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: "Keyword",
                                 hintText: "Enter a keyword for your holiday.",
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    addKeyword(); // Call the addKeyword function when the icon is pressed
+                                  },
+                                ),
                               ),
+                              onFieldSubmitted: (String value) {
+                                addKeyword(); // Call the addKeyword function when Enter is pressed
+                              },
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: addKeyword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'Add Keywords',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        String places = locations.join(',');
-                        String keys = keywords.join(',');
-                        try {
-                          List<dynamic> fetchData = await apiService.getData(
-                            queryParameters: {
-                              'location': places,
-                              'keywords': keys,
-                            },
-                          );
-                          setState(() {
-                            data = fetchData;
-                          });
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                      ),
-                      child: const Text(
-                        "Submit",
-                        style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ),
                   ),
@@ -458,4 +863,329 @@ class _Home extends State<SearchPage> {
       ),
     );
   }
+
+  void showDemoDialog({BuildContext? context}) {
+    showDialog<dynamic>(
+      context: context!,
+      builder: (BuildContext context) => CalendarPopupView(
+        barrierDismissible: true,
+        minimumDate: DateTime.now(),
+        //  maximumDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 10),
+        initialEndDate: endDate,
+        initialStartDate: startDate,
+        onApplyClick: (DateTime startData, DateTime endData) {
+          setState(() {
+            startDate = startData;
+            endDate = endData;
+          });
+        },
+        onCancelClick: () {},
+      ),
+    );
+  }
 }
+
+final suggestions = [
+  "Los Angeles",
+  "Aspen",
+  "Austin",
+  "Manhattan",
+  "Miami",
+  "Phoenix",
+  "Chicago",
+  "Seattle",
+  "Las Vegas",
+  "Burlington",
+  "Boston",
+  "Atlanta",
+  "Amherst",
+  "Cambridge",
+  "Worcester",
+  "Springfield",
+  "Lowell",
+  "Brockton",
+  "Quincy",
+  "Newton",
+  "Lynn",
+  "Somerville",
+  "Framingham",
+  "Peabody",
+  "Revere",
+  "Malden",
+  "Taunton",
+  "Chelsea",
+  "Pittsfield",
+  "Medford",
+  "Weymouth",
+  "Haverhill",
+  "Marlborough",
+  "Beverly",
+  "Fitchburg",
+  "Danvers",
+  "Northampton",
+  "Westfield",
+  "Westborough",
+  "Andover",
+  "New York",
+  "San Francisco",
+  "Houston",
+  "Dallas",
+  "San Diego",
+  "Denver",
+  "Orlando",
+  "Detroit",
+  "Tampa",
+  "Indianapolis",
+  "Salt Lake City",
+  "Sacramento",
+  "Kansas City",
+  "Pittsburgh",
+  "Anchorage",
+  "Richmond",
+  "New Orleans",
+  "Baltimore",
+  "Columbus",
+  "St. Louis",
+  "Milwaukee",
+  "Louisville",
+  "Cleveland",
+  "Minneapolis",
+  "Raleigh",
+  "Charlotte",
+  "Portland",
+  "Nashville",
+  "Birmingham",
+  "Madison",
+  "Tucson",
+  "Fort Worth",
+  "Boulder",
+  "Grand Rapids",
+  "Little Rock",
+  "Shreveport",
+  "Montgomery",
+  "Boise",
+  "Jacksonville",
+  "Lincoln",
+  "Toledo",
+  "Tulsa",
+  "Fargo",
+  "Des Moines",
+  "Billings",
+  "Macon",
+  "Wichita",
+  "Davenport",
+  "Bakersfield",
+  "Lexington",
+  "Huntsville",
+  "Sioux Falls",
+  "Duluth",
+  "Evansville",
+  "Fort Wayne",
+  "Chattanooga",
+  "Spokane",
+  "Lafayette",
+  "Augusta",
+  "Jackson",
+  "Rockford",
+  "Omaha",
+  "Charleston",
+  "Vancouver",
+  "Fort Collins",
+  "Charleston",
+  "Albuquerque",
+  "Rochester",
+  "Bismarck",
+  "Asheville",
+  "Boise",
+  "Myrtle Beach",
+  "Salem",
+  "Santa Fe",
+  "Pocatello",
+  "Flagstaff",
+  "Joplin",
+  "Cedar Rapids",
+  "Evansville",
+  "Rapid City",
+  "Montpelier",
+  "Hartford",
+  "Pueblo",
+  "Muskogee",
+  "Bloomington",
+  "Champaign",
+  "Ithaca",
+  "Lexington",
+  "Cincinnati",
+  "Chico",
+  "Ann Arbor",
+  "Traverse City",
+  "Plymouth",
+  "Tallahassee",
+  "Medford",
+  "Waterloo",
+  "Abilene",
+  "Burlington",
+  "Frankfort",
+  "Peoria",
+  "Carmel",
+  "Indianapolis",
+  "Lafayette",
+  "Augusta",
+  "Manchester",
+  "St. Paul",
+  "Davenport",
+  "Rapid City",
+  "Bowling Green",
+  "Abington",
+  "Adams",
+  "Amesbury",
+  "Amherst",
+  "Andover",
+  "Arlington",
+  "Athol",
+  "Attleboro",
+  "Barnstable",
+  "Bedford",
+  "Beverly",
+  "Boston",
+  "Bourne",
+  "Braintree",
+  "Brockton",
+  "Brookline",
+  "Cambridge",
+  "Canton",
+  "Charlestown",
+  "Chelmsford",
+  "Chelsea",
+  "Chicopee",
+  "Clinton",
+  "Cohasset",
+  "Concord",
+  "Danvers",
+  "Dartmouth",
+  "Dedham",
+  "Dennis",
+  "Duxbury",
+  "Eastham",
+  "Edgartown",
+  "Everett",
+  "Fairhaven",
+  "Fall River",
+  "Falmouth",
+  "Fitchburg",
+  "Framingham",
+  "Gloucester",
+  "Great Barrington",
+  "Greenfield",
+  "Groton",
+  "Harwich",
+  "Haverhill",
+  "Hingham",
+  "Holyoke",
+  "Hyannis",
+  "Ipswich",
+  "Lawrence",
+  "Lenox",
+  "Leominster",
+  "Lexington",
+  "Lowell",
+  "Ludlow",
+  "Lynn",
+  "Malden",
+  "Marblehead",
+  "Marlborough",
+  "Medford",
+  "Milton",
+  "Nahant",
+  "Natick",
+  "New Bedford",
+  "Newburyport",
+  "Newton",
+  "North Adams",
+  "Northampton",
+  "Norton",
+  "Norwood",
+  "Peabody",
+  "Pittsfield",
+  "Plymouth",
+  "Provincetown",
+  "Quincy",
+  "Randolph",
+  "Revere",
+  "Salem",
+  "Sandwich",
+  "Saugus",
+  "Somerville",
+  "South Hadley",
+  "Springfield",
+  "Stockbridge",
+  "Stoughton",
+  "Sturbridge",
+  "Sudbury",
+  "Taunton",
+  "Tewksbury",
+  "Truro",
+  "Watertown",
+  "Webster",
+  "Wellesley",
+  "Wellfleet",
+  "West Bridgewater",
+  "West Springfield",
+  "Westfield",
+  "Weymouth",
+  "Whitman",
+  "Williamstown",
+  "Woburn",
+  "Woods Hole",
+  "Worcester",
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming",
+  "District of Columbia"
+];
