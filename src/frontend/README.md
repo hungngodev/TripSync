@@ -65,6 +65,21 @@ Follow these steps to set up and run the application locally:
 
 ---
 
+### Loading backend API JSON files
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Type and enter this to run apiEventData:
+   ```bash
+   python3 apiEventData.py
+   ```
+3. Then go to link indcated in terminal:
+4. Same goes for apiHotelsData.
+
+---
+
 ## 🛠️ Technologies Used
 
 - **Frontend**: Flutter
