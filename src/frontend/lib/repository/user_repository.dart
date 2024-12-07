@@ -17,6 +17,9 @@ class UserRepository {
     dynamic data = await getToken(userLogin);
     Token token = data['token'] as Token;
     String id = data['id'].toString();
+    print(
+        'Current user logged in: $username with $id and token: ${token.token}');
+
     userName = username;
     userId = id;
     User user = User(
@@ -42,6 +45,7 @@ class UserRepository {
   }
 
   Future<void> deleteToken({required int id}) async {
+    print('DELETING $userId');
     await userDao.deleteUser(userId);
   }
 

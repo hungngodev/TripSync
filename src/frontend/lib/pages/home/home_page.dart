@@ -1,8 +1,12 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+
+import './creation.dart';
+import './friends.dart';
+import './posts.dart';
 import './search_page.dart';
-import './profile_page.dart';
 import './setting_page.dart';
-import './calendar_page.dart';
+import 'outer_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,77 +16,59 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomeState extends State<HomePage> {
-  int currentPageIndex = 0;
+  int _page = 0;
+  GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
+  String calendarToNavigate = '';
+
+  void navigateToCalendar(calendarId, page) {
+    _bottomNavigationKey.currentState?.setPage(page);
+    calendarToNavigate = calendarId;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
+      bottomNavigationBar: CurvedNavigationBar(
+        buttonBackgroundColor: const Color.fromARGB(255, 147, 139, 174),
+        color: const Color.fromARGB(255, 186, 187, 190),
+        backgroundColor: Colors.white,
+        key: _bottomNavigationKey,
+        items: <Widget>[
+          Icon(Icons.home_outlined,
+              size: 30, color: _page == 0 ? Colors.white : Colors.black),
+          Icon(Icons.search_rounded,
+              size: 30, color: _page == 1 ? Colors.white : Colors.black),
+          Icon(Icons.calendar_today,
+              size: 30, color: _page == 2 ? Colors.white : Colors.black),
+          Icon(Icons.feed,
+              size: 30, color: _page == 3 ? Colors.white : Colors.black),
+          Icon(Icons.people,
+              size: 30, color: _page == 4 ? Colors.white : Colors.black),
+          Icon(Icons.settings,
+              size: 30, color: _page == 5 ? Colors.white : Colors.black),
+        ],
+        onTap: (index) {
           setState(() {
-            currentPageIndex = index;
+            _page = index;
           });
         },
-        indicatorColor: Colors.amber,
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.search),
-            icon: Icon(Icons.home_outlined),
-            label: 'Search',
-          ),
-          NavigationDestination(
-            icon: Badge(child: Icon(Icons.calendar_today)),
-            label: 'Calendar',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              label: Text('2'),
-              child: Icon(Icons.account_circle),
-            ),
-            label: 'Profile',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              child: Icon(Icons.settings),
-            ),
-            label: 'Setting',
-          ),
-        ],
       ),
       body: <Widget>[
         /// Home page
-        SearchPage(),
-
-        /// Notifications page
-        // const Padding(
-        //   padding: EdgeInsets.all(8.0),
-        //   child: Column(
-        //     children: <Widget>[
-        //       Card(
-        //         child: ListTile(
-        //           leading: Icon(Icons.notifications_sharp),
-        //           title: Text('Notification 1'),
-        //           subtitle: Text('This is a notification'),
-        //         ),
-        //       ),
-        //       Card(
-        //         child: ListTile(
-        //           leading: Icon(Icons.notifications_sharp),
-        //           title: Text('Notification 2'),
-        //           subtitle: Text('This is a notification'),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        CalendarPage(),
+        ///
+        CreationScreen(
+          calendarNav: navigateToCalendar,
+        ),
+        SearchPage(calendarId: calendarToNavigate),
+        calendarToNavigate == ''
+            ? OuterPage()
+            : OuterPage(showToday: false, calendarId: calendarToNavigate),
 
         /// Messages page
-        ProfilePage(),
-        SettingPage()
-      ][currentPageIndex],
+        const PostPage(),
+        FriendsPage(),
+        const SettingPage()
+      ][_page],
     );
   }
 }

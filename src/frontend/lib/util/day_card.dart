@@ -1,19 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import './time_cards.dart';
 
 class DayCard extends StatefulWidget {
   final DateTime selectedDate;
   final Color cardColor;
   final Color dividerColor;
-  var tasks;
+  final String name;
+  final navigate;
+  Map<String, Map<String, dynamic>> listOfEvent = {};
   DayCard({
     Key? key,
     required this.selectedDate,
     required this.cardColor,
     required this.dividerColor,
-    required this.tasks,
+    required this.name,
+    required this.listOfEvent,
+    required this.navigate,
   }) : super(key: key);
 
   @override
@@ -21,65 +25,16 @@ class DayCard extends StatefulWidget {
 }
 
 class _DayCardState extends State<DayCard> {
-  // var tasks = new Map();
+  TextEditingController addTaskbtn = TextEditingController();
 
   List<String> tasksList6am = [];
-  List<String> timeList = [
-    "5 am",
-    "6 am",
-    "7 am",
-    "8 am",
-    "9 am",
-    "10 am",
-    "11 am",
-    "12 pm",
-    "1 pm",
-    "2pm",
-    "3pm",
-    "4pm",
-    "5pm",
-    "6 pm",
-    "7 pm",
-    "8 pm",
-    "9 pm",
-    "10 pm",
-    "11 pm",
-    " 12 am",
-    "1 am",
-    "2 am",
-    "3 am",
-    "4 am"
-  ];
-  List<String> days = [
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-    "SUNDAY"
-  ];
-  List<String> months = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC"
-  ];
-
+  List<String> timeList = multiplyList(time, 1);
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Container(
-        height: 220,
+        height: MediaQuery.of(context).size.height * 0.23,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
             // rgb()
@@ -88,56 +43,129 @@ class _DayCardState extends State<DayCard> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    days[widget.selectedDate.weekday - 1],
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: Text(
+                        widget.name,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.start, // Optional: Align text
+                      ),
                     ),
-                  ),
-                  Wrap(direction: Axis.vertical, spacing: -20, children: [
                     Text(
-                      widget.selectedDate.day.toString(),
+                      "${DateTime.now().difference(widget.selectedDate).inDays} days ago",
                       style: GoogleFonts.poppins(
-                          fontSize: 50, fontWeight: FontWeight.w500),
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
-                    Text(
-                      months[widget.selectedDate.month - 1],
-                      style: GoogleFonts.poppins(
-                          fontSize: 50, fontWeight: FontWeight.w500),
+                    TextButton.icon(
+                      onPressed: () {
+                        widget.navigate();
+                      },
+                      icon: const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        'View',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ]),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(
                 width: 5,
               ),
               SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  width: 235,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: timeList.length,
-                      itemBuilder: (context, index) {
-                        return TimeCard(
-                          tasks: widget.tasks,
-                          tasksList6am: tasksList6am,
-                          time_for_card: timeList[index],
-                          index: index,
-                          dividerColor: widget.dividerColor,
-                          onTaskDelete: (() {
-                            print("Task Deleted");
+                height: MediaQuery.of(context).size.height * 1.2,
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: Stack(
+                    clipBehavior: Clip
+                        .none, // Allows the task list to overflow the Stack bounds
+                    children: [
+                      ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: timeList.length,
+                          itemBuilder: (context, index) {
+                            return TimeCard(
+                              icons: widget.listOfEvent[timeList[index]]
+                                      ?["icons"] ??
+                                  [],
+                              hasEvent: widget.listOfEvent
+                                  .containsKey(timeList[index]),
+                              color: widget.listOfEvent[timeList[index]]
+                                      ?["color"] ??
+                                  Colors.white,
+                              tasksList6am: tasksList6am,
+                              time_for_card: timeList[index],
+                              index: index,
+                              dividerColor: widget.dividerColor,
+                              duration: 100,
+                            );
                           }),
-                          duration: 100,
-                        );
-                      }))
+                    ]),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+const List<Color> iconColors = [
+  Color(0x00f5d4),
+  Color(0x00bbf9),
+  Color(0xfee440),
+  Color(0xf15bb5),
+  Color(0x9b5de5),
+  Color(0xff0054),
+  Color(0x8ac926),
+];
+List<String> time = [
+  "9:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+  "22:00",
+  "23:00",
+  "24:00",
+  "1:00",
+  "2:00",
+  "3:00",
+  "4:00",
+  "5:00",
+  "6:00",
+  "7:00",
+  "8:00"
+];
+
+List<String> multiplyList(List<String> list, int times) {
+  return List<String>.from(
+      Iterable.generate(times, (_) => list).expand((x) => x));
 }
