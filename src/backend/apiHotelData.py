@@ -20,7 +20,17 @@ class Hotels(Resource):
   "api_key": os.environ.get('API_KEY')
   }
   search = GoogleSearch(params)
-  return search.get_dict()
+  hotel_results = search.get_dict()["properties"]
+  id = 100
+  for key in hotel_results:
+    key["id"] = id
+    key["location"] = city
+    key["address"] = city
+    key["category"] = "hotel"
+    key["source_link"] = key["link"]
+    id+=1
+  return hotel_results
+
 
 api.add_resource(Hotels, '/')
 
