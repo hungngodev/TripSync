@@ -1,0 +1,142 @@
+[
+    {
+        "id": 1,
+        "location": "Massachusetts",
+        "category": "entertainment",
+        "description": "A stunning natural wonder with breathtaking views.",
+        "source_link": "https://www.example.com/entertainment1"
+    },
+    {
+        "id": 2,
+        "location": "Massachusetts",
+        "category": "hotel",
+        "description": "Luxury hotel with exceptional service and amenities.",
+        "source_link": "https://www.example.com/hotel2"
+    },
+    {
+        "id": 3,
+        "location": "Massachusetts",
+        "category": "restaurant",
+        "description": "Fine dining restaurant with exquisite cuisine.",
+        "source_link": "https://www.example.com/restaurant3"
+    },
+    {
+        "id": 4,
+        "location": "Massachusetts",
+        "category": "entertainment",
+        "description": "A vibrant heart for outdoor and cultural experiences.",
+        "source_link": "https://www.example.com/entertainment4"
+    },
+    {
+        "id": 5,
+        "location": "Massachusetts",
+        "category": "hotel",
+        "description": "A boutique hotel featuring modern decor and an on-site spa.",
+        "source_link": "https://www.example.com/hotel5"
+    },
+    {
+        "id": 6,
+        "location": "Massachusetts",
+        "category": "restaurant",
+        "description": "A farm-to-table restaurant offering seasonal dishes.",
+        "source_link": "https://www.example.com/restaurant6"
+    },
+    {
+        "id": 7,
+        "location": "Massachusetts",
+        "category": "entertainment",
+        "description": "A historical theater showcasing Broadway shows.",
+        "source_link": "https://www.example.com/entertainment7"
+    },
+    {
+        "id": 8,
+        "location": "Massachusetts",
+        "category": "hotel",
+        "description": "A grand resort offering luxury and privacy.",
+        "source_link": "https://www.example.com/hotel8"
+    },
+    {
+        "id": 9,
+        "location": "Massachusetts",
+        "category": "restaurant",
+        "description": "A cozy diner serving homemade comfort foods.",
+        "source_link": "https://www.example.com/restaurant9"
+    },
+    {
+        "id": 10,
+        "location": "Massachusetts",
+        "category": "entertainment",
+        "description": "A renowned music venue hosting diverse performances.",
+        "source_link": "https://www.example.com/entertainment10"
+    },
+    {
+        "id": 11,
+        "location": "Massachusetts",
+        "category": "hotel",
+        "description": "An elegant hotel overlooking historic landmarks.",
+        "source_link": "https://www.example.com/hotel11"
+    },
+    {
+        "id": 12,
+        "location": "Massachusetts",
+        "category": "restaurant",
+        "description": "A chic café with artisanal pastries and coffee.",
+        "source_link": "https://www.example.com/restaurant12"
+    },
+    {
+        "id": 13,
+        "location": "Massachusetts",
+        "category": "entertainment",
+        "description": "A scenic park for relaxation and recreation.",
+        "source_link": "https://www.example.com/entertainment13"
+    },
+    {
+        "id": 14,
+        "location": "Massachusetts",
+        "category": "hotel",
+        "description": "A modern hotel with eco-friendly features.",
+        "source_link": "https://www.example.com/hotel14"
+    },
+    {
+        "id": 15,
+        "location": "Massachusetts",
+        "category": "restaurant",
+        "description": "An upscale steakhouse with a sophisticated atmosphere.",
+        "source_link": "https://www.example.com/restaurant15"
+    },
+    {
+        "id": 16,
+        "location": "Massachusetts",
+        "category": "entertainment",
+        "description": "A museum celebrating local history and culture.",
+        "source_link": "https://www.example.com/entertainment16"
+    },
+    {
+        "id": 17,
+        "location": "Massachusetts",
+        "category": "hotel",
+        "description": "A luxury resort offering spa treatments and ocean views.",
+        "source_link": "https://www.example.com/hotel17"
+    },
+    {
+        "id": 18,
+        "location": "Massachusetts",
+        "category": "restaurant",
+        "description": "A seafood restaurant known for its clam chowder.",
+        "source_link": "https://www.example.com/restaurant18"
+    },
+    {
+        "id": 19,
+        "location": "Massachusetts",
+        "category": "entertainment",
+        "description": "A gallery showcasing contemporary art.",
+        "source_link": "https://www.example.com/entertainment19"
+    },
+    {
+        "id": 20,
+        "location": "Massachusetts",
+        "category": "hotel",
+        "description": "A charming inn located in the heart of Massachusetts.",
+        "source_link": "https://www.example.com/hotel20"
+    }
+]

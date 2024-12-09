@@ -12,19 +12,19 @@ class SimpleBlocObserver extends BlocObserver {
   @override
   void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
-    print(event); // Log events for debugging
+    // print(event); // Log events for debugging
   }
 
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
-    print(transition); // Log state transitions for debugging
+    // print(transition); // Log state transitions for debugging
   }
 
   @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     super.onError(bloc, error, stackTrace);
-    print('Error: $error'); // Log errors for debugging
+    // print('Error: $error'); // Log errors for debugging
   }
 }
 
@@ -58,20 +58,20 @@ class App extends StatelessWidget {
         ),
         home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {
-            print("State: $state");
+            // print("State: $state");
             // Handle different authentication states
             if (state is AuthenticationUninitialized) {
               return const SplashPage(); // Show splash screen while initializing
             } else if (state is AuthenticationAuthenticated) {
-              print('Authenticated');
-              return HomePage(); // Show home page if authenticated
+              // print('Authenticated');
+              return const HomePage(); // Show home page if authenticated
             } else if (state is AuthenticationUnauthenticated) {
               print('Unauthenticated');
               return WelcomePage(
                   userRepository:
                       userRepository); // Show login page if unauthenticated
             } else if (state is AuthenticationLoading) {
-              print('Loading');
+              // print('Loading');
               return const Center(
                   child: CircularProgressIndicator()); // Show loading indicator
             }

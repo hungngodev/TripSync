@@ -28,7 +28,6 @@ class ApiService {
       throw Exception('Error fetching data: $e');
     }
   }
-
   // POST request with optional query parameters and data
   Future<dynamic> postData(String endpoint, Map<String, dynamic> data,
       {Map<String, String>? queryParameters}) async {

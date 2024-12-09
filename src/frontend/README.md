@@ -51,17 +51,32 @@ Follow these steps to set up and run the application locally:
    ```
 3. Apply database migrations:
    ```bash
-   python manage.py makemigrations
-   python manage.py migrate
+   python3 manage.py makemigrations
+   python3 manage.py migrate
    ```
 4. Load predefined activities into the database:
    ```bash
-   python manage.py load_activities
+   python3 manage.py load_activities
    ```
 5. Start the development server:
    ```bash
-   python manage.py runserver
+   python3 manage.py runserver
    ```
+
+---
+
+### Loading backend API JSON files
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Type and enter this to run apiEventData:
+   ```bash
+   python3 apiEventData.py
+   ```
+3. Then go to link indcated in terminal:
+4. Same goes for apiHotelsData.
 
 ---
 
