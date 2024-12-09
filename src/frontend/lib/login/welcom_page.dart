@@ -100,7 +100,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   )),
             ],
           ),
-          FadeInUp(
+          FadeInUp( // TODO TASK 4: change image to logo
               duration: const Duration(milliseconds: 1400),
               child: Container(
                 height: MediaQuery.of(context).size.height / 3,
