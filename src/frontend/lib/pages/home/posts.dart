@@ -131,30 +131,36 @@ class _PostPageState extends State<PostPage> {
                                             border: InputBorder.none),
                                         autofocus: true,
                                       ),
-                                      const ListTile(
-                                        title: Text('Share your Calendar',
-                                            style: TextStyle(
+                                      ListTile(
+                                        title: Text(
+                                            _items.isNotEmpty
+                                                ? 'Select Calendar'
+                                                : 'No Calendar',
+                                            style: const TextStyle(
                                               color: Colors.black,
                                               fontSize: 15,
                                             )),
-                                        leading: Icon(Icons.calendar_month,
+                                        leading: const Icon(
+                                            Icons.calendar_month,
                                             color: const Color.fromARGB(
                                                 255, 147, 139, 174)),
                                       ),
-                                      CustomDropdown<Item>(
-                                        hintText: 'Select job role',
-                                        items: _items,
-                                        initialItem: _items.firstWhere(
-                                          (item) => item.id == chosenCalendar,
-                                          orElse: () => _items[
-                                              0], // Optionally, handle the case where no item is found
-                                        ),
-                                        onChanged: (value) async {
-                                          setState(() {
-                                            chosenCalendar = value!.id;
-                                          });
-                                        },
-                                      )
+                                      _items.isNotEmpty
+                                          ? CustomDropdown<Item>(
+                                              hintText: 'Select Calendar',
+                                              items: _items,
+                                              initialItem: _items.firstWhere(
+                                                (item) =>
+                                                    item.id == chosenCalendar,
+                                                orElse: () => _items[0],
+                                              ),
+                                              onChanged: (value) async {
+                                                setState(() {
+                                                  chosenCalendar = value!.id;
+                                                });
+                                              },
+                                            )
+                                          : const SizedBox.shrink(),
                                     ],
                                   )),
                               const Divider(),
