@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../bloc/authentication_bloc.dart';
 import '../../bloc/authentication_state.dart';
@@ -39,12 +40,13 @@ class _Home extends State<SearchPage> {
   String _selectedItem = '';
   final SearchController _searchController = SearchController();
   final Set<dynamic> _filters = {};
-  Set<String> options = {'hotel', 'restaurant', 'entertainments'};
-  final Set<String> original = {'hotel', 'restaurant', 'entertainments'};
+  Set<String> options = {'hotel', 'restaurant', 'event'};
+  final Set<String> original = {'hotel', 'restaurant', 'event'};
   DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now().add(const Duration(days: 5));
+  DateTime endDate = DateTime.now().add(const Duration(days: 2));
   late final Debounceable<List<Suggestion>?, String> _debouncedSearch;
   late Iterable<Widget> _lastOptions = <Widget>[];
+  bool loading = false;
   late List<Item> _items = <Item>[
     Item(
       '1',
@@ -60,6 +62,12 @@ class _Home extends State<SearchPage> {
     fetchInfo();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<List<Suggestion>?> _search(String query) async {
     // In a real application, there should be some error handling here.
     final data = await apiService.getAutoComplete(query);
@@ -70,13 +78,6 @@ class _Home extends State<SearchPage> {
             ))
         .toList();
     return options;
-  }
-
-  @override
-  void dispose() {
-    // Dispose the controller to avoid memory leaks
-    _searchController.dispose();
-    super.dispose();
   }
 
   Future<void> fetchInfo() async {
@@ -220,30 +221,33 @@ class _Home extends State<SearchPage> {
   }
 
   void search() async {
-    print("Searching for $_selectedItem");
+    setState(() {
+      loading = true;
+    });
     final categories = _filters.where((e) => original.contains(e)).toList();
     final category = categories.isNotEmpty ? categories[0] : '';
     print("Category: $category");
     final search = _searchController.text;
     print("Search: $search");
-    final query =
+    final keyWords =
         _filters.where((e) => !original.contains(e)).toList().join(',');
-    print("Query: $query");
+    print("Query: $keyWords");
     final String filter =
         _filters.map((e) => e.toString().split('.').last).join(',');
     print("Filter by: $filter");
     try {
       List<dynamic> fetchData = await apiService.getData(
         queryParameters: {
-          'location': _selectedItem,
           'category': category,
           'search': search,
-          'query': query,
+          'keyWords': keyWords,
+          'startDate': DateFormat('yyyy-MM-dd').format(startDate),
+          'endDate': DateFormat('yyyy-MM-dd').format(endDate),
         },
       );
-      print(fetchData);
       setState(() {
         data = fetchData;
+        loading = false;
       });
     } catch (e) {
       print(e);
@@ -375,7 +379,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: Text(
                                                       activity['title']!,
                                                       style:
@@ -404,7 +408,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: Text(
                                                       "${activity['location']}",
                                                       style:
@@ -431,7 +435,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: Text(
                                                       "${activity['address']}",
                                                       style:
@@ -486,7 +490,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: GestureDetector(
                                                       onTap: () => _launchURL(
                                                           activity[
@@ -524,7 +528,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.4,
                                                     child: Text(
                                                       "${activity['description']}",
                                                       style: GoogleFonts.nunito(
@@ -814,91 +818,154 @@ class _Home extends State<SearchPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final item = data[index];
-                            return Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              elevation: 5,
-                              margin: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Padding(
-                                padding: const EdgeInsets.all(15.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item['category'].toString().toUpperCase(),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.deepPurple,
-                                      ),
+                    child: loading
+                        ? Lottie.asset(
+                            'assets/animations/loading.json',
+                            width: MediaQuery.of(context).size.height * 0.45,
+                            height: MediaQuery.of(context).size.height * 0.3,
+                            fit: BoxFit.fill,
+                          )
+                        : Column(
+                            children: [
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: data.length,
+                                itemBuilder: (context, index) {
+                                  final item = data[index];
+                                  return Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      item['description'],
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Location: ${item['location']}',
-                                          style: TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () =>
-                                              _launchURL(item['source_link']),
-                                          child: const Text(
-                                            'Visit Source',
-                                            style: TextStyle(
-                                              color: Colors.blue,
-                                              decoration:
-                                                  TextDecoration.underline,
+                                    elevation: 5,
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item['category']
+                                                .toString()
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.deepPurple,
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    // Add button to the Card
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          // Call the function to add the item to the cart
-                                          addActivity(item);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.deepPurple,
-                                          foregroundColor: Colors.white,
-                                        ),
-                                        child: const Text('Add'),
+                                          Text(
+                                            item['title']
+                                                .toString()
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Center(
+                                            child: Container(
+                                              width:
+                                                  400, // Set the desired width
+                                              height:
+                                                  200, // Set the desired height
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        15), // Rounded corners
+                                                image: DecorationImage(
+                                                  image: NetworkImage(item[
+                                                      'image']), // Replace with your image URL
+                                                  fit: BoxFit
+                                                      .cover, // Cover the entire box
+                                                  onError:
+                                                      (exception, stackTrace) {
+                                                    // Fallback for error handling
+                                                  },
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.2),
+                                                    blurRadius: 8,
+                                                    offset: Offset(2,
+                                                        4), // Slight shadow offset
+                                                  ),
+                                                ],
+                                              ),
+                                              child: item['image'] == null
+                                                  ? Center(
+                                                      child: Text(
+                                                        'Failed to load image',
+                                                        style: TextStyle(
+                                                            color: Colors.red),
+                                                      ),
+                                                    )
+                                                  : null,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            item['description'],
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Location: ${item['location']}',
+                                                style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () => _launchURL(
+                                                    item['source_link']),
+                                                child: const Text(
+                                                  'Visit Source',
+                                                  style: TextStyle(
+                                                    color: Colors.blue,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          // Add button to the Card
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                // Call the function to add the item to the cart
+                                                addActivity(item);
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.deepPurple,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child: const Text('Add'),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                            ],
+                          ),
                   ),
                 ],
               ),

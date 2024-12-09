@@ -15,7 +15,6 @@ class Command(BaseCommand):
                 activities = json.load(f)
                 for activity in activities:
                     Activity.objects.create(
-                        id=int(activity['id']),
                         location=activity['location'],
                         category=activity['category'],
                         description=activity['description'],

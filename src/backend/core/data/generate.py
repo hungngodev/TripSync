@@ -3,7 +3,7 @@ import random
 import json
 
 fake = Faker()
-categories = ['hotel', 'restaurant', 'entertainments']
+categories = ['restaurant']
 states_towns = [
 ("Los Angeles", "California"),
 ("Aspen", "Colorado"),
