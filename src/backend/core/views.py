@@ -235,9 +235,9 @@ class ActivityViewSet(viewsets.ModelViewSet):
                     'description': hotel.get('description', fake.text(max_nb_chars=200)),
                     'category': 'hotel',
                     'source_link': hotel['link'],
-                    'image': hotel['images']['thumbnail'],
+                    'image': hotel['images'][0]['thumbnail'],
                     'location': location,
-                    'address': address
+                    'address': address if address and address != location and address != '' else fake.address()
                 })
             
         elif category == 'event':
@@ -251,7 +251,12 @@ class ActivityViewSet(viewsets.ModelViewSet):
             search = GoogleSearch(params)
             results = search.get_dict()
             event_results = results["events_results"]
+            
             for event in event_results:
+                location = event.get('address', [
+                    fake.address(), fake.city() + ', ' + fake.state()
+                ])
+                
                 result.append({
                     'title': event['title'],
                     'description': event.get('description', fake.text(max_nb_chars=200)),   
@@ -260,8 +265,8 @@ class ActivityViewSet(viewsets.ModelViewSet):
                     'image': event.get('thumbnail', 
                                        event_images[random.randint(0, len(event_images) - 1)]
                                        ),
-                    'location': event['location'][1],
-                    'address': event['address'][0]
+                    'location': location[1],
+                    'address': location[0]
                 })
         else: 
             params = {

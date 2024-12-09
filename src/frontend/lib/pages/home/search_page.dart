@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+
 import 'package:lottie/lottie.dart';
 
 import '../../bloc/authentication_bloc.dart';
@@ -37,9 +38,8 @@ class _Home extends State<SearchPage> {
   final ApiService apiService = ApiService();
   List<dynamic> data = [];
   List<Map<String, dynamic>> selectedActivities = [];
-  String _selectedItem = '';
   final SearchController _searchController = SearchController();
-  final Set<dynamic> _filters = {};
+  final Set<dynamic> _filters = {'hotel'};
   Set<String> options = {'hotel', 'restaurant', 'event'};
   final Set<String> original = {'hotel', 'restaurant', 'event'};
   DateTime startDate = DateTime.now();
@@ -478,7 +478,6 @@ class _Home extends State<SearchPage> {
                                                 ],
                                               ),
                                               const SizedBox(height: 10),
-
                                               // Source Link
                                               Row(
                                                 children: [
@@ -657,10 +656,6 @@ class _Home extends State<SearchPage> {
                             child: IconButton(
                               icon: const Icon(Icons.send),
                               onPressed: () {
-                                setState(() {
-                                  _selectedItem = controller
-                                      .text; // Treat the current text as selected
-                                });
                                 search();
                               },
                             ),
@@ -681,10 +676,6 @@ class _Home extends State<SearchPage> {
                         return ListTile(
                           title: Text(options[index].description),
                           onTap: () {
-                            setState(() {
-                              _selectedItem = options[index]
-                                  .description; // Update state when an item is selected
-                            });
                             controller.closeView(options[index].description);
                             search();
                           },
@@ -693,10 +684,6 @@ class _Home extends State<SearchPage> {
                       return _lastOptions;
                     },
                     viewOnSubmitted: (value) {
-                      print("Submitted: $value");
-                      setState(() {
-                        _selectedItem = value;
-                      });
                       _searchController.closeView(value);
                       search();
                     },
@@ -856,14 +843,18 @@ class _Home extends State<SearchPage> {
                                               color: Colors.deepPurple,
                                             ),
                                           ),
-                                          Text(
-                                            item['title']
-                                                .toString()
-                                                .toUpperCase(),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black,
+                                          Container(
+                                            width: 350,
+                                            child: Text(
+                                              item['title']
+                                                  .toString()
+                                                  .toUpperCase(),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                                color: Colors.black,
+                                              ),
+                                              softWrap: true,
                                             ),
                                           ),
                                           Center(
@@ -908,23 +899,51 @@ class _Home extends State<SearchPage> {
                                             ),
                                           ),
                                           const SizedBox(height: 5),
-                                          Text(
-                                            item['description'],
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[800],
+                                          ListTile(
+                                            title: Container(
+                                              width: 350,
+                                              child: Text(
+                                                'Description:',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18,
+                                                  color: Colors.black,
+                                                ),
+                                                softWrap: true,
+                                              ),
                                             ),
+                                            subtitle: Container(
+                                              width: 350,
+                                              child: Text(
+                                                item[
+                                                    'description'], // Replace with your description key
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.grey[800],
+                                                ),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              // Define tap action here
+                                            },
                                           ),
+
                                           const SizedBox(height: 10),
+
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
-                                                'Location: ${item['location']}',
-                                                style: TextStyle(
-                                                  fontStyle: FontStyle.italic,
-                                                  color: Colors.grey[600],
+                                              Container(
+                                                width: 200,
+                                                child: Text(
+                                                  'Location: ${item['location']}',
+                                                  style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  softWrap: true,
                                                 ),
                                               ),
                                               GestureDetector(
