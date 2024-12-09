@@ -1,3 +1,6 @@
+import 'dart:math';
+import 'dart:async';
+
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,6 +43,8 @@ class _Home extends State<SearchPage> {
   final Set<String> original = {'hotel', 'restaurant', 'entertainments'};
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 5));
+  late final Debounceable<List<Suggestion>?, String> _debouncedSearch;
+  late Iterable<Widget> _lastOptions = <Widget>[];
   late List<Item> _items = <Item>[
     Item(
       '1',
@@ -51,8 +56,27 @@ class _Home extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch selected activities
+    _debouncedSearch = debounce<List<Suggestion>?, String>(_search);
     fetchInfo();
+  }
+
+  Future<List<Suggestion>?> _search(String query) async {
+    // In a real application, there should be some error handling here.
+    final data = await apiService.getAutoComplete(query);
+    final List<Suggestion> options = data
+        .map((e) => Suggestion(
+              e,
+              e,
+            ))
+        .toList();
+    return options;
+  }
+
+  @override
+  void dispose() {
+    // Dispose the controller to avoid memory leaks
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchInfo() async {
@@ -197,6 +221,14 @@ class _Home extends State<SearchPage> {
 
   void search() async {
     print("Searching for $_selectedItem");
+    final categories = _filters.where((e) => original.contains(e)).toList();
+    final category = categories.isNotEmpty ? categories[0] : '';
+    print("Category: $category");
+    final search = _searchController.text;
+    print("Search: $search");
+    final query =
+        _filters.where((e) => !original.contains(e)).toList().join(',');
+    print("Query: $query");
     final String filter =
         _filters.map((e) => e.toString().split('.').last).join(',');
     print("Filter by: $filter");
@@ -204,10 +236,12 @@ class _Home extends State<SearchPage> {
       List<dynamic> fetchData = await apiService.getData(
         queryParameters: {
           'location': _selectedItem,
-          'category':
-              _filters.map((e) => e.toString().split('.').last).join(','),
+          'category': category,
+          'search': search,
+          'query': query,
         },
       );
+      print(fetchData);
       setState(() {
         data = fetchData;
       });
@@ -609,6 +643,9 @@ class _Home extends State<SearchPage> {
                         onTap: () {
                           controller.openView();
                         },
+                        onChanged: (String value) {
+                          print("Changed: $value");
+                        },
                         leading: const Icon(Icons.search),
                         trailing: <Widget>[
                           Tooltip(
@@ -616,36 +653,40 @@ class _Home extends State<SearchPage> {
                             child: IconButton(
                               icon: const Icon(Icons.send),
                               onPressed: () {
-                                print('Searching for ');
                                 setState(() {
                                   _selectedItem = controller
                                       .text; // Treat the current text as selected
                                 });
+                                search();
                               },
                             ),
                           )
                         ],
                       );
                     },
-                    suggestionsBuilder:
-                        (BuildContext context, SearchController controller) {
-                      return List<Widget>.generate(suggestions.length,
-                          (int index) {
-                        if (suggestions[index].contains(controller.text)) {
-                          return ListTile(
-                            title: Text(suggestions[index]),
-                            onTap: () {
-                              setState(() {
-                                _selectedItem = suggestions[
-                                    index]; // Update state when an item is selected
-                              });
-                              controller.closeView(suggestions[index]);
-                              search();
-                            },
-                          );
-                        }
-                        return const SizedBox.shrink();
+                    suggestionsBuilder: (BuildContext context,
+                        SearchController controller) async {
+                      // final List<Suggestion>? options =
+                      //     (await _debouncedSearch(controller.text))?.toList();
+                      // if (options == null) {
+                      //   return _lastOptions;
+                      // }
+                      final options = [];
+                      _lastOptions =
+                          List<Widget>.generate(options.length, (int index) {
+                        return ListTile(
+                          title: Text(options[index].description),
+                          onTap: () {
+                            setState(() {
+                              _selectedItem = options[index]
+                                  .description; // Update state when an item is selected
+                            });
+                            controller.closeView(options[index].description);
+                            search();
+                          },
+                        );
                       });
+                      return _lastOptions;
                     },
                     viewOnSubmitted: (value) {
                       print("Submitted: $value");
@@ -713,6 +754,12 @@ class _Home extends State<SearchPage> {
                         onSelected: (bool selected) {
                           setState(() {
                             if (selected) {
+                              if (selected && original.contains(exercise)) {
+                                final index = _filters.where((e) {
+                                  return original.contains(e);
+                                }).toList();
+                                if (index.isNotEmpty) _filters.remove(index[0]);
+                              }
                               _filters.add(exercise);
                             } else {
                               _filters.remove(exercise);
@@ -885,307 +932,52 @@ class _Home extends State<SearchPage> {
   }
 }
 
-final suggestions = [
-  "Los Angeles",
-  "Aspen",
-  "Austin",
-  "Manhattan",
-  "Miami",
-  "Phoenix",
-  "Chicago",
-  "Seattle",
-  "Las Vegas",
-  "Burlington",
-  "Boston",
-  "Atlanta",
-  "Amherst",
-  "Cambridge",
-  "Worcester",
-  "Springfield",
-  "Lowell",
-  "Brockton",
-  "Quincy",
-  "Newton",
-  "Lynn",
-  "Somerville",
-  "Framingham",
-  "Peabody",
-  "Revere",
-  "Malden",
-  "Taunton",
-  "Chelsea",
-  "Pittsfield",
-  "Medford",
-  "Weymouth",
-  "Haverhill",
-  "Marlborough",
-  "Beverly",
-  "Fitchburg",
-  "Danvers",
-  "Northampton",
-  "Westfield",
-  "Westborough",
-  "Andover",
-  "New York",
-  "San Francisco",
-  "Houston",
-  "Dallas",
-  "San Diego",
-  "Denver",
-  "Orlando",
-  "Detroit",
-  "Tampa",
-  "Indianapolis",
-  "Salt Lake City",
-  "Sacramento",
-  "Kansas City",
-  "Pittsburgh",
-  "Anchorage",
-  "Richmond",
-  "New Orleans",
-  "Baltimore",
-  "Columbus",
-  "St. Louis",
-  "Milwaukee",
-  "Louisville",
-  "Cleveland",
-  "Minneapolis",
-  "Raleigh",
-  "Charlotte",
-  "Portland",
-  "Nashville",
-  "Birmingham",
-  "Madison",
-  "Tucson",
-  "Fort Worth",
-  "Boulder",
-  "Grand Rapids",
-  "Little Rock",
-  "Shreveport",
-  "Montgomery",
-  "Boise",
-  "Jacksonville",
-  "Lincoln",
-  "Toledo",
-  "Tulsa",
-  "Fargo",
-  "Des Moines",
-  "Billings",
-  "Macon",
-  "Wichita",
-  "Davenport",
-  "Bakersfield",
-  "Lexington",
-  "Huntsville",
-  "Sioux Falls",
-  "Duluth",
-  "Evansville",
-  "Fort Wayne",
-  "Chattanooga",
-  "Spokane",
-  "Lafayette",
-  "Augusta",
-  "Jackson",
-  "Rockford",
-  "Omaha",
-  "Charleston",
-  "Vancouver",
-  "Fort Collins",
-  "Charleston",
-  "Albuquerque",
-  "Rochester",
-  "Bismarck",
-  "Asheville",
-  "Boise",
-  "Myrtle Beach",
-  "Salem",
-  "Santa Fe",
-  "Pocatello",
-  "Flagstaff",
-  "Joplin",
-  "Cedar Rapids",
-  "Evansville",
-  "Rapid City",
-  "Montpelier",
-  "Hartford",
-  "Pueblo",
-  "Muskogee",
-  "Bloomington",
-  "Champaign",
-  "Ithaca",
-  "Lexington",
-  "Cincinnati",
-  "Chico",
-  "Ann Arbor",
-  "Traverse City",
-  "Plymouth",
-  "Tallahassee",
-  "Medford",
-  "Waterloo",
-  "Abilene",
-  "Burlington",
-  "Frankfort",
-  "Peoria",
-  "Carmel",
-  "Indianapolis",
-  "Lafayette",
-  "Augusta",
-  "Manchester",
-  "St. Paul",
-  "Davenport",
-  "Rapid City",
-  "Bowling Green",
-  "Abington",
-  "Adams",
-  "Amesbury",
-  "Amherst",
-  "Andover",
-  "Arlington",
-  "Athol",
-  "Attleboro",
-  "Barnstable",
-  "Bedford",
-  "Beverly",
-  "Boston",
-  "Bourne",
-  "Braintree",
-  "Brockton",
-  "Brookline",
-  "Cambridge",
-  "Canton",
-  "Charlestown",
-  "Chelmsford",
-  "Chelsea",
-  "Chicopee",
-  "Clinton",
-  "Cohasset",
-  "Concord",
-  "Danvers",
-  "Dartmouth",
-  "Dedham",
-  "Dennis",
-  "Duxbury",
-  "Eastham",
-  "Edgartown",
-  "Everett",
-  "Fairhaven",
-  "Fall River",
-  "Falmouth",
-  "Fitchburg",
-  "Framingham",
-  "Gloucester",
-  "Great Barrington",
-  "Greenfield",
-  "Groton",
-  "Harwich",
-  "Haverhill",
-  "Hingham",
-  "Holyoke",
-  "Hyannis",
-  "Ipswich",
-  "Lawrence",
-  "Lenox",
-  "Leominster",
-  "Lexington",
-  "Lowell",
-  "Ludlow",
-  "Lynn",
-  "Malden",
-  "Marblehead",
-  "Marlborough",
-  "Medford",
-  "Milton",
-  "Nahant",
-  "Natick",
-  "New Bedford",
-  "Newburyport",
-  "Newton",
-  "North Adams",
-  "Northampton",
-  "Norton",
-  "Norwood",
-  "Peabody",
-  "Pittsfield",
-  "Plymouth",
-  "Provincetown",
-  "Quincy",
-  "Randolph",
-  "Revere",
-  "Salem",
-  "Sandwich",
-  "Saugus",
-  "Somerville",
-  "South Hadley",
-  "Springfield",
-  "Stockbridge",
-  "Stoughton",
-  "Sturbridge",
-  "Sudbury",
-  "Taunton",
-  "Tewksbury",
-  "Truro",
-  "Watertown",
-  "Webster",
-  "Wellesley",
-  "Wellfleet",
-  "West Bridgewater",
-  "West Springfield",
-  "Westfield",
-  "Weymouth",
-  "Whitman",
-  "Williamstown",
-  "Woburn",
-  "Woods Hole",
-  "Worcester",
-  "Alabama",
-  "Alaska",
-  "Arizona",
-  "Arkansas",
-  "California",
-  "Colorado",
-  "Connecticut",
-  "Delaware",
-  "Florida",
-  "Georgia",
-  "Hawaii",
-  "Idaho",
-  "Illinois",
-  "Indiana",
-  "Iowa",
-  "Kansas",
-  "Kentucky",
-  "Louisiana",
-  "Maine",
-  "Maryland",
-  "Massachusetts",
-  "Michigan",
-  "Minnesota",
-  "Mississippi",
-  "Missouri",
-  "Montana",
-  "Nebraska",
-  "Nevada",
-  "New Hampshire",
-  "New Jersey",
-  "New Mexico",
-  "New York",
-  "North Carolina",
-  "North Dakota",
-  "Ohio",
-  "Oklahoma",
-  "Oregon",
-  "Pennsylvania",
-  "Rhode Island",
-  "South Carolina",
-  "South Dakota",
-  "Tennessee",
-  "Texas",
-  "Utah",
-  "Vermont",
-  "Virginia",
-  "Washington",
-  "West Virginia",
-  "Wisconsin",
-  "Wyoming",
-  "District of Columbia"
-];
+typedef Debounceable<S, T> = Future<S?> Function(T parameter);
+// Adjust the delay here
+const Duration debounceDuration = Duration(milliseconds: 500);
+Debounceable<S, T> debounce<S, T>(Debounceable<S?, T> function) {
+  _DebounceTimer? debounceTimer;
+  return (T parameter) async {
+    if (debounceTimer != null && !debounceTimer!.isCompleted) {
+      debounceTimer!.cancel();
+    }
+    debounceTimer = _DebounceTimer();
+    try {
+      await debounceTimer!.future;
+    } catch (error) {
+      if (error is _CancelException) {
+        return null;
+      }
+      rethrow;
+    }
+    return function(parameter);
+  };
+}
+
+class _DebounceTimer {
+  _DebounceTimer() {
+    _timer = Timer(debounceDuration, _onComplete);
+  }
+  late final Timer _timer;
+  final Completer<void> _completer = Completer<void>();
+  void _onComplete() {
+    _completer.complete();
+  }
+
+  Future<void> get future => _completer.future;
+  bool get isCompleted => _completer.isCompleted;
+  void cancel() {
+    _timer.cancel();
+    _completer.completeError(const _CancelException());
+  }
+}
+
+class _CancelException implements Exception {
+  const _CancelException();
+}
+
+class Suggestion {
+  final String placeId;
+  final String description;
+  const Suggestion(this.placeId, this.description);
+}

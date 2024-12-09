@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../dao/user_dao.dart';
 import 'dart:convert';
+import 'dart:math';
 
 class ApiService {
   final userDao = UserDao();
@@ -28,6 +29,7 @@ class ApiService {
       throw Exception('Error fetching data: $e');
     }
   }
+
   // POST request with optional query parameters and data
   Future<dynamic> postData(String endpoint, Map<String, dynamic> data,
       {Map<String, String>? queryParameters}) async {
@@ -730,6 +732,49 @@ class ApiService {
       print("Failed to update user: ${response.statusCode}");
     }
     return {};
+  }
+
+  Future<List<String>> getAutoComplete(String q) async {
+    final Uri url = Uri.https(
+      'serpapi.com',
+      '/search',
+      {
+        'engine': 'google_autocomplete',
+        'q': q,
+        'hl': 'en',
+        'gl': 'us',
+        'api_key':
+            '965609997e653a55296b04938f2768cb20c5256a118cf45696ffb5d9771b4319'
+      },
+    );
+    List<String> generateRandomStringList(int count, int length) =>
+        List.generate(
+            count,
+            (_) => String.fromCharCodes(List.generate(
+                    length, (_) => Random().nextInt(122 - 48) + 48)
+                .where((c) => (c <= 57 || c >= 65) && (c <= 90 || c >= 97))));
+
+    try {
+      // await Future.delayed(Duration(seconds: 2));
+      // return generateRandomStringList(10, 10);
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> suggestions = data['suggestions'];
+
+        final result = suggestions
+            .map<String>((suggestion) => suggestion['value'] as String)
+            .toList();
+        return result;
+      } else {
+        print(
+            'Failed to load suggestions. Status code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return [];
+    }
   }
   // Future<List<dynamic>> getRequests() async {
   //   final user = await userDao.getUser();
