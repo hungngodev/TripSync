@@ -1,14 +1,8 @@
 import os
 from serpapi import GoogleSearch
 import flask
-from flask_restful import Resource, Api
 from datetime import datetime, timedelta
-
-apiHotelData = flask.Flask(__name__)
-api = Api(apiHotelData)
-
-class Hotels(Resource):
- def get(self, city = "Amherst"):
+def get( city = "Amherst"):
   params = {
   "engine": "google_hotels",
   "q": city + " Hotels",
@@ -29,10 +23,3 @@ class Hotels(Resource):
     key["category"] = "hotel"
     key["source_link"] = key["link"]
     id+=1
-  return hotel_results
-
-
-api.add_resource(Hotels, '/')
-
-if __name__ == '__main__':
-    apiHotelData.run(debug=True, host='0.0.0.0', port=8080)

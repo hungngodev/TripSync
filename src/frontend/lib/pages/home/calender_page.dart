@@ -102,533 +102,497 @@ class _CalenderPageState extends State<CalenderPage> {
     final selectedTimeProvider =
         Provider.of<SelectedTimeChangeProvider>(context, listen: false);
     return Scaffold(
-      body: SlidingUpPanel(
-        maxHeight: 800,
-        defaultPanelState: PanelState.OPEN,
-        isDraggable: false,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
-        panel: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 5, right: 5),
-          child: !isLoading
-              ? Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: (() => Navigator.pop(context)),
-                                    child: Container(
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          border: Border.all(),
-                                          borderRadius:
-                                              BorderRadius.circular(24)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20),
-                                        child: Center(
-                                          child: Text(
-                                            "Today",
-                                            style: GoogleFonts.poppins(
-                                                color: Colors.black,
-                                                fontSize: 16),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Container(
+      body: Padding(
+        padding: const EdgeInsets.only(top: 20, left: 5, right: 5),
+        child: !isLoading
+            ? Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: (() => Navigator.pop(context)),
+                                  child: Container(
                                     height: 50,
                                     decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                          255, 147, 139, 174),
-                                      borderRadius: BorderRadius.circular(24),
-                                    ),
+                                        color: Colors.white,
+                                        border: Border.all(),
+                                        borderRadius:
+                                            BorderRadius.circular(24)),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 20),
                                       child: Center(
                                         child: Text(
-                                          "Calendar",
+                                          "Today",
                                           style: GoogleFonts.poppins(
-                                              color: Colors.white,
+                                              color: Colors.black,
                                               fontSize: 16),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
-                              TextButton.icon(
-                                  onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title:
-                                                const Text('Invite a friend'),
-                                            content: Container(
-                                              height: 150,
-                                              child: Column(
-                                                children: [
-                                                  CustomDropdown(
-                                                      items: friends
-                                                          .map((friend) => Item(
-                                                              friend.friendName,
-                                                              friend.friendId
-                                                                  .toString()))
-                                                          .toList(),
-                                                      hintText: 'Select friend',
-                                                      onChanged: (value) {
-                                                        setState(() {
-                                                          currentFriend =
-                                                              value!.id;
-                                                        });
-                                                      }),
-                                                  const SizedBox(
-                                                    height: 10,
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () async {
-                                                      await apiService
-                                                          .inviteCalendar(
-                                                              currentCalendar,
-                                                              currentFriend);
-                                                    },
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      backgroundColor:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              147,
-                                                              139,
-                                                              174),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                    ),
-                                                    child: const Text(
-                                                      'Invite',
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        });
-                                  },
-                                  icon: const Icon(Icons.person_add,
-                                      color:
-                                          Colors.blue), // Icon for the button
-                                  label: const Text('Invite',
-                                      style: TextStyle(
-                                          fontSize: 13, color: Colors.blue))),
-                              TextButton.icon(
-                                  onPressed: () {
-                                    const snackBar = SnackBar(
-                                      /// need to set following properties for best effect of awesome_snackbar_content
-                                      elevation: 0,
-                                      behavior: SnackBarBehavior.floating,
-                                      backgroundColor: Colors.transparent,
-                                      content: AwesomeSnackbarContent(
-                                        title: 'Reloaded!',
-                                        message: 'You have reloaded!',
-
-                                        /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
-                                        contentType: ContentType.success,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Container(
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                        255, 147, 139, 174),
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: Center(
+                                      child: Text(
+                                        "Calendar",
+                                        style: GoogleFonts.poppins(
+                                            color: Colors.white, fontSize: 16),
                                       ),
-                                    );
-
-                                    // Show SnackBar
-                                    ScaffoldMessenger.of(context)
-                                      ..hideCurrentSnackBar()
-                                      ..showSnackBar(snackBar);
-                                    setState(() {
-                                      _isSpinning = true; // Start the spin
-                                    });
-
-                                    // Reset the spin after it completes
-                                    Future.delayed(Duration(milliseconds: 500),
-                                        () {
-                                      setState(() {
-                                        _isSpinning =
-                                            false; // Reset the spin after half a second
-                                      });
-                                    });
-                                    print('refresh');
-                                    getMeetingDetails();
-                                  },
-                                  icon: AnimatedRotation(
-                                    turns: _isSpinning
-                                        ? 1
-                                        : 0, // Full rotation (1 full spin)
-                                    duration: Duration(
-                                        milliseconds:
-                                            500), // Duration for a full spin
-                                    child: const Icon(
-                                      Icons.refresh,
-                                      color: Colors.green,
                                     ),
                                   ),
-                                  label: const Text('',
-                                      style: TextStyle(
-                                          fontSize: 13, color: Colors.green)))
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    _items.isNotEmpty
-                        ? CustomDropdown<Item>(
-                            hintText: 'Select a calendar',
-                            items: _items,
-                            initialItem: _items.firstWhere(
-                              (item) => item.id == currentCalendar,
-                              orElse: () => _items[
-                                  0], // Optionally, handle the case where no item is found
+                                ),
+                              ],
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                currentCalendar = value!.id;
-                              });
-
-                              getMeetingDetails();
-                            },
-                          )
-                        : const SizedBox.shrink(),
-                    !_items.isNotEmpty || !valid
-                        ? Column(
-                            children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.04,
-                              ),
-                              Column(
-                                children: [
-                                  Text(
-                                    valid
-                                        ? 'No calendar found'
-                                        : 'No events found ',
-                                    style: GoogleFonts.getFont('Nunito',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 30,
-                                        color: Colors.black),
-                                  ),
-                                  Text(
-                                    '${_items.firstWhere((element) => element.id == currentCalendar).name} ',
-                                    style: GoogleFonts.getFont('Nunito',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 30,
-                                        color: const Color.fromARGB(
-                                            255, 147, 139, 174)),
-                                  ),
-                                  const SizedBox(
-                                    height: 4,
-                                  ),
-                                  Text(
-                                    valid
-                                        ? 'Please create a calendar to continue'
-                                        : 'Please add events to continue',
-                                    style: GoogleFonts.getFont('Nunito',
-                                        fontSize: 20, color: Colors.black),
-                                  )
-                                ],
-                              ),
-                              Lottie.asset(
-                                valid
-                                    ? 'assets/animations/invalid_calendar.json'
-                                    : 'assets/animations/invalid_activity.json',
-                                width:
-                                    MediaQuery.of(context).size.height * 0.45,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.45,
-                                fit: BoxFit.fill,
-                              )
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                    _items.isNotEmpty && valid
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            height: 110,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(22)),
-                            child: DatePicker(
-                              DateTime.now(),
-                              initialSelectedDate: DateTime.now(),
-                              width: 60,
-                              selectionColor:
-                                  const Color.fromARGB(255, 147, 139, 174),
-                              dateTextStyle: GoogleFonts.poppins(
-                                  color: Colors.grey, fontSize: 26),
-                              onDateChange: (date) {
-                                selectedTimeProvider.setSelectedDate(date);
-                                calendarController.displayDate = date;
-                              },
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                    _items.isNotEmpty && valid
-                        ? Expanded(
-                            child: Consumer<SelectedTimeChangeProvider>(
-                              builder: (context, value, child) {
-                                return SfCalendar(
-                                  view: friendResources.isNotEmpty
-                                      ? CalendarView.timelineDay
-                                      : CalendarView.day,
-                                  resourceViewHeaderBuilder:
-                                      (BuildContext context,
-                                          ResourceViewHeaderDetails details) {
-                                    final match =
-                                        RegExp(r'^(.*?)\s+images:\s+(.*)$')
-                                            .firstMatch(
-                                                details.resource.displayName);
-
-                                    final username = match?.group(1)?.trim();
-                                    final image = match?.group(2)?.trim();
-                                    return Container(
-                                        decoration: const BoxDecoration(
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: const Color.fromARGB(
-                                                  255, 147, 139, 174),
-                                              width: 3,
+                            TextButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text('Invite a friend'),
+                                          content: Container(
+                                            height: 150,
+                                            child: Column(
+                                              children: [
+                                                CustomDropdown(
+                                                    items: friends
+                                                        .map((friend) => Item(
+                                                            friend.friendName,
+                                                            friend.friendId
+                                                                .toString()))
+                                                        .toList(),
+                                                    hintText: 'Select friend',
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        currentFriend =
+                                                            value!.id;
+                                                      });
+                                                    }),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    await apiService
+                                                        .inviteCalendar(
+                                                            currentCalendar,
+                                                            currentFriend);
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            255, 147, 139, 174),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                  ),
+                                                  child: const Text(
+                                                    'Invite',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                           ),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            AvatarPlus(
-                                              image ?? '',
-                                              height: 50,
-                                              width: 50,
-                                            ),
-                                            Center(
-                                                child: Text(
-                                              username ?? '',
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.getFont(
-                                                  'Nunito',
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold),
-                                            )),
-                                          ],
-                                        ));
-                                    ;
-                                  },
-                                  controller: calendarController,
-                                  allowedViews: friendResources.isNotEmpty
-                                      ? const <CalendarView>[
-                                          CalendarView.timelineDay,
-                                          CalendarView.timelineWeek,
-                                          CalendarView.timelineWorkWeek,
-                                          CalendarView.timelineMonth
-                                        ]
-                                      : const [
-                                          CalendarView.day,
-                                          CalendarView.week,
-                                          CalendarView.month,
-                                        ],
-                                  resourceViewSettings: ResourceViewSettings(
-                                      visibleResourceCount:
-                                          min(3, friendResources.length)),
-                                  timeSlotViewSettings: TimeSlotViewSettings(
-                                    timelineAppointmentHeight:
-                                        MediaQuery.of(context).size.height /
-                                            min(
-                                                1,
-                                                friendResources.length
-                                                    .toDouble()),
-                                    timeIntervalWidth: 100,
-                                    timeIntervalHeight: 100,
+                                        );
+                                      });
+                                },
+                                icon: const Icon(Icons.person_add,
+                                    color: Colors.blue), // Icon for the button
+                                label: const Text('Invite',
+                                    style: TextStyle(
+                                        fontSize: 13, color: Colors.blue))),
+                            TextButton.icon(
+                                onPressed: () {
+                                  const snackBar = SnackBar(
+                                    /// need to set following properties for best effect of awesome_snackbar_content
+                                    elevation: 0,
+                                    behavior: SnackBarBehavior.floating,
+                                    backgroundColor: Colors.transparent,
+                                    content: AwesomeSnackbarContent(
+                                      title: 'Reloaded!',
+                                      message: 'You have reloaded!',
+
+                                      /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+                                      contentType: ContentType.success,
+                                    ),
+                                  );
+
+                                  // Show SnackBar
+                                  ScaffoldMessenger.of(context)
+                                    ..hideCurrentSnackBar()
+                                    ..showSnackBar(snackBar);
+                                  setState(() {
+                                    _isSpinning = true; // Start the spin
+                                  });
+
+                                  // Reset the spin after it completes
+                                  Future.delayed(Duration(milliseconds: 500),
+                                      () {
+                                    setState(() {
+                                      _isSpinning =
+                                          false; // Reset the spin after half a second
+                                    });
+                                  });
+                                  print('refresh');
+                                  getMeetingDetails();
+                                },
+                                icon: AnimatedRotation(
+                                  turns: _isSpinning
+                                      ? 1
+                                      : 0, // Full rotation (1 full spin)
+                                  duration: Duration(
+                                      milliseconds:
+                                          500), // Duration for a full spin
+                                  child: const Icon(
+                                    Icons.refresh,
+                                    color: Colors.green,
                                   ),
-                                  allowViewNavigation: true,
-                                  todayHighlightColor: Colors.blue,
-                                  showNavigationArrow: true,
-                                  firstDayOfWeek: 1,
-                                  showCurrentTimeIndicator: true,
-                                  dataSource: _events,
-                                  onTap: onCalendarTapped,
-                                  appointmentBuilder: (BuildContext context,
-                                      CalendarAppointmentDetails details) {
-                                    final Meeting meeting =
-                                        details.appointments.first;
-                                    if (meeting.isAllDay) {
-                                      return Container(
-                                        // height: details.bounds.height,
-                                        // color: meeting.background.withOpacity(0.7),
+                                ),
+                                label: const Text('',
+                                    style: TextStyle(
+                                        fontSize: 13, color: Colors.green)))
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _items.isNotEmpty
+                      ? CustomDropdown<Item>(
+                          hintText: 'Select a calendar',
+                          items: _items,
+                          initialItem: _items.firstWhere(
+                            (item) => item.id == currentCalendar,
+                            orElse: () => _items[
+                                0], // Optionally, handle the case where no item is found
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              currentCalendar = value!.id;
+                            });
+
+                            getMeetingDetails();
+                          },
+                        )
+                      : const SizedBox.shrink(),
+                  !_items.isNotEmpty || !valid
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.04,
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  valid
+                                      ? 'No calendar found'
+                                      : 'No events found ',
+                                  style: GoogleFonts.getFont('Nunito',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 30,
+                                      color: Colors.black),
+                                ),
+                                Text(
+                                  '${_items.firstWhere((element) => element.id == currentCalendar).name} ',
+                                  style: GoogleFonts.getFont('Nunito',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 30,
+                                      color: const Color.fromARGB(
+                                          255, 147, 139, 174)),
+                                ),
+                                const SizedBox(
+                                  height: 4,
+                                ),
+                                Text(
+                                  valid
+                                      ? 'Please create a calendar to continue'
+                                      : 'Please add events to continue',
+                                  style: GoogleFonts.getFont('Nunito',
+                                      fontSize: 20, color: Colors.black),
+                                )
+                              ],
+                            ),
+                            Lottie.asset(
+                              valid
+                                  ? 'assets/animations/invalid_calendar.json'
+                                  : 'assets/animations/invalid_activity.json',
+                              width: MediaQuery.of(context).size.height * 0.45,
+                              height: MediaQuery.of(context).size.height * 0.45,
+                              fit: BoxFit.fill,
+                            )
+                          ],
+                        )
+                      : const SizedBox.shrink(),
+                  _items.isNotEmpty && valid
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          height: 110,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(22)),
+                          child: DatePicker(
+                            DateTime.now(),
+                            initialSelectedDate: DateTime.now(),
+                            width: 60,
+                            selectionColor:
+                                const Color.fromARGB(255, 147, 139, 174),
+                            dateTextStyle: GoogleFonts.poppins(
+                                color: Colors.grey, fontSize: 26),
+                            onDateChange: (date) {
+                              selectedTimeProvider.setSelectedDate(date);
+                              calendarController.displayDate = date;
+                            },
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  _items.isNotEmpty && valid
+                      ? Expanded(
+                          child: Consumer<SelectedTimeChangeProvider>(
+                            builder: (context, value, child) {
+                              return SfCalendar(
+                                view: friendResources.isNotEmpty
+                                    ? CalendarView.timelineDay
+                                    : CalendarView.day,
+                                resourceViewHeaderBuilder:
+                                    (BuildContext context,
+                                        ResourceViewHeaderDetails details) {
+                                  final match = RegExp(
+                                          r'^(.*?)\s+images:\s+(.*)$')
+                                      .firstMatch(details.resource.displayName);
+
+                                  final username = match?.group(1)?.trim();
+                                  final image = match?.group(2)?.trim();
+                                  return Container(
+                                      decoration: const BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: const Color.fromARGB(
+                                                255, 147, 139, 174),
+                                            width: 3,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          AvatarPlus(
+                                            image ?? '',
+                                            height: 50,
+                                            width: 50,
+                                          ),
+                                          Center(
+                                              child: Text(
+                                            username ?? '',
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.getFont('Nunito',
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold),
+                                          )),
+                                        ],
+                                      ));
+                                },
+                                controller: calendarController,
+                                allowedViews: friendResources.isNotEmpty
+                                    ? const <CalendarView>[
+                                        CalendarView.timelineDay,
+                                        CalendarView.timelineWeek,
+                                        CalendarView.timelineWorkWeek,
+                                        CalendarView.timelineMonth
+                                      ]
+                                    : const [
+                                        CalendarView.day,
+                                        CalendarView.week,
+                                        CalendarView.month,
+                                      ],
+                                resourceViewSettings: ResourceViewSettings(
+                                    visibleResourceCount:
+                                        min(3, friendResources.length)),
+                                timeSlotViewSettings: TimeSlotViewSettings(
+                                  timelineAppointmentHeight: MediaQuery.of(
+                                              context)
+                                          .size
+                                          .height *
+                                      1 /
+                                      min(1, friendResources.length.toDouble()),
+                                  timeIntervalWidth: 100,
+                                  timeIntervalHeight: 100,
+                                ),
+                                allowViewNavigation: true,
+                                todayHighlightColor: Colors.blue,
+                                showNavigationArrow: true,
+                                firstDayOfWeek: 1,
+                                showCurrentTimeIndicator: true,
+                                dataSource: _events,
+                                onTap: onCalendarTapped,
+                                appointmentBuilder: (BuildContext context,
+                                    CalendarAppointmentDetails details) {
+                                  final Meeting meeting =
+                                      details.appointments.first;
+                                  if (meeting.isAllDay) {
+                                    return Container(
+                                      // height: details.bounds.height,
+                                      // color: meeting.background.withOpacity(0.7),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.rectangle,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(5)),
+                                        color:
+                                            meeting.background.withOpacity(1),
+                                      ),
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: Text(
+                                        meeting.eventName,
+                                        style: GoogleFonts.nunito(
+                                            color: Colors.white, fontSize: 15),
+                                      ),
+                                    );
+                                  }
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        height: details.bounds.height * 0.6,
+                                        // height: details.bounds.height * 2,
+                                        padding: const EdgeInsets.all(3),
+                                        alignment: Alignment.topLeft,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.rectangle,
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(5)),
+                                          borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(5),
+                                              topRight: Radius.circular(5)),
                                           color:
                                               meeting.background.withOpacity(1),
                                         ),
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Text(
-                                          meeting.eventName,
-                                          style: GoogleFonts.nunito(
-                                              color: Colors.white,
-                                              fontSize: 15),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              meeting.eventName,
+                                              style: GoogleFonts.poppins(
+                                                  color: Colors.white,
+                                                  fontSize: friendResources
+                                                          .isNotEmpty
+                                                      ? details.bounds.height /
+                                                              400 *
+                                                              20 +
+                                                          5
+                                                      : 16,
+                                                  fontWeight: FontWeight.bold),
+                                              softWrap: true,
+                                            ),
+                                            Text(
+                                              'Time: ${DateFormat('hh:mm a').format(meeting.from)} - ${DateFormat('hh:mm a').format(meeting.to)}',
+                                              style: GoogleFonts.poppins(
+                                                  fontSize: friendResources
+                                                          .isNotEmpty
+                                                      ? details.bounds.height /
+                                                              500 *
+                                                              20 +
+                                                          5
+                                                      : 11,
+                                                  color: Colors.white),
+                                            )
+                                          ],
                                         ),
-                                      );
-                                    }
-                                    return Column(
-                                      children: [
-                                        Container(
-                                          height: details.bounds.height * 0.6,
-                                          // height: details.bounds.height * 2,
-                                          padding: const EdgeInsets.all(3),
-                                          alignment: Alignment.topLeft,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                    topLeft: Radius.circular(5),
-                                                    topRight:
-                                                        Radius.circular(5)),
-                                            color: meeting.background
-                                                .withOpacity(1),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                meeting.eventName,
-                                                style: GoogleFonts.poppins(
-                                                    color: Colors.white,
-                                                    fontSize: friendResources
-                                                            .isNotEmpty
-                                                        ? details.bounds
-                                                                    .height /
-                                                                400 *
-                                                                20 +
-                                                            5
-                                                        : 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                softWrap: true,
-                                              ),
-                                              Text(
-                                                'Time: ${DateFormat('hh:mm a').format(meeting.from)} - ${DateFormat('hh:mm a').format(meeting.to)}',
-                                                style: GoogleFonts.poppins(
-                                                    fontSize: friendResources
-                                                            .isNotEmpty
-                                                        ? details.bounds
-                                                                    .height /
-                                                                500 *
-                                                                20 +
-                                                            5
-                                                        : 11,
-                                                    color: Colors.white),
-                                              )
-                                            ],
-                                          ),
+                                      ),
+                                      Container(
+                                        height: details.bounds.height * 0.3,
+                                        padding: const EdgeInsets.fromLTRB(
+                                            3, 5, 3, 2),
+                                        color:
+                                            meeting.background.withOpacity(0.7),
+                                        alignment: Alignment.topLeft,
+                                        child: SingleChildScrollView(
+                                            child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              meeting.description!,
+                                              style: GoogleFonts.nunito(
+                                                  color: Colors.white,
+                                                  fontSize: friendResources
+                                                          .isNotEmpty
+                                                      ? details.bounds.height /
+                                                              400 *
+                                                              20 +
+                                                          5
+                                                      : 13),
+                                            )
+                                          ],
+                                        )),
+                                      ),
+                                      Container(
+                                        height: details.bounds.height * 0.1,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.rectangle,
+                                          borderRadius: const BorderRadius.only(
+                                              bottomLeft: Radius.circular(5),
+                                              bottomRight: Radius.circular(5)),
+                                          color:
+                                              meeting.background.withOpacity(1),
                                         ),
-                                        Container(
-                                          height: details.bounds.height * 0.3,
-                                          padding: const EdgeInsets.fromLTRB(
-                                              3, 5, 3, 2),
-                                          color: meeting.background
-                                              .withOpacity(0.7),
-                                          alignment: Alignment.topLeft,
-                                          child: SingleChildScrollView(
-                                              child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                meeting.description!,
-                                                style: GoogleFonts.nunito(
-                                                    color: Colors.white,
-                                                    fontSize: friendResources
-                                                            .isNotEmpty
-                                                        ? details.bounds
-                                                                    .height /
-                                                                400 *
-                                                                20 +
-                                                            5
-                                                        : 13),
-                                              )
-                                            ],
-                                          )),
-                                        ),
-                                        Container(
-                                          height: details.bounds.height * 0.1,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                    bottomLeft:
-                                                        Radius.circular(5),
-                                                    bottomRight:
-                                                        Radius.circular(5)),
-                                            color: meeting.background
-                                                .withOpacity(1),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                  initialDisplayDate: DateTime(
-                                      DateTime.now().year,
-                                      DateTime.now().month,
-                                      DateTime.now().day,
-                                      0,
-                                      0,
-                                      0),
-                                  monthViewSettings: const MonthViewSettings(
-                                      appointmentDisplayMode:
-                                          MonthAppointmentDisplayMode
-                                              .appointment),
-                                );
-                              },
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ],
-                )
-              : const Center(
-                  child: CircularProgressIndicator(),
-                ),
-        ),
-        body: SafeArea(
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            color: const Color.fromARGB(255, 153, 154, 157),
-          ),
-        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                                initialDisplayDate: DateTime(
+                                    DateTime.now().year,
+                                    DateTime.now().month,
+                                    DateTime.now().day,
+                                    0,
+                                    0,
+                                    0),
+                                monthViewSettings: const MonthViewSettings(
+                                    appointmentDisplayMode:
+                                        MonthAppointmentDisplayMode
+                                            .appointment),
+                              );
+                            },
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ],
+              )
+            : const Center(
+                child: CircularProgressIndicator(),
+              ),
       ),
     );
   }
@@ -775,42 +739,47 @@ class _CalenderPageState extends State<CalenderPage> {
 
     setState(() {
       if (userId != '' && invitesData.isNotEmpty) {
-        final thisUserInvite = invitesData
-            .where((element) =>
-                element['invite']['id'] == int.parse(userId) ||
-                element['owner']['id'] == int.parse(userId))
-            .first;
-        bool share = thisUserInvite['invite']['id'] == int.parse(userId);
-        final firstInvite = CalendarResource(
-            id: thisUserInvite['invite']['id'].toString(),
-            displayName:
-                '${thisUserInvite['invite']['username']} images: ${thisUserInvite['invite']['image']}',
-            color: avatar[(invitesData.length + 1) % avatar.length]);
+        final thisOwner = invitesData.first;
         final owner = CalendarResource(
-            id: thisUserInvite['owner']['id'].toString(),
+            id: thisOwner['owner']['id'].toString(),
             displayName:
-                '${thisUserInvite['owner']['username']} images: ${thisUserInvite['owner']['image']}',
+                '${thisOwner['owner']['username']} images: ${thisOwner['owner']['image']}',
             color: avatar[invitesData.length % avatar.length]);
-        friendResources = share ? [firstInvite, owner] : [owner, firstInvite];
-        invitesData.remove(thisUserInvite);
-        friendResources.addAll(invitesData
+        bool share = thisOwner['owner']['id'] != int.parse(userId);
+        print("User $thisOwner");
+        friendResources = [owner];
+        final invitedFriend = invitesData.map((e) => e['invite']).toList();
+        print("Invited friend $invitedFriend");
+        if (share) {
+          print("share");
+          final thisUser = invitedFriend
+              .firstWhere((element) => element['id'] == int.parse(userId));
+          friendResources.insert(
+              0,
+              CalendarResource(
+                  id: thisUser['id'].toString(),
+                  displayName:
+                      '${thisUser['username']} images: ${thisUser['image']}',
+                  color: avatar[invitesData.length % avatar.length]));
+          invitedFriend
+              .removeWhere((element) => element['id'] == int.parse(userId));
+        }
+        print("Invited friend $invitedFriend");
+
+        friendResources.addAll(invitedFriend
             .map((friend) => CalendarResource(
-                id: friend['invite']['id'].toString(),
-                displayName:
-                    '${thisUserInvite['invite']['username']} images: ${thisUserInvite['invite']['image']}',
-                image: friend['invite']['image'] +
-                    'images: ${friend['invite']['image']}',
+                id: friend['id'].toString(),
+                displayName: '${friend['username']} images: ${friend['image']}',
                 color: avatar[friend['id'] % avatar.length]))
             .toList());
+        // friendResources.add(firstInvite);
       } else {
         friendResources = [];
       }
-
       appointments = meetingCollection;
       _events = DataSource(appointments, friendResources);
       valid = true;
     });
-    print(friendResources);
     calendarController.view = friendResources.isNotEmpty
         ? CalendarView.timelineDay
         : CalendarView.day;
@@ -1015,7 +984,7 @@ List<Meeting> transform(List<dynamic> backendCalendar) {
           activity: (event['activity']['id']),
           id: event['id'],
           isAllDay: event['isAllDay'],
-          resourceIds: [event['user']['id'].toString(), '11']))
+          resourceIds: [event['user']['id'].toString()]))
       .toList();
   return meetingCollection;
 }

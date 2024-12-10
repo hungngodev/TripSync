@@ -22,7 +22,7 @@ class SettingPage extends StatelessWidget {
         ),
         backgroundColor: const Color(0xfff6f6f6),
         body: Container(
-          height: MediaQuery.of(context).size.height * 1.2,
+          height: MediaQuery.of(context).size.height * 1,
           width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
@@ -30,7 +30,7 @@ class SettingPage extends StatelessWidget {
               Center(
                 child: Container(
                   constraints:
-                      const BoxConstraints(maxWidth: 400, maxHeight: 320),
+                      const BoxConstraints(maxWidth: 400, maxHeight: 280),
                   child: ListView(
                     children: [
                       _SingleSection(

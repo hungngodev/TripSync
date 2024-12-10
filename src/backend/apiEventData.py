@@ -1,8 +1,8 @@
 import os
 from serpapi import GoogleSearch
-import flask
-from flask_restful import Resource, Api
 import us
+from dotenv import load_dotenv
+load_dotenv()
 
 def expand_state_name(location):
     """
@@ -24,35 +24,26 @@ def expand_state_name(location):
     except Exception as e:
         return f"Error: {e}"
     
-apiEventData = flask.Flask(__name__)
-api = Api(apiEventData)
 
-class Events(Resource):
- def get(self, city = "Amherst"):
-  params = {
-  "engine": "google_events",
-  "q": "Events in "+ city,
-  "hl": "en",
-  "gl": "us",
-  "api_key": os.environ.get('API_KEY')
-  }
-  search = GoogleSearch(params)
-  results = search.get_dict()
-  event_results = results["events_results"]
-  id = 100
-  for key in event_results:
-    key["id"] = id
-    key["location"] = expand_state_name(key["address"][1])
-    key["address"] = key["address"][0]
-    key["category"] = "entertainment"
-    key["source_link"] = key["link"]
-    id+=1
-  return event_results
+def get( city = "Amherst"):
+    params = {
+    "engine": "google_events",
+    "q": "Events in "+ city,
+    "hl": "en",
+    "gl": "us",
+    "api_key": os.environ.get('API_KEY')
+    }
+    search = GoogleSearch(params)
+    results = search.get_dict()
+    event_results = results["events_results"]
+    id = 100
+    for key in event_results:
+        key["id"] = id
+        key["location"] = expand_state_name(key["address"][1])
+        key["address"] = key["address"][0]
+        key["category"] = "entertainment"
+        key["source_link"] = key["link"]
+        id+=1
+    return event_results
 
-
-api.add_resource(Events, '/')
-
-if __name__ == '__main__':
-    apiEventData.run(debug=True, host='0.0.0.0', port=8080)
-
-
+print(get("Amherst"))   

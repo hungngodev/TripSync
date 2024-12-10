@@ -7,13 +7,14 @@ class Activity(models.Model):
     CATEGORY_CHOICES = [
         ('hotel', 'Hotel'),
         ('restaurant', 'Restaurant'),
-        ('entertainments', 'Entertainment'),
+        ('event', 'Event'),
     ]
     address = models.CharField(max_length=255, null =  True)    
     title = models.CharField(max_length=255, null = True)
     location = models.CharField(max_length=255)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     description = models.TextField()
+    image = models.URLField()
     source_link = models.URLField()
 
 class Calendar(models.Model):

@@ -1,3 +1,6 @@
+import 'dart:math';
+import 'dart:async';
+
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+
+import 'package:lottie/lottie.dart';
 
 import '../../bloc/authentication_bloc.dart';
 import '../../bloc/authentication_state.dart';
@@ -33,13 +38,15 @@ class _Home extends State<SearchPage> {
   final ApiService apiService = ApiService();
   List<dynamic> data = [];
   List<Map<String, dynamic>> selectedActivities = [];
-  String _selectedItem = '';
   final SearchController _searchController = SearchController();
-  final Set<dynamic> _filters = {};
-  Set<String> options = {'hotel', 'restaurant', 'entertainments'};
-  final Set<String> original = {'hotel', 'restaurant', 'entertainments'};
+  final Set<dynamic> _filters = {'hotel'};
+  Set<String> options = {'hotel', 'restaurant', 'event'};
+  final Set<String> original = {'hotel', 'restaurant', 'event'};
   DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now().add(const Duration(days: 5));
+  DateTime endDate = DateTime.now().add(const Duration(days: 2));
+  late final Debounceable<List<Suggestion>?, String> _debouncedSearch;
+  late Iterable<Widget> _lastOptions = <Widget>[];
+  bool loading = false;
   late List<Item> _items = <Item>[
     Item(
       '1',
@@ -51,8 +58,26 @@ class _Home extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch selected activities
+    _debouncedSearch = debounce<List<Suggestion>?, String>(_search);
     fetchInfo();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<List<Suggestion>?> _search(String query) async {
+    // In a real application, there should be some error handling here.
+    final data = await apiService.getAutoComplete(query);
+    final List<Suggestion> options = data
+        .map((e) => Suggestion(
+              e,
+              e,
+            ))
+        .toList();
+    return options;
   }
 
   Future<void> fetchInfo() async {
@@ -196,20 +221,33 @@ class _Home extends State<SearchPage> {
   }
 
   void search() async {
-    print("Searching for $_selectedItem");
+    setState(() {
+      loading = true;
+    });
+    final categories = _filters.where((e) => original.contains(e)).toList();
+    final category = categories.isNotEmpty ? categories[0] : '';
+    print("Category: $category");
+    final search = _searchController.text;
+    print("Search: $search");
+    final keyWords =
+        _filters.where((e) => !original.contains(e)).toList().join(',');
+    print("Query: $keyWords");
     final String filter =
         _filters.map((e) => e.toString().split('.').last).join(',');
     print("Filter by: $filter");
     try {
       List<dynamic> fetchData = await apiService.getData(
         queryParameters: {
-          'location': _selectedItem,
-          'category':
-              _filters.map((e) => e.toString().split('.').last).join(','),
+          'category': category,
+          'search': search,
+          'keyWords': keyWords,
+          'startDate': DateFormat('yyyy-MM-dd').format(startDate),
+          'endDate': DateFormat('yyyy-MM-dd').format(endDate),
         },
       );
       setState(() {
         data = fetchData;
+        loading = false;
       });
     } catch (e) {
       print(e);
@@ -341,7 +379,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: Text(
                                                       activity['title']!,
                                                       style:
@@ -370,7 +408,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: Text(
                                                       "${activity['location']}",
                                                       style:
@@ -397,7 +435,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: Text(
                                                       "${activity['address']}",
                                                       style:
@@ -440,7 +478,6 @@ class _Home extends State<SearchPage> {
                                                 ],
                                               ),
                                               const SizedBox(height: 10),
-
                                               // Source Link
                                               Row(
                                                 children: [
@@ -452,7 +489,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.5,
                                                     child: GestureDetector(
                                                       onTap: () => _launchURL(
                                                           activity[
@@ -490,7 +527,7 @@ class _Home extends State<SearchPage> {
                                                         MediaQuery.of(context)
                                                                 .size
                                                                 .width *
-                                                            0.8,
+                                                            0.4,
                                                     child: Text(
                                                       "${activity['description']}",
                                                       style: GoogleFonts.nunito(
@@ -609,6 +646,9 @@ class _Home extends State<SearchPage> {
                         onTap: () {
                           controller.openView();
                         },
+                        onChanged: (String value) {
+                          print("Changed: $value");
+                        },
                         leading: const Icon(Icons.search),
                         trailing: <Widget>[
                           Tooltip(
@@ -616,42 +656,34 @@ class _Home extends State<SearchPage> {
                             child: IconButton(
                               icon: const Icon(Icons.send),
                               onPressed: () {
-                                print('Searching for ');
-                                setState(() {
-                                  _selectedItem = controller
-                                      .text; // Treat the current text as selected
-                                });
+                                search();
                               },
                             ),
                           )
                         ],
                       );
                     },
-                    suggestionsBuilder:
-                        (BuildContext context, SearchController controller) {
-                      return List<Widget>.generate(suggestions.length,
-                          (int index) {
-                        if (suggestions[index].contains(controller.text)) {
-                          return ListTile(
-                            title: Text(suggestions[index]),
-                            onTap: () {
-                              setState(() {
-                                _selectedItem = suggestions[
-                                    index]; // Update state when an item is selected
-                              });
-                              controller.closeView(suggestions[index]);
-                              search();
-                            },
-                          );
-                        }
-                        return const SizedBox.shrink();
+                    suggestionsBuilder: (BuildContext context,
+                        SearchController controller) async {
+                      final List<Suggestion>? options =
+                          (await _debouncedSearch(controller.text))?.toList();
+                      if (options == null) {
+                        return _lastOptions;
+                      }
+                      // final options = [];
+                      _lastOptions =
+                          List<Widget>.generate(options.length, (int index) {
+                        return ListTile(
+                          title: Text(options[index].description),
+                          onTap: () {
+                            controller.closeView(options[index].description);
+                            search();
+                          },
+                        );
                       });
+                      return _lastOptions;
                     },
                     viewOnSubmitted: (value) {
-                      print("Submitted: $value");
-                      setState(() {
-                        _selectedItem = value;
-                      });
                       _searchController.closeView(value);
                       search();
                     },
@@ -713,6 +745,12 @@ class _Home extends State<SearchPage> {
                         onSelected: (bool selected) {
                           setState(() {
                             if (selected) {
+                              if (selected && original.contains(exercise)) {
+                                final index = _filters.where((e) {
+                                  return original.contains(e);
+                                }).toList();
+                                if (index.isNotEmpty) _filters.remove(index[0]);
+                              }
                               _filters.add(exercise);
                             } else {
                               _filters.remove(exercise);
@@ -767,91 +805,186 @@ class _Home extends State<SearchPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final item = data[index];
-                            return Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              elevation: 5,
-                              margin: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Padding(
-                                padding: const EdgeInsets.all(15.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item['category'].toString().toUpperCase(),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.deepPurple,
-                                      ),
+                    child: loading
+                        ? Lottie.asset(
+                            'assets/animations/loading.json',
+                            width: MediaQuery.of(context).size.height * 0.45,
+                            height: MediaQuery.of(context).size.height * 0.3,
+                            fit: BoxFit.fill,
+                          )
+                        : Column(
+                            children: [
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: data.length,
+                                itemBuilder: (context, index) {
+                                  final item = data[index];
+                                  return Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      item['description'],
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Location: ${item['location']}',
-                                          style: TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () =>
-                                              _launchURL(item['source_link']),
-                                          child: const Text(
-                                            'Visit Source',
-                                            style: TextStyle(
-                                              color: Colors.blue,
-                                              decoration:
-                                                  TextDecoration.underline,
+                                    elevation: 5,
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item['category']
+                                                .toString()
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.deepPurple,
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    // Add button to the Card
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          // Call the function to add the item to the cart
-                                          addActivity(item);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.deepPurple,
-                                          foregroundColor: Colors.white,
-                                        ),
-                                        child: const Text('Add'),
+                                          Container(
+                                            width: 350,
+                                            child: Text(
+                                              item['title']
+                                                  .toString()
+                                                  .toUpperCase(),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                                color: Colors.black,
+                                              ),
+                                              softWrap: true,
+                                            ),
+                                          ),
+                                          Center(
+                                            child: Container(
+                                              width:
+                                                  400, // Set the desired width
+                                              height:
+                                                  200, // Set the desired height
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        15), // Rounded corners
+                                                image: DecorationImage(
+                                                  image: NetworkImage(item[
+                                                      'image']), // Replace with your image URL
+                                                  fit: BoxFit
+                                                      .cover, // Cover the entire box
+                                                  onError:
+                                                      (exception, stackTrace) {
+                                                    // Fallback for error handling
+                                                  },
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.2),
+                                                    blurRadius: 8,
+                                                    offset: Offset(2,
+                                                        4), // Slight shadow offset
+                                                  ),
+                                                ],
+                                              ),
+                                              child: item['image'] == null
+                                                  ? Center(
+                                                      child: Text(
+                                                        'Failed to load image',
+                                                        style: TextStyle(
+                                                            color: Colors.red),
+                                                      ),
+                                                    )
+                                                  : null,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          ListTile(
+                                            title: Container(
+                                              width: 350,
+                                              child: Text(
+                                                'Description:',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18,
+                                                  color: Colors.black,
+                                                ),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                            subtitle: Container(
+                                              width: 350,
+                                              child: Text(
+                                                item[
+                                                    'description'], // Replace with your description key
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.grey[800],
+                                                ),
+                                                softWrap: true,
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              // Define tap action here
+                                            },
+                                          ),
+
+                                          const SizedBox(height: 10),
+
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                width: 200,
+                                                child: Text(
+                                                  'Location: ${item['location']}',
+                                                  style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  softWrap: true,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () => _launchURL(
+                                                    item['source_link']),
+                                                child: const Text(
+                                                  'Visit Source',
+                                                  style: TextStyle(
+                                                    color: Colors.blue,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          // Add button to the Card
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                // Call the function to add the item to the cart
+                                                addActivity(item);
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.deepPurple,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child: const Text('Add'),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                            ],
+                          ),
                   ),
                 ],
               ),
@@ -885,307 +1018,52 @@ class _Home extends State<SearchPage> {
   }
 }
 
-final suggestions = [
-  "Los Angeles",
-  "Aspen",
-  "Austin",
-  "Manhattan",
-  "Miami",
-  "Phoenix",
-  "Chicago",
-  "Seattle",
-  "Las Vegas",
-  "Burlington",
-  "Boston",
-  "Atlanta",
-  "Amherst",
-  "Cambridge",
-  "Worcester",
-  "Springfield",
-  "Lowell",
-  "Brockton",
-  "Quincy",
-  "Newton",
-  "Lynn",
-  "Somerville",
-  "Framingham",
-  "Peabody",
-  "Revere",
-  "Malden",
-  "Taunton",
-  "Chelsea",
-  "Pittsfield",
-  "Medford",
-  "Weymouth",
-  "Haverhill",
-  "Marlborough",
-  "Beverly",
-  "Fitchburg",
-  "Danvers",
-  "Northampton",
-  "Westfield",
-  "Westborough",
-  "Andover",
-  "New York",
-  "San Francisco",
-  "Houston",
-  "Dallas",
-  "San Diego",
-  "Denver",
-  "Orlando",
-  "Detroit",
-  "Tampa",
-  "Indianapolis",
-  "Salt Lake City",
-  "Sacramento",
-  "Kansas City",
-  "Pittsburgh",
-  "Anchorage",
-  "Richmond",
-  "New Orleans",
-  "Baltimore",
-  "Columbus",
-  "St. Louis",
-  "Milwaukee",
-  "Louisville",
-  "Cleveland",
-  "Minneapolis",
-  "Raleigh",
-  "Charlotte",
-  "Portland",
-  "Nashville",
-  "Birmingham",
-  "Madison",
-  "Tucson",
-  "Fort Worth",
-  "Boulder",
-  "Grand Rapids",
-  "Little Rock",
-  "Shreveport",
-  "Montgomery",
-  "Boise",
-  "Jacksonville",
-  "Lincoln",
-  "Toledo",
-  "Tulsa",
-  "Fargo",
-  "Des Moines",
-  "Billings",
-  "Macon",
-  "Wichita",
-  "Davenport",
-  "Bakersfield",
-  "Lexington",
-  "Huntsville",
-  "Sioux Falls",
-  "Duluth",
-  "Evansville",
-  "Fort Wayne",
-  "Chattanooga",
-  "Spokane",
-  "Lafayette",
-  "Augusta",
-  "Jackson",
-  "Rockford",
-  "Omaha",
-  "Charleston",
-  "Vancouver",
-  "Fort Collins",
-  "Charleston",
-  "Albuquerque",
-  "Rochester",
-  "Bismarck",
-  "Asheville",
-  "Boise",
-  "Myrtle Beach",
-  "Salem",
-  "Santa Fe",
-  "Pocatello",
-  "Flagstaff",
-  "Joplin",
-  "Cedar Rapids",
-  "Evansville",
-  "Rapid City",
-  "Montpelier",
-  "Hartford",
-  "Pueblo",
-  "Muskogee",
-  "Bloomington",
-  "Champaign",
-  "Ithaca",
-  "Lexington",
-  "Cincinnati",
-  "Chico",
-  "Ann Arbor",
-  "Traverse City",
-  "Plymouth",
-  "Tallahassee",
-  "Medford",
-  "Waterloo",
-  "Abilene",
-  "Burlington",
-  "Frankfort",
-  "Peoria",
-  "Carmel",
-  "Indianapolis",
-  "Lafayette",
-  "Augusta",
-  "Manchester",
-  "St. Paul",
-  "Davenport",
-  "Rapid City",
-  "Bowling Green",
-  "Abington",
-  "Adams",
-  "Amesbury",
-  "Amherst",
-  "Andover",
-  "Arlington",
-  "Athol",
-  "Attleboro",
-  "Barnstable",
-  "Bedford",
-  "Beverly",
-  "Boston",
-  "Bourne",
-  "Braintree",
-  "Brockton",
-  "Brookline",
-  "Cambridge",
-  "Canton",
-  "Charlestown",
-  "Chelmsford",
-  "Chelsea",
-  "Chicopee",
-  "Clinton",
-  "Cohasset",
-  "Concord",
-  "Danvers",
-  "Dartmouth",
-  "Dedham",
-  "Dennis",
-  "Duxbury",
-  "Eastham",
-  "Edgartown",
-  "Everett",
-  "Fairhaven",
-  "Fall River",
-  "Falmouth",
-  "Fitchburg",
-  "Framingham",
-  "Gloucester",
-  "Great Barrington",
-  "Greenfield",
-  "Groton",
-  "Harwich",
-  "Haverhill",
-  "Hingham",
-  "Holyoke",
-  "Hyannis",
-  "Ipswich",
-  "Lawrence",
-  "Lenox",
-  "Leominster",
-  "Lexington",
-  "Lowell",
-  "Ludlow",
-  "Lynn",
-  "Malden",
-  "Marblehead",
-  "Marlborough",
-  "Medford",
-  "Milton",
-  "Nahant",
-  "Natick",
-  "New Bedford",
-  "Newburyport",
-  "Newton",
-  "North Adams",
-  "Northampton",
-  "Norton",
-  "Norwood",
-  "Peabody",
-  "Pittsfield",
-  "Plymouth",
-  "Provincetown",
-  "Quincy",
-  "Randolph",
-  "Revere",
-  "Salem",
-  "Sandwich",
-  "Saugus",
-  "Somerville",
-  "South Hadley",
-  "Springfield",
-  "Stockbridge",
-  "Stoughton",
-  "Sturbridge",
-  "Sudbury",
-  "Taunton",
-  "Tewksbury",
-  "Truro",
-  "Watertown",
-  "Webster",
-  "Wellesley",
-  "Wellfleet",
-  "West Bridgewater",
-  "West Springfield",
-  "Westfield",
-  "Weymouth",
-  "Whitman",
-  "Williamstown",
-  "Woburn",
-  "Woods Hole",
-  "Worcester",
-  "Alabama",
-  "Alaska",
-  "Arizona",
-  "Arkansas",
-  "California",
-  "Colorado",
-  "Connecticut",
-  "Delaware",
-  "Florida",
-  "Georgia",
-  "Hawaii",
-  "Idaho",
-  "Illinois",
-  "Indiana",
-  "Iowa",
-  "Kansas",
-  "Kentucky",
-  "Louisiana",
-  "Maine",
-  "Maryland",
-  "Massachusetts",
-  "Michigan",
-  "Minnesota",
-  "Mississippi",
-  "Missouri",
-  "Montana",
-  "Nebraska",
-  "Nevada",
-  "New Hampshire",
-  "New Jersey",
-  "New Mexico",
-  "New York",
-  "North Carolina",
-  "North Dakota",
-  "Ohio",
-  "Oklahoma",
-  "Oregon",
-  "Pennsylvania",
-  "Rhode Island",
-  "South Carolina",
-  "South Dakota",
-  "Tennessee",
-  "Texas",
-  "Utah",
-  "Vermont",
-  "Virginia",
-  "Washington",
-  "West Virginia",
-  "Wisconsin",
-  "Wyoming",
-  "District of Columbia"
-];
+typedef Debounceable<S, T> = Future<S?> Function(T parameter);
+// Adjust the delay here
+const Duration debounceDuration = Duration(milliseconds: 500);
+Debounceable<S, T> debounce<S, T>(Debounceable<S?, T> function) {
+  _DebounceTimer? debounceTimer;
+  return (T parameter) async {
+    if (debounceTimer != null && !debounceTimer!.isCompleted) {
+      debounceTimer!.cancel();
+    }
+    debounceTimer = _DebounceTimer();
+    try {
+      await debounceTimer!.future;
+    } catch (error) {
+      if (error is _CancelException) {
+        return null;
+      }
+      rethrow;
+    }
+    return function(parameter);
+  };
+}
+
+class _DebounceTimer {
+  _DebounceTimer() {
+    _timer = Timer(debounceDuration, _onComplete);
+  }
+  late final Timer _timer;
+  final Completer<void> _completer = Completer<void>();
+  void _onComplete() {
+    _completer.complete();
+  }
+
+  Future<void> get future => _completer.future;
+  bool get isCompleted => _completer.isCompleted;
+  void cancel() {
+    _timer.cancel();
+    _completer.completeError(const _CancelException());
+  }
+}
+
+class _CancelException implements Exception {
+  const _CancelException();
+}
+
+class Suggestion {
+  final String placeId;
+  final String description;
+  const Suggestion(this.placeId, this.description);
+}
