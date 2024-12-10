@@ -665,12 +665,12 @@ class _Home extends State<SearchPage> {
                     },
                     suggestionsBuilder: (BuildContext context,
                         SearchController controller) async {
-                      // final List<Suggestion>? options =
-                      //     (await _debouncedSearch(controller.text))?.toList();
-                      // if (options == null) {
-                      //   return _lastOptions;
-                      // }
-                      final options = [];
+                      final List<Suggestion>? options =
+                          (await _debouncedSearch(controller.text))?.toList();
+                      if (options == null) {
+                        return _lastOptions;
+                      }
+                      // final options = [];
                       _lastOptions =
                           List<Widget>.generate(options.length, (int index) {
                         return ListTile(

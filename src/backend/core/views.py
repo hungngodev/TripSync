@@ -234,7 +234,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
                     'title': hotel['name'],
                     'description': hotel.get('description', fake.text(max_nb_chars=200)),
                     'category': 'hotel',
-                    'source_link': hotel['link'],
+                    'source_link': hotel.get('link', fake.url()),
                     'image': hotel['images'][0]['thumbnail'],
                     'location': location,
                     'address': address if address and address != location and address != '' else fake.address()
