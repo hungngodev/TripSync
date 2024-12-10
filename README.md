@@ -1,10 +1,8 @@
 # umass-compsci-320-Fall-24-Team-9
 
-Here’s a polished and visually engaging version of your README:
-
 ---
 
-# 🌍 Travel Buddy Finder
+# 🌍 Travel Planner
 
 An innovative application designed to suggest travel destinations for groups of friends from various regions, helping them plan trips effortlessly.
 
@@ -12,7 +10,7 @@ An innovative application designed to suggest travel destinations for groups of 
 
 ## ✨ Features
 
-- **Personalized Suggestions**: Leveraging OpenAI API to recommend destinations tailored to group preferences.
+- **Personalized Suggestions**: Leveraging SerpAPI to recommend destinations tailored to group preferences and user query.
 - **Cross-Platform App**: Built with Flutter for a seamless experience on iOS and Android.
 - **Interactive Backend**: Powered by Django for robust and scalable backend support.
 
@@ -86,7 +84,7 @@ Follow these steps to set up and run the application locally:
 
 - **Frontend**: Flutter
 - **Backend**: Django
-- **API Integration**: OpenAI API
+- **API Integration**: SerpAPI, GeocodingAPI
 
 ---
 
@@ -95,5 +93,3 @@ Follow these steps to set up and run the application locally:
 Start the app and let **Travel Buddy Finder** recommend the perfect destination for you and your friends!
 
 ---
-
-Feel free to add badges, images, or additional links if desired to make it even more engaging!
