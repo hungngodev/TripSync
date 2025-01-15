@@ -1,8 +1,6 @@
-# umass-compsci-320-Fall-24-Team-9
 
----
 
-# 🌍 Travel Planner
+# 🌍 Trip Sync
 
 An innovative application designed to suggest travel destinations for groups of friends from various regions, helping them plan trips effortlessly.
 
