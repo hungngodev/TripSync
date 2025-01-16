@@ -38,6 +38,10 @@ But after create some calendar:
 </div>
 
 Search Screen
+[![Watch the video](https://raw.githubusercontent.com/hungngodev/TripSync/main/assets/thumbnail.jpg)](https://raw.githubusercontent.com/hungngodev/TripSync/raw/main/video/Simulator%20Screen%20Recording%20-%20iPhone%2016%20Pro%20-%202025-01-15%20at%2021.36.07.mp4)
+
+
+
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
     <img src="https://github.com/user-attachments/assets/1bfc2264-d54e-46d4-b1fd-448f1be531ab" alt="Search Screen 1" width="150">
     <img src="https://github.com/user-attachments/assets/73678a42-b85e-4d2d-ace7-7195533d0081" alt="Search Screen 2" width="150">
