@@ -72,20 +72,24 @@ https://github.com/user-attachments/assets/fc465522-ee42-4149-86ea-f415cd477273
 
 https://github.com/user-attachments/assets/4ba95e0a-80ce-43a4-b860-800bd471f4cc
 
+- Create your own schedule
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
   <img src="https://github.com/user-attachments/assets/934e4a26-ad0d-42e6-95a2-7a401b80ffc7" alt="Image 1" width="150">
   <img src="https://github.com/user-attachments/assets/d689208f-0738-4f4e-9b34-70ff0b972968" alt="Image 2" width="150">
   <img src="https://github.com/user-attachments/assets/d63e537b-d6ef-442e-ad2e-28d133bb2df1" alt="Image 3" width="150">
   <img src="https://github.com/user-attachments/assets/59a06243-c158-431c-b97e-2c2d12a496b5" alt="Image 4" width="150">
-  <img src="https://github.com/user-attachments/assets/d8e50427-7ccf-468b-9a68-2cd933df74d6" alt="Image 5" width="150">
-  <img src="https://github.com/user-attachments/assets/dd328c90-3228-4162-82e7-5dd4f6e1e73f" alt="Image 6" width="150">
+
 </div>
 
+- Invite your friend
+<div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <img src="https://github.com/user-attachments/assets/d8e50427-7ccf-468b-9a68-2cd933df74d6" alt="Image 5" width="150">
+  <img src="https://github.com/user-attachments/assets/dd328c90-3228-4162-82e7-5dd4f6e1e73f" alt="Image 6" width="150">
+</div>
 
 ## Community Page
 
 <div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="https://github.com/user-attachments/assets/0b10c063-6351-4ec4-95b5-81871220cc50" alt="Able to like a post" width="150">
   <img src="https://github.com/user-attachments/assets/7e041b15-02a8-47e7-9fe7-4d719dfc3dc5" alt="If already add friend" width="150">
   <img src="https://github.com/user-attachments/assets/3c0bfe26-ab36-481e-b7a6-38c311c75253" alt="If my own post" width="150">
 </div>
