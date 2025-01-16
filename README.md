@@ -13,7 +13,7 @@ An innovative application designed to suggest travel destinations for groups of 
 - **Interactive Backend**: Powered by Django for robust and scalable backend support.
 
 ---
-Welcoming Screen
+## Welcoming Screen
 <div style="display: flex; justify-content: space-around; align-items: center;">
   <img src="https://github.com/user-attachments/assets/b05676bc-9fcc-4cdc-91b9-8da3709265c9" alt="Simulator Screenshot" width="200">
   <img src="https://github.com/user-attachments/assets/50c657fa-aaa5-4660-b99f-e897e5aa9d62" alt="Image 2" width="200">
@@ -21,25 +21,30 @@ Welcoming Screen
   <img src="https://github.com/user-attachments/assets/aaf579f3-410a-4485-8314-0441dad22d4d" alt="Image 4" width="200">
 </div>
 
-Login Screen
+## Login Screen
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
     <img src="https://github.com/user-attachments/assets/5a8167f2-ca04-445a-afef-852426ec517e" alt="Login Screen 1" width="200">
     <img src="https://github.com/user-attachments/assets/47c63a4b-9c9c-4089-9065-ef3ea962a768" alt="Login Screen 2" width="200">
     <img src="https://github.com/user-attachments/assets/7f83705f-2432-4256-9cac-ca12a2dfeffa" alt="Login Screen 3" width="200">
 </div>
 
-Home Screen
-If you are a new user then it would be:
+## Home Screen
+- If you are a new user then it would be:
 
-But after create some calendar:
+https://github.com/user-attachments/assets/66b05a25-06c4-4607-9afa-9a04abb33df6
+
+- But after create some calendar:
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
     <img src="https://github.com/user-attachments/assets/09e2d144-bf4e-486d-a8f3-0cca0df3109c" alt="Home Screen New User" width="200">
     <img src="https://github.com/user-attachments/assets/53237bae-1a37-44e4-a52d-2f947f5be04d" alt="Home Screen with Calendars" width="200">
 </div>
 
-Search Screen
-[![Watch the video](https://raw.githubusercontent.com/hungngodev/TripSync/main/assets/thumbnail.jpg)](https://raw.githubusercontent.com/hungngodev/TripSync/raw/main/video/Simulator%20Screen%20Recording%20-%20iPhone%2016%20Pro%20-%202025-01-15%20at%2021.36.07.mp4)
+## Search Screen
 
+https://github.com/user-attachments/assets/b50776a8-4eda-4b16-98e9-d4fa904c179b
+
+
+https://github.com/user-attachments/assets/c29e056b-91d1-4c5c-adf7-46f56af13b40
 
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -51,38 +56,57 @@ Search Screen
 </div>
 
 
-Today Page
-![image](https://github.com/user-attachments/assets/4909759c-8781-4127-9240-46cecef60656)
+## Today Page
+- If your calendar for today is empty or you have not created any calendars
+
+https://github.com/user-attachments/assets/e92a1329-1fad-4e03-a488-cea25a1ad50a
+
+<div>
+  <img src="https://github.com/user-attachments/assets/4909759c-8781-4127-9240-46cecef60656" alt="Today Page" width= "150">
+</div>
+
+## Calendar Page
+
+https://github.com/user-attachments/assets/fc465522-ee42-4149-86ea-f415cd477273
+
+https://github.com/user-attachments/assets/4ba95e0a-80ce-43a4-b860-800bd471f4cc
+
+<div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+  <img src="https://github.com/user-attachments/assets/934e4a26-ad0d-42e6-95a2-7a401b80ffc7" alt="Image 1" width="150">
+  <img src="https://github.com/user-attachments/assets/d689208f-0738-4f4e-9b34-70ff0b972968" alt="Image 2" width="150">
+  <img src="https://github.com/user-attachments/assets/d63e537b-d6ef-442e-ad2e-28d133bb2df1" alt="Image 3" width="150">
+  <img src="https://github.com/user-attachments/assets/59a06243-c158-431c-b97e-2c2d12a496b5" alt="Image 4" width="150">
+  <img src="https://github.com/user-attachments/assets/d8e50427-7ccf-468b-9a68-2cd933df74d6" alt="Image 5" width="150">
+  <img src="https://github.com/user-attachments/assets/dd328c90-3228-4162-82e7-5dd4f6e1e73f" alt="Image 6" width="150">
+</div>
 
 
-Calendar Page
-![image](https://github.com/user-attachments/assets/934e4a26-ad0d-42e6-95a2-7a401b80ffc7)
-![image](https://github.com/user-attachments/assets/d689208f-0738-4f4e-9b34-70ff0b972968)
-![image](https://github.com/user-attachments/assets/d63e537b-d6ef-442e-ad2e-28d133bb2df1)
-![image](https://github.com/user-attachments/assets/59a06243-c158-431c-b97e-2c2d12a496b5)
-![image](https://github.com/user-attachments/assets/d8e50427-7ccf-468b-9a68-2cd933df74d6)
-![image](https://github.com/user-attachments/assets/dd328c90-3228-4162-82e7-5dd4f6e1e73f)
+## Community Page
 
-Community Page
-Able to like a post
-![image](https://github.com/user-attachments/assets/0b10c063-6351-4ec4-95b5-81871220cc50)
-If already add friend
-![image](https://github.com/user-attachments/assets/7e041b15-02a8-47e7-9fe7-4d719dfc3dc5)
-If my own post
-![image](https://github.com/user-attachments/assets/3c0bfe26-ab36-481e-b7a6-38c311c75253)
+<div style="display: flex; justify-content: space-around; align-items: center;">
+  <img src="https://github.com/user-attachments/assets/0b10c063-6351-4ec4-95b5-81871220cc50" alt="Able to like a post" width="150">
+  <img src="https://github.com/user-attachments/assets/7e041b15-02a8-47e7-9fe7-4d719dfc3dc5" alt="If already add friend" width="150">
+  <img src="https://github.com/user-attachments/assets/3c0bfe26-ab36-481e-b7a6-38c311c75253" alt="If my own post" width="150">
+</div>
 
-Friend Page
-![image](https://github.com/user-attachments/assets/a763de24-4b7c-411d-99c2-c2d4d36d26e2)
-![image](https://github.com/user-attachments/assets/0c52206e-4a26-46a2-a490-2422101a9956)
 
-Profile Page
-![image](https://github.com/user-attachments/assets/fd6b740c-444d-4615-9596-ae248c6999b4)
-View Avatar
-![image](https://github.com/user-attachments/assets/5ca23ab0-0ace-4f4c-b7a8-83610dea3407)
-Change name
-![image](https://github.com/user-attachments/assets/867ec0cf-467c-4f1d-b713-7d7231a70c57)
-Change Avatar
-![image](https://github.com/user-attachments/assets/93d9db40-eb1c-49c1-bdfc-c7668b2f055a)
+## Friend Page
+<div style="display: flex; justify-content: space-around; align-items: center;">
+  <img src="https://github.com/user-attachments/assets/a763de24-4b7c-411d-99c2-c2d4d36d26e2" alt="Friend Page 1" width="150">
+  <img src="https://github.com/user-attachments/assets/0c52206e-4a26-46a2-a490-2422101a9956" alt="Friend Page 2" width="150">
+</div>
+
+
+
+## Profile Page
+<div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+  <img src="https://github.com/user-attachments/assets/fd6b740c-444d-4615-9596-ae248c6999b4" alt="Profile Page" width="150">
+  <img src="https://github.com/user-attachments/assets/5ca23ab0-0ace-4f4c-b7a8-83610dea3407" alt="View Avatar" width="150">
+  <img src="https://github.com/user-attachments/assets/867ec0cf-467c-4f1d-b713-7d7231a70c57" alt="Change name" width="150">
+  <img src="https://github.com/user-attachments/assets/93d9db40-eb1c-49c1-bdfc-c7668b2f055a" alt="Change Avatar" width="150">
+</div>
+
+
 
 
 ## 🚀 Getting Started
