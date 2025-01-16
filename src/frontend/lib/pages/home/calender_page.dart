@@ -3,17 +3,16 @@ library event_calendar;
 import 'dart:math';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:avatar_plus/avatar_plus.dart';
 
 import '../../provider/calender_time_provider.dart';
 import '../../services/django/api_service.dart';
