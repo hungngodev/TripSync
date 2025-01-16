@@ -35,6 +35,7 @@ https://github.com/user-attachments/assets/66b05a25-06c4-4607-9afa-9a04abb33df6
 
 - But after create some calendar:
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+    <img width="200" alt="image" src="https://github.com/user-attachments/assets/2ecb071b-a813-4e65-b9d0-37b91bf39925" />
     <img src="https://github.com/user-attachments/assets/09e2d144-bf4e-486d-a8f3-0cca0df3109c" alt="Home Screen New User" width="200">
     <img src="https://github.com/user-attachments/assets/53237bae-1a37-44e4-a52d-2f947f5be04d" alt="Home Screen with Calendars" width="200">
 </div>
