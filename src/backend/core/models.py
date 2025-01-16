@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.timezone import now
+
 
 class Activity(models.Model):
     CATEGORY_CHOICES = [
@@ -41,7 +43,7 @@ class ChosenActivityManager(models.Manager):
             user_id=user_id,
             start_date__isnull=False,
             calendar_id__isnull=False,
-            start_date__date=datetime.now().date(),
+            start_date__date__gte=datetime.now().date(), 
         ).select_related('activity')
 
 
