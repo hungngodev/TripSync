@@ -52,6 +52,34 @@ Today Page
 
 
 Calendar Page
+![image](https://github.com/user-attachments/assets/934e4a26-ad0d-42e6-95a2-7a401b80ffc7)
+![image](https://github.com/user-attachments/assets/d689208f-0738-4f4e-9b34-70ff0b972968)
+![image](https://github.com/user-attachments/assets/d63e537b-d6ef-442e-ad2e-28d133bb2df1)
+![image](https://github.com/user-attachments/assets/59a06243-c158-431c-b97e-2c2d12a496b5)
+![image](https://github.com/user-attachments/assets/d8e50427-7ccf-468b-9a68-2cd933df74d6)
+![image](https://github.com/user-attachments/assets/dd328c90-3228-4162-82e7-5dd4f6e1e73f)
+
+Community Page
+Able to like a post
+![image](https://github.com/user-attachments/assets/0b10c063-6351-4ec4-95b5-81871220cc50)
+If already add friend
+![image](https://github.com/user-attachments/assets/7e041b15-02a8-47e7-9fe7-4d719dfc3dc5)
+If my own post
+![image](https://github.com/user-attachments/assets/3c0bfe26-ab36-481e-b7a6-38c311c75253)
+
+Friend Page
+![image](https://github.com/user-attachments/assets/a763de24-4b7c-411d-99c2-c2d4d36d26e2)
+![image](https://github.com/user-attachments/assets/0c52206e-4a26-46a2-a490-2422101a9956)
+
+Profile Page
+![image](https://github.com/user-attachments/assets/fd6b740c-444d-4615-9596-ae248c6999b4)
+View Avatar
+![image](https://github.com/user-attachments/assets/5ca23ab0-0ace-4f4c-b7a8-83610dea3407)
+Change name
+![image](https://github.com/user-attachments/assets/867ec0cf-467c-4f1d-b713-7d7231a70c57)
+Change Avatar
+![image](https://github.com/user-attachments/assets/93d9db40-eb1c-49c1-bdfc-c7668b2f055a)
+
 
 ## 🚀 Getting Started
 
